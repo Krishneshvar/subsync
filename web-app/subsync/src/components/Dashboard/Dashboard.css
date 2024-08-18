@@ -1,0 +1,14 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+}
+
+.contents {
+    flex: 1;
+}

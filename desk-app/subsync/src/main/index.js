@@ -6,6 +6,7 @@ import icon from '../../resources/icon.png?asset'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    title: 'SubSync',
     width: 900,
     height: 670,
     show: false,

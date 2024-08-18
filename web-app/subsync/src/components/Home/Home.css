@@ -1,0 +1,15 @@
+.gist {
+    /* padding: 1rem; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 50dvh;
+}
+
+.home-comps {
+    padding: 1rem;
+}
+
+.greeting {
+    min-height: 10dvh;
+}
