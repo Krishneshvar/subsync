@@ -1,13 +1,14 @@
-import electronLogo from './assets/electron.svg'
+import './App.css'
+import Login from './components/AuthForm/Login'
 
 function App() {
-
-  return (
+  return(
     <>
-      <h1>Hello</h1>
+      <div className='login-form'>
+        <Login />
+      </div>
     </>
   )
 }
 
 export default App
-
