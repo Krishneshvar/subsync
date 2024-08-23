@@ -1,4 +1,4 @@
-import './App.css'
+import './assets/App.css'
 import Login from './components/AuthForm/Login'
 
 function App() {

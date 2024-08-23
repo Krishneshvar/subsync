@@ -14,3 +14,14 @@ const db = new pg.Client({
 });
 
 db.connect();
+
+async function getLoginValidation(usrname, pass) {
+  const passwd = await db.query(
+    "SELECT password FROM users WHERE username = $1",
+    [usrname]
+  );
+
+  return pass == passwd;
+}
+
+export { getLoginValidation }
