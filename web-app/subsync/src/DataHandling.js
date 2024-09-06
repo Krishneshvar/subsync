@@ -20,7 +20,7 @@ async function getLoginValidation(usrname, pass) {
     "SELECT password FROM users WHERE username = $1",
     [usrname]
   );
-
+  
   return pass == passwd;
 }
 
