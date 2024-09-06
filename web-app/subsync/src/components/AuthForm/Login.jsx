@@ -1,11 +1,9 @@
-import { getLoginValidation } from '../../DataHandling'
 import './Login.css'
 
 function Login() {
   return (
     <>
     <form class="form">
-      <div><h1 className='d-flex justify-content-center'> Log in </h1></div>
       <div class="flex-column">
         <label> Email </label>
       </div>
@@ -32,7 +30,7 @@ function Login() {
         <span class="span">Forgot password?</span>
       </div>
 
-      <button class="button-submit" onClick={getLoginValidation()}>Log In</button>
+      <button class="button-submit">Log In</button>
     </form>
     </>
   )

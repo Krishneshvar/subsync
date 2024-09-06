@@ -1,3 +1,5 @@
+
+
 .form {
   display: flex;
   flex-direction: column;
@@ -73,7 +75,6 @@
 
 .button-submit {
   margin: 20px 0 10px 0;
-  background-color: #151717;
   border: none;
   color: white;
   font-size: 15px;
@@ -82,6 +83,17 @@
   height: 50px;
   width: 100%;
   cursor: pointer;
+  transition: 400ms;
+  gap: 15px;
+  background-color: #007ACC;
+  outline: 3px #007ACC solid;
+  outline-offset: -3px;
+  border-radius: 5px;
+}
+
+.button-submit:hover{
+  background-color: transparent;
+  color: #007ACC;
 }
 
 .p {
