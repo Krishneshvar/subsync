@@ -8,7 +8,7 @@ function Warnings() {
         <table>
           <thead>
             <tr>
-              <th colspan="100%" className='warnings'> Warnings </th>
+              <th colSpan="100%" className='warnings'> Warnings </th>
             </tr>
           </thead>
           <thead>
@@ -33,13 +33,13 @@ function Warnings() {
               <td> Some </td>
               <td> Some </td>
               <td>
-                <span class="material-symbols-outlined">
+                <span className="material-symbols-outlined">
                   keyboard_arrow_down
                 </span>
               </td>
             </tr>
           </tbody>
-          <tfoot><tr><td colspan="100%"></td></tr></tfoot>
+          <tfoot><tr><td colSpan="100%"></td></tr></tfoot>
         </table>
       </div>
     </>

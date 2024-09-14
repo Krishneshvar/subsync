@@ -5,7 +5,7 @@ function Navbar() {
     return (
       <>
         <nav className="nav">
-          <div className='logo'> Logo </div>
+          <div className='logo'></div>
           <div>
             <ul className='navlist'>
               <li className='navitem material-symbols-outlined'>
