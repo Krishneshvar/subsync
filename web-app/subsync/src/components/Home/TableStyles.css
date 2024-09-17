@@ -1,49 +1,74 @@
+/* General Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
     table-layout: auto;
 }
-
-tbody {
-    background-color: lightgray;
+.reminder-icon {
+    color: #ffeb3b; /* Mustard Yellow */
+    font-size: 24px; /* Adjust size as needed */
+}
+.warning-icon {
+    color: #f44336; /* Red */
+    font-size: 24px; /* Adjust size as needed */
 }
 
-tfoot td{
-    background-color: lightgray;
-    border-radius: 0 0 1rem 1rem;
+tbody {
+    background-color: rgb(255, 252, 252); /* Light background for table body */
+}
+
+tfoot td {
+    background-color: rgb(255, 255, 255); /* White background for footer */
+    border-radius: 0 0 1rem 1rem; /* Rounded bottom corners */
 }
 
 th, td {
     padding: 1rem;
     text-align: left;
-    word-wrap: break-word;
+    word-wrap: break-word; /* Wrap text if necessary */
+
 }
 
+th{
+    border: 1px solid black; /* Solid border for cells */
+
+}
 td {
     white-space: normal;
 }
 
 .reminders-table, .warnings-table {
-    min-height: 15dvh;
+    min-height: 15vh; 
+    border-radius: 1rem; /* Rounded corners for the tables */
+    overflow: hidden; /* Ensure that the rounded corners are visible */
 }
 
-.reminders-table thead tr {
-    background-color: rgb(230, 230, 230);
+thead tr {
+    background-color: rgb(230, 230, 230); /* Light gray background for headers */
 }
 
-.reminders {
-    background-color: #ffc108;
+.reminders-table thead tr, .warnings-table thead tr {
+    background-color: rgb(101, 215, 243); /* Gray background for table headers */
 }
 
-.warnings-table thead tr {
-    background-color: rgb(230, 230, 230);
+.reminders-table tbody, .warnings-table tbody {
+    border-radius: 0 0 1rem 1rem; /* Rounded bottom corners for body */
 }
 
-.warnings {
-    background-color: #db3545;
-}
-
-.reminders, .warnings {
+.reminders-table .reminders, .warnings-table .warnings {
     text-align: center;
-    border-radius: 1rem 1rem 0 0;
+    border-radius: 1rem 1rem 0 0; /* Rounded top corners */
 }
+
+.reminders-table tbody {
+    background-color: #f1f1f1; /* Light blue background for reminders table body */
+}
+
+.warnings-table tbody {
+    background-color: #aaaaaa; /* Gray background for warnings table body */
+}
+
+tfoot td {
+    border-radius: 0 0 1rem 1rem; /* Ensure footer cells have rounded corners at bottom */
+}
+

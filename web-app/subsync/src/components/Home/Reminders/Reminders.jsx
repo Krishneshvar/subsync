@@ -7,7 +7,9 @@ function Reminders() {
         <table>
           <thead>
             <tr>
-              <th colSpan="100%" className='reminders'> Reminders </th>
+              <th colSpan="100%" className='reminders' >           <i class="fas fa-bell reminder-icon" title="Reminder"></i>
+
+              Reminders </th>
             </tr>
           </thead>
           <thead>

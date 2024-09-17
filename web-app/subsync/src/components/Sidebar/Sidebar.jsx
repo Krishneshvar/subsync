@@ -1,14 +1,13 @@
 import './Sidebar.css'
 
 function Sidebar() {
-
-return (
+  return (
     <>
       <div className='sidebar'>
         <div className='top'>
-          <div> Sidebar </div>
+          <div>SubSync</div>
           <div>
-            <span class="material-symbols-outlined move-sidebar">
+            <span className="material-symbols-outlined move-sidebar">
               dock_to_right
             </span>
           </div>
@@ -16,22 +15,22 @@ return (
         <div className='menu'>
           <ul className='side-list'>
             <li className='side-item'>
-              <span id="icon" class="material-symbols-outlined">
+              <span className="material-symbols-outlined icon">
                 home
               </span>
-              <span id="title"> Home </span>
-              </li>
-            <li className='side-item'>
-              <span id="icon" class="material-symbols-outlined">
-                groups
-              </span>
-              <span id="title"> Customers </span>
+              <span className="title">Home</span>
             </li>
             <li className='side-item'>
-              <span id="icon" class="material-symbols-outlined">
+              <span className="material-symbols-outlined icon">
+                groups
+              </span>
+              <span className="title">Customers</span>
+            </li>
+            <li className='side-item'>
+              <span className="material-symbols-outlined icon">
                 subscriptions
               </span>
-              <span id="title"> Subscriptions </span>
+              <span className="title">Subscriptions</span>
             </li>
           </ul>
         </div>

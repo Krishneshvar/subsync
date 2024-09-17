@@ -1,4 +1,4 @@
-import './home.css'
+import './Home.css'
 import Reminders from './Reminders/Reminders'
 import Warnings from './Warnings/Warnings'
 
@@ -13,6 +13,7 @@ function Home() {
         <div className='home-comps'>
           <Reminders />
         </div>
+        <br />
         <div className='home-comps'>
           <Warnings />
         </div>      

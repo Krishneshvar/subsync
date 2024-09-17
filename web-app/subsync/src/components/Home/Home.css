@@ -1,15 +1,27 @@
+/* General Styles */
 .gist {
-    /* padding: 1rem; */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 50dvh;
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    min-height: 100vh; /* Ensure the content takes full viewport height */
+    padding: 2rem;
+    background-color: #f4f4f4; /* Light background color for contrast */
 }
 
 .home-comps {
-    padding: 1rem;
+    width: 100%; /* Full width of its container */
+    max-width: 1200px; /* Maximum width to keep the content readable */
+    background-color: #fff; /* White background for components */
+    border-radius: 8px; /* Rounded corners for a modern look */
+    margin-bottom: 1.5rem; /* Space between components */
+    padding: 1.5rem; /* Padding inside components */
 }
 
+
 .greeting {
-    min-height: 10dvh;
+    font-size: 2rem; /* Larger font size for the greeting */
+    font-weight: bold; /* Bold text for emphasis */
+    color: #333; /* Darker text color for better readability */
+    margin-bottom: 1rem; /* Space below the heading */
 }

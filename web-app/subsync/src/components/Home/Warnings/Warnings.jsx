@@ -8,7 +8,9 @@ function Warnings() {
         <table>
           <thead>
             <tr>
-              <th colSpan="100%" className='warnings'> Warnings </th>
+              <th colSpan="100%" className='warnings'>                <i class="fas fa-exclamation-triangle warning-icon" title="Warning"></i>
+
+              Warnings </th>
             </tr>
           </thead>
           <thead>
