@@ -6,7 +6,6 @@
     justify-content: center; /* Center items vertically */
     min-height: 100vh; /* Ensure the content takes full viewport height */
     padding: 2rem;
-    background-color: #f4f4f4; /* Light background color for contrast */
 }
 
 .home-comps {
