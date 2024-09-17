@@ -2,11 +2,12 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 1rem;
     padding: 1rem;
-    height: 100vh; /* Use 100vh for viewport height */
+    height: 150vh; /* Use 100vh for viewport height */
     width: 250px;
     background-color: #39a0e4;
     color: rgb(0, 0, 0);
     position: relative; /* Ensure relative positioning for absolute children */
+    overflow: hidden ;
 }
 
 .top {
