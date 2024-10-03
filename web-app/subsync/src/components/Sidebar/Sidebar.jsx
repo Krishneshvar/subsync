@@ -28,6 +28,12 @@ function Sidebar() {
             </li>
             <li className='side-item'>
               <span className="material-symbols-outlined icon">
+                shop
+              </span>
+              <span className="title">Products</span>
+            </li>
+            <li className='side-item'>
+              <span className="material-symbols-outlined icon">
                 subscriptions
               </span>
               <span className="title">Subscriptions</span>
