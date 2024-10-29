@@ -3,6 +3,8 @@ import './Customers.css'
 function Customers() {
     return(
         <>
+        <div className="manage-cust">
+        </div>
         </>
     )
 }

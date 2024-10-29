@@ -1,4 +1,5 @@
 import './Sidebar.css'
+import { Link } from 'react-router-dom'
 
 function Sidebar() {
   return (
@@ -14,30 +15,38 @@ function Sidebar() {
         </div>
         <div className='menu'>
           <ul className='side-list'>
-            <li className='side-item'>
-              <span className="material-symbols-outlined icon">
-                home
-              </span>
-              <span className="title">Home</span>
-            </li>
-            <li className='side-item'>
-              <span className="material-symbols-outlined icon">
-                groups
-              </span>
-              <span className="title">Customers</span>
-            </li>
-            <li className='side-item'>
-              <span className="material-symbols-outlined icon">
-                shop
-              </span>
-              <span className="title">Products</span>
-            </li>
-            <li className='side-item'>
-              <span className="material-symbols-outlined icon">
-                subscriptions
-              </span>
-              <span className="title">Subscriptions</span>
-            </li>
+            <Link to='/'>
+              <li className='side-item'>
+                <span className="material-symbols-outlined icon">
+                  home
+                </span>
+                <span className="title">Home</span>
+              </li>
+            </Link>
+            <Link to='/customers'>
+              <li className='side-item'>
+                <span className="material-symbols-outlined icon">
+                  groups
+                </span>
+                <span className="title">Customers</span>
+              </li>
+            </Link>
+            <Link to='/products'>
+              <li className='side-item'>
+                <span className="material-symbols-outlined icon">
+                  shop
+                </span>
+                <span className="title">Products</span>
+              </li>
+            </Link>
+            <Link to='/subscriptions'>
+              <li className='side-item'>
+                <span className="material-symbols-outlined icon">
+                  subscriptions
+                </span>
+                <span className="title">Subscriptions</span>
+              </li>
+            </Link>
           </ul>
         </div>
       </div>
