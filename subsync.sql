@@ -2,7 +2,7 @@
 CREATE DATABASE subsync;
 
 -- Connect to the subsync database
-use subsync;
+USE subsync;
 
 -- Create the Customers table
 CREATE TABLE customers (
@@ -18,7 +18,7 @@ CREATE TABLE customers (
 -- Create the Services table
 CREATE TABLE services (
     sid SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    sname VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     price DECIMAL(10, 2) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE subscriptions (
     amount DECIMAL(10, 2) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status VARCHAR(20) CHECK (status IN ('active', 'expired', 'canceled')),
+    status VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -43,7 +43,7 @@ CREATE TABLE reminders (
     rid SERIAL PRIMARY KEY,
     subscription_id INT REFERENCES subscriptions(sub_id) ON DELETE CASCADE,
     reminder_date DATE NOT NULL,
-    status VARCHAR(20) CHECK (status IN ('sent', 'pending')),
+    status VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
