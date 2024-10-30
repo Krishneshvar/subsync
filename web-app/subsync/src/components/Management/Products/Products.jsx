@@ -3,6 +3,7 @@ import './Products.css'
 function Products() {
     return(
         <>
+        Products
         </>
     )
 }

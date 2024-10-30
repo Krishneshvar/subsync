@@ -4,6 +4,7 @@ function Customers() {
     return(
         <>
         <div className="manage-cust">
+            Customers
         </div>
         </>
     )

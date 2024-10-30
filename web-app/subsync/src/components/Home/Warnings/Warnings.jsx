@@ -1,6 +1,7 @@
 import '../TableStyles.css'
 
 function Warnings() {
+  const headers = ['Name', 'Domain', 'Subscriptions', 'Renewal date', 'Client since', 'Products', 'License usage', '', ];
 
   return (
     <>
@@ -8,21 +9,23 @@ function Warnings() {
         <table>
           <thead>
             <tr>
-              <th colSpan="100%" className='warnings'>                <i class="fas fa-exclamation-triangle warning-icon" title="Warning"></i>
-
-              Warnings </th>
+              <th colSpan="100%" className='warnings'>
+                <i class="fas fa-exclamation-triangle warning-icon" title="Warning"></i>
+                Warnings
+              </th>
             </tr>
           </thead>
           <thead>
             <tr>
-              <th> Name </th>
-              <th> Domain </th>
-              <th> Subscriptions </th>
-              <th> Renewal date </th>
-              <th> Client since </th>
-              <th> Products </th>
-              <th> License usage </th>
-              <th></th>
+              {
+                (() => {
+                  const headerElements = [];
+                  for (let i = 0; i < headers.length; i++) {
+                    headerElements.push(<th key={i}>{headers[i]}</th>);
+                  }
+                  return headerElements;
+                })()
+              }
             </tr>
           </thead>
           <tbody>
@@ -41,7 +44,6 @@ function Warnings() {
               </td>
             </tr>
           </tbody>
-          <tfoot><tr><td colSpan="100%"></td></tr></tfoot>
         </table>
       </div>
     </>

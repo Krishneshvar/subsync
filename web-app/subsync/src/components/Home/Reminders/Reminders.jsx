@@ -1,27 +1,31 @@
 import '../TableStyles.css'
 
 function Reminders() {
+  const headers = ['Name', 'Domain', 'Subscriptions', 'Renewal date', 'Client since', 'Products', 'License usage', '', ];
+
   return (
     <>
       <div className='reminders-table'>
         <table>
           <thead>
             <tr>
-              <th colSpan="100%" className='reminders' >           <i class="fas fa-bell reminder-icon" title="Reminder"></i>
-
-              Reminders </th>
+              <th colSpan="100%" className='reminders'>
+                <i class="fas fa-bell reminder-icon" title="Reminder"></i>
+                Reminders
+              </th>
             </tr>
           </thead>
           <thead>
             <tr>
-              <th> Name </th>
-              <th> Domain </th>
-              <th> Subscriptions </th>
-              <th> Renewal date </th>
-              <th> Client since </th>
-              <th> Products </th>
-              <th> License usage </th>
-              <th></th>
+              {
+                (() => {
+                  const headerElements = [];
+                  for (let i = 0; i < headers.length; i++) {
+                    headerElements.push(<th key={i}>{headers[i]}</th>);
+                  }
+                  return headerElements;
+                })()
+              }
             </tr>
           </thead>
           <tbody>
@@ -40,7 +44,6 @@ function Reminders() {
               </td>
             </tr>
           </tbody>
-          <tfoot><tr><td colSpan="100%"></td></tr></tfoot>
         </table>
       </div>
     </>

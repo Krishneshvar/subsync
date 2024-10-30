@@ -1,26 +1,19 @@
-/* General Styles */
 .gist {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center items horizontally */
-    justify-content: center; /* Center items vertically */
-    min-height: 100vh; /* Ensure the content takes full viewport height */
-    padding: 2rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
 }
 
 .home-comps {
-    width: 100%; /* Full width of its container */
-    max-width: 1200px; /* Maximum width to keep the content readable */
-    background-color: #fff; /* White background for components */
-    border-radius: 8px; /* Rounded corners for a modern look */
-    margin-bottom: 1.5rem; /* Space between components */
-    padding: 1.5rem; /* Padding inside components */
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
 }
 
-
 .greeting {
-    font-size: 2rem; /* Larger font size for the greeting */
-    font-weight: bold; /* Bold text for emphasis */
-    color: #333; /* Darker text color for better readability */
-    margin-bottom: 1rem; /* Space below the heading */
+    font-size: 2rem;
+    font-weight: bold;
 }

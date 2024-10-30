@@ -3,10 +3,10 @@ import './Sidebar.css';
 import { Link } from 'react-router-dom';
 
 const sidebarItems = [
-  { path: '/', title: 'Home', icon: 'home' },
-  { path: '/customers', title: 'Customers', icon: 'groups' },
-  { path: '/products', title: 'Products', icon: 'shop' },
-  { path: '/subscriptions', title: 'Subscriptions', icon: 'subscriptions' },
+  { path: '/dashboard', title: 'Home', icon: 'home' },
+  { path: '/dashboard/customers', title: 'Customers', icon: 'groups' },
+  { path: '/dashboard/products', title: 'Products', icon: 'shop' },
+  { path: '/dashboard/subscriptions', title: 'Subscriptions', icon: 'subscriptions' },
 ];
 
 function Sidebar() {
