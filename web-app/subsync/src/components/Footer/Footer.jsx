@@ -1,16 +1,19 @@
-import './Footer.css'
+import React from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
+import './Footer.css';
 
 function Footer() {
-
   const currYear = new Date().getFullYear();
 
-    return (
-      <>
-        <footer className="foot d-flex align-items-center justify-content-center p-1 bg-dark text-light">
-          &copy; {currYear}
-        </footer>
-      </>
-    )
+  return (
+    <Container fluid as="footer" className="footer bg-dark text-light py-2">
+      <Row className="justify-content-center">
+        <Col md="auto" className="text-center">
+          &copy; {currYear} SubSync
+        </Col>
+      </Row>
+    </Container>
+  );
 }
 
-export default Footer
+export default Footer;

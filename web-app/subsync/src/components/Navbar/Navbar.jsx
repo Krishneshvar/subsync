@@ -1,3 +1,5 @@
+import React from 'react';
+import { Navbar, Container, Nav } from 'react-bootstrap';
 import './Navbar.css';
 
 const navItems = [
@@ -6,23 +8,23 @@ const navItems = [
   { icon: 'account_circle', key: 'account_circle' },
 ];
 
-function Navbar() {
+function AppNavbar() {
   return (
-    <nav className="nav">
-      <div className='logo'></div>
-      <div>
-        <ul className='navlist'>
-          {
-            navItems.map((item) => (
-              <li key={item.key} className={'navitem material-symbols-outlined'}>
+    <Navbar bg="white" expand="lg" className="shadow-sm rounded-bottom nav">
+      <Container fluid>
+        <Navbar.Brand href="#" className="logo" />
+        <Nav className="ms-auto">
+          <ul className="navlist">
+            {navItems.map((item) => (
+              <li key={item.key} className="navitem material-symbols-outlined">
                 {item.icon}
               </li>
-            ))
-          }
-        </ul>
-      </div>
-    </nav>
+            ))}
+          </ul>
+        </Nav>
+      </Container>
+    </Navbar>
   );
 }
 
-export default Navbar
+export default AppNavbar;
