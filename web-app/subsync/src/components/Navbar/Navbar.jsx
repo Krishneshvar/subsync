@@ -1,27 +1,28 @@
-import './Navbar.css'
+import './Navbar.css';
+
+const navItems = [
+  { icon: 'help', key: 'help' },
+  { icon: 'notifications', key: 'notifications' },
+  { icon: 'account_circle', key: 'account_circle' },
+];
 
 function Navbar() {
-
-    return (
-      <>
-        <nav className="nav">
-          <div className='logo'></div>
-          <div>
-            <ul className='navlist'>
-              <li className='navitem material-symbols-outlined'>
-                help
+  return (
+    <nav className="nav">
+      <div className='logo'></div>
+      <div>
+        <ul className='navlist'>
+          {
+            navItems.map((item) => (
+              <li key={item.key} className={'navitem material-symbols-outlined'}>
+                {item.icon}
               </li>
-              <li className='navitem material-symbols-outlined'>
-                notifications
-              </li>
-              <li className='navitem material-symbols-outlined'>
-                account_circle
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </>
-    )
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
+  );
 }
 
 export default Navbar

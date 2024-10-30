@@ -10,9 +10,7 @@
     transition: width 0.3s;
 }
 
-.sidebar.collapsed {
-    width: 4rem;
-}
+.sidebar.collapsed { width: 4rem; }
 
 .top {
     display: flex;
@@ -38,6 +36,8 @@
     color: white;
     padding: 1rem;
     border-radius: 0.5rem;
+    text-decoration: none;
+    list-style: none;
 }
 
 .collapsed-side-item {
@@ -60,8 +60,4 @@
 .title {
     flex: 70%;
     transition: opacity 0.3s;
-}
-
-.sidebar.collapsed .title {
-    display: none;
 }
