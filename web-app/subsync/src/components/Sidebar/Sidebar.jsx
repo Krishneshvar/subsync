@@ -1,57 +1,53 @@
-import './Sidebar.css'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import './Sidebar.css';
+import { Link } from 'react-router-dom';
+
+const sidebarItems = [
+  { path: '/', title: 'Home', icon: 'home' },
+  { path: '/customers', title: 'Customers', icon: 'groups' },
+  { path: '/products', title: 'Products', icon: 'shop' },
+  { path: '/subscriptions', title: 'Subscriptions', icon: 'subscriptions' },
+];
 
 function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <>
-      <div className='sidebar'>
-        <div className='top'>
-          <div>SubSync</div>
-          <div>
-            <span className="material-symbols-outlined move-sidebar">
-              dock_to_right
-            </span>
-          </div>
-        </div>
-        <div className='menu'>
-          <ul className='side-list'>
-            <Link to='/'>
-              <li className='side-item'>
-                <span className="material-symbols-outlined icon">
-                  home
-                </span>
-                <span className="title">Home</span>
-              </li>
-            </Link>
-            <Link to='/customers'>
-              <li className='side-item'>
-                <span className="material-symbols-outlined icon">
-                  groups
-                </span>
-                <span className="title">Customers</span>
-              </li>
-            </Link>
-            <Link to='/products'>
-              <li className='side-item'>
-                <span className="material-symbols-outlined icon">
-                  shop
-                </span>
-                <span className="title">Products</span>
-              </li>
-            </Link>
-            <Link to='/subscriptions'>
-              <li className='side-item'>
-                <span className="material-symbols-outlined icon">
-                  subscriptions
-                </span>
-                <span className="title">Subscriptions</span>
-              </li>
-            </Link>
-          </ul>
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <div className='top'>
+        {
+          isCollapsed ? null : <div>SubSync</div>
+        }
+        <div onClick={toggleSidebar}>
+          <span className="material-symbols-outlined move-sidebar">
+            dock_to_right
+          </span>
         </div>
       </div>
-    </>
-  )
+      <div className='menu'>
+        <ul className='side-list'>
+          {
+            sidebarItems.map((item) => (
+              <Link key={item.path} to={item.path}>
+                <li className={`side-item ${isCollapsed ? 'collapsed-side-item' : ''}`}>
+                  <span className="material-symbols-outlined icon">
+                    {item.icon}
+                  </span>
+                  {
+                    isCollapsed ? null : <span className="title">{item.title}</span>
+                  }
+                </li>
+              </Link>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 export default Sidebar
