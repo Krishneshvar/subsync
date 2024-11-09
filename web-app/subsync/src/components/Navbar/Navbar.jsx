@@ -10,7 +10,7 @@ const navItems = [
 
 function AppNavbar() {
   return (
-    <Navbar bg="white" expand="lg" className="shadow-sm rounded-bottom nav">
+    <Navbar bg="white" expand="lg" className="shadow-sm rounded-bottom nav w-full">
       <Container fluid>
         <Navbar.Brand href="#" className="logo" />
         <Nav className="ms-auto">

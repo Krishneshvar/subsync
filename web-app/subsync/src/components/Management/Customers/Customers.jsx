@@ -1,10 +1,12 @@
 import './Customers.css'
+import axios from 'axios';
 
 function Customers() {
+
     return(
         <>
-        <div className="manage-cust">
-            Customers
+        <div className="">
+            .
         </div>
         </>
     )

@@ -10,7 +10,7 @@ function Warnings() {
           <thead>
             <tr>
               <th colSpan="100%" className='warnings'>
-                <i class="fas fa-exclamation-triangle warning-icon" title="Warning"></i>
+                <i className="fas fa-exclamation-triangle warning-icon" title="Warning"></i>
                 Warnings
               </th>
             </tr>
