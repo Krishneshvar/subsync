@@ -1,12 +1,13 @@
-import { checkLogin } from "../models/loginModel.js";
+import { checkLogin } from '../models/loginModel.js';
 
 const validateLogin = async (req, res) => {
-    const { user_id, password } = req.body;
+    const { username, password } = req.body;
 
     try {
-        const validation = await checkLogin(user_id, password);
+        const valid = await checkLogin(username, password);
 
-        if (validation === 1) {
+        if (valid) {
+            req.session.username = username; // Store username in session
             return res.status(200).json({ success: true, message: "Validation successful." });
         }
         else {
@@ -14,6 +15,7 @@ const validateLogin = async (req, res) => {
         }
     }
     catch (error) {
+        console.error("Error during login validation:", error);
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };

@@ -9,7 +9,7 @@ CREATE TABLE customers (
     cid SERIAL PRIMARY KEY,
     cname VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(20),
+    phone VARCHAR(10) UNIQUE,
     address TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -20,8 +20,9 @@ CREATE TABLE services (
     sid SERIAL PRIMARY KEY,
     sname VARCHAR(255) NOT NULL,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    validity INTEGER NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
@@ -32,10 +33,8 @@ CREATE TABLE subscriptions (
     service_id INT REFERENCES services(sid) ON DELETE CASCADE,
     amount DECIMAL(10, 2) NOT NULL,
     start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    status VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    end_date TIMESTAMP NOT NULL,
+    status VARCHAR(16)
 );
 
 -- Create the Reminders table

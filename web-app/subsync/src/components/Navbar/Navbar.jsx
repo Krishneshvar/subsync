@@ -15,11 +15,13 @@ function AppNavbar() {
         <Navbar.Brand href="#" className="logo" />
         <Nav className="ms-auto">
           <ul className="navlist">
-            {navItems.map((item) => (
-              <li key={item.key} className="navitem material-symbols-outlined">
-                {item.icon}
-              </li>
-            ))}
+            {
+              navItems.map((item) => (
+                <li key={item.key} className="navitem material-symbols-outlined">
+                  {item.icon}
+                </li>
+              ))
+            }
           </ul>
         </Nav>
       </Container>
