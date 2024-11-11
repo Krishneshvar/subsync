@@ -21,12 +21,11 @@ export default function Login() {
         // Send login request with credentials included
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/login/user`, 
             { username, password }, 
-            { withCredentials: true } // Include credentials (cookies)
+            //{ withCredentials: true } // Include credentials (cookies)
         );
 
         // Check if the response indicates success
         if (response.status === 200) {
-            // Navigate to the user's dashboard
             navigate(`/${username}/dashboard`);
         }
     }

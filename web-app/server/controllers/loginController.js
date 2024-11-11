@@ -7,7 +7,6 @@ const validateLogin = async (req, res) => {
         const valid = await checkLogin(username, password);
 
         if (valid) {
-            req.session.username = username; // Store username in session
             return res.status(200).json({ success: true, message: "Validation successful." });
         }
         else {

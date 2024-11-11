@@ -6,7 +6,7 @@ import Footer from '../Footer/Footer'
 
 export default function Dashboard() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-grow flex-col min-h-screen">
       <div className="flex flex-grow">
         <div className="w-16 flex-shrink-0">
           <Sidebar />
