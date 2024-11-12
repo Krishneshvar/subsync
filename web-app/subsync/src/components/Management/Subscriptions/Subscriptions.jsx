@@ -1,5 +1,3 @@
-import './Subscriptions.css'
-
 function Subscriptions() {
     return(
         <>
