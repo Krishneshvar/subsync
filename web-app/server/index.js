@@ -17,7 +17,6 @@ app.use(helmet());
 app.use(cors({
   origin: [
     `http://localhost:${process.env.CLIENT_PORT}`, `http://${process.env.HOME_IP}:${process.env.CLIENT_PORT}`,
-    `http://192.168.1.30:${process.env.CLIENT_PORT}`,
   ],
   methods: ['GET', 'POST'],
   credentials: true,
