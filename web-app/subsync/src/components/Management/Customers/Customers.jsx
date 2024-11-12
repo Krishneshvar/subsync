@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Table, Container, Alert, Spinner, Button, Stack } from 'react-bootstrap'
 import axios from 'axios'
 
@@ -6,7 +7,7 @@ export default function Customers() {
   const [customers, setCustomers] = useState([])
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("") // State for search term
+  const [searchTerm, setSearchTerm] = useState("")
 
   const headers = [
     { key: 'cid', label: 'ID' },
@@ -71,14 +72,11 @@ export default function Customers() {
           />
         </div>
         <div className="p-2 ms-auto">
-          <Button variant="primary" className="material-symbols-outlined">
-            person_add
-          </Button>
-        </div>
-        <div className="p-2">
-          <Button variant="primary" className="material-symbols-outlined">
-            manage_accounts
-          </Button>
+          <Link to="add">
+            <Button variant="primary" className="material-symbols-outlined p-2 rounded-full">
+              person_add
+            </Button>
+          </Link>
         </div>
       </Stack>
 
@@ -103,6 +101,11 @@ export default function Customers() {
                         <tr key={customer.cid}>
                             <td className="px-4 py-2 border-b">{customer.cid}</td>
                             <td className="px-4 py-2 border-b">{customer.cname}</td>
+                            <td className="px-4 py-2 border-b">
+                              {typeof customer.domains === 'string' ? 
+                                JSON.parse(customer.domains).join(', ') : 
+                                Array.isArray(customer.domains) ? customer.domains.join(', ') : 'N/A'}
+                            </td>
                             <td className="px-4 py-2 border-b">{customer.email}</td>
                             <td className="px-4 py-2 border-b">{customer.phone}</td>
                             <td className="px-4 py-2 border-b">{customer.address}</td>

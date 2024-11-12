@@ -1,4 +1,4 @@
-import { getCustomers } from "../models/customerModel.js";
+import { getCustomers, addCustomer } from "../models/customerModel.js";
 
 const getCustomersController = async (req, res) => {
     try {
@@ -20,4 +20,24 @@ const getCustomersController = async (req, res) => {
     }
 };
 
-export { getCustomersController };
+async function createCustomer(req, res) {
+    try {
+        // Extract form data and the uploaded file
+        const { customerName, email, phoneNumber, address, domains } = req.body;
+        const pfp = req.file;  // Handle profile picture if you plan to store it later
+        const domainArray = domains ? domains.split(',').map(domain => domain.trim()) : [];
+
+        const customer = { customerName, email, phoneNumber, address, domains: JSON.stringify(domainArray) }; // Include pfp only if you want to store it later
+        const success = await addCustomer(customer);
+
+        if (success) {
+            res.status(201).json({ message: "Customer added successfully!" });
+        } else {
+            res.status(400).json({ error: "Failed to add customer." });
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
+export { getCustomersController, createCustomer };

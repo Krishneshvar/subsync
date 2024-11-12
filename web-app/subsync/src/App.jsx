@@ -5,6 +5,7 @@ import Home from './components/Home/Home';
 import Customers from './components/Management/Customers/Customers';
 import Products from './components/Management/Products/Products';
 import Subscriptions from './components/Management/Subscriptions/Subscriptions';
+import AddCustomer from './components/Management/Customers/AddCustomer';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "customers", element: <Customers /> },
+      { path: "customers/add", element: <AddCustomer /> },
       { path: "products", element: <Products /> },
       { path: "subscriptions", element: <Subscriptions /> },
     ],

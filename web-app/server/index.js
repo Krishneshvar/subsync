@@ -1,11 +1,8 @@
 import express from 'express';
-import session from 'express-session';
-import MySQLStore from 'express-mysql-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
-import appDB from './db/subsyncDB.js';
 import router from './routes/appRoutes.js';
 
 dotenv.config();
@@ -29,11 +26,8 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
 });
 
-// Apply rate limiting to all requests
-app.use(limiter);
-
-// Route definitions
-app.use("/", router);
+app.use(limiter); // Apply rate limiting to all requests
+app.use("/", router); // Route definitions
 
 // Error handling middleware
 app.use((err, req, res, next) => {
