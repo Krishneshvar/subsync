@@ -11,4 +11,10 @@ async function getCustomers() {
     }
 }
 
-export { getCustomers };
+async function addCustomer(customer) {
+    const { name, email, phone, address } = customer;
+    const [result] = await appDB.query("INSERT INTO customers (cname, email, phone, address) VALUES (?, ?, ?, ?);", [name, email, phone, address]);
+    return result.affectedRows > 0;
+}
+
+export { getCustomers, addCustomer };
