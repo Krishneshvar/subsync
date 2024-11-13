@@ -2,20 +2,34 @@ import { getCustomers, addCustomer } from "../models/customerModel.js";
 
 const getCustomersController = async (req, res) => {
     try {
-        const customers = await getCustomers();
+        const { searchType, search, sort, order, page = 1 } = req.query;
+        const limit = 10; // Set your limit per page
+        const { customers, totalCount } = await getCustomers(searchType, search, sort, order, page, limit);
 
-        // Check if customers array is empty and handle it
         if (customers.length === 0) {
             return res.status(404).json({ message: "No customers found." });
         }
 
-        // Send the customers as a JSON response
-        res.status(200).json(customers);
-    }
-    catch (error) {
+        // Calculate total pages
+        const totalPages = Math.ceil(totalCount / limit);
+
+        // Set x-total-count header for frontend compatibility
+        res.set('x-total-count', totalCount);
+
+        // Send response with pagination metadata
+        res.status(200).json({
+            customers,
+            currentPage: parseInt(page, 10),
+            totalPages,
+            totalCount
+        });
+    } catch (error) {
         console.error("Error in getCustomersController:", error.message);
         
-        // Send a 500 Internal Server Error response
+        if (error.message.includes("Invalid")) {
+            return res.status(400).json({ message: error.message });
+        }
+
         res.status(500).json({ message: "Failed to retrieve customers. Please try again later." });
     }
 };

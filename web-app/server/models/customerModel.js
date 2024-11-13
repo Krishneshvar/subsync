@@ -1,14 +1,42 @@
 import appDB from "../db/subsyncDB.js";
 import getCurrentTime from "../middlewares/time.js";
 
-async function getCustomers() {
+async function getCustomers(searchType, search, sort, order, page = 1, limit = 10) {
     try {
-        const [rows] = await appDB.query("SELECT * FROM customers;");
-        return rows; // returns the array of customer records
-    }
-    catch (error) {
+        let baseQuery = "SELECT * FROM customers";
+        let countQuery = "SELECT COUNT(*) as totalCount FROM customers";
+        const queryParams = [];
+        const countParams = [];
+
+        // Dynamic filtering for both base query and count query
+        if (searchType && search) {
+            const filter = ` WHERE ${searchType} LIKE ?`;
+            baseQuery += filter;
+            countQuery += filter;
+            queryParams.push(`%${search}%`);
+            countParams.push(`%${search}%`);
+        }
+
+        // Dynamic sorting
+        if (sort && order) {
+            baseQuery += ` ORDER BY ${sort} ${order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}`;
+        }
+
+        // Pagination
+        const offset = (page - 1) * limit;
+        baseQuery += ` LIMIT ? OFFSET ?`;
+        queryParams.push(limit, offset);
+
+        console.log("Executing SQL query:", baseQuery); // Debug SQL query
+        console.log("With parameters:", queryParams); // Debug parameters
+
+        const [customers] = await appDB.query(baseQuery, queryParams);
+        const [[{ totalCount }]] = await appDB.query(countQuery, countParams);
+
+        return { customers, totalCount };
+    } catch (error) {
         console.error("Error fetching customers from database:", error.message);
-        throw new Error("Database query failed"); // Re-throw a generic error for the controller to handle
+        throw new Error("Database query failed");
     }
 }
 
