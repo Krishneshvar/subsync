@@ -6,7 +6,7 @@ import Warnings from './Warnings/Warnings'
 export default function Home() {
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-cyan-500 to-blue-500 text-primary-foreground">
+      <Card className="bg-gradient-to-l from-cyan-500 to-blue-500 text-primary-foreground">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
             Welcome Admin!

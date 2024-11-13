@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, ButtonGroup } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function CustomerPagination({ currentPage, setCurrentPage, totalPages }) {
@@ -12,22 +12,26 @@ export default function CustomerPagination({ currentPage, setCurrentPage, totalP
         </p>
       </div>
       <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-        <Button
-          onClick={() => setCurrentPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          variant="primary"
-          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        >
-          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-        </Button>
-        <Button
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          variant="primary"
-          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        >
-          <ChevronRight className="h-5 w-5" aria-hidden="true" />
-        </Button>
+        <ButtonGroup>
+          <Button
+            as={ButtonGroup}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            variant="primary"
+            className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 text-primary-foreground"
+          >
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+          </Button>
+          <Button
+            as={ButtonGroup}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            variant="primary"
+            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-primary-foreground"
+          >
+            <ChevronRight className="h-5 w-5" aria-hidden="true" />
+          </Button>
+        </ButtonGroup>
       </nav>
     </div>
   );
