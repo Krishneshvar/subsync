@@ -1,24 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import Sidebar from '../Sidebar/Sidebar'
-import Navbar from '../Navbar/Navbar'
+import SideBar from '../Navigations/Sidebar'
+import NavBar from '../Navigations/NavBar'
 import Footer from '../Footer/Footer'
 
 export default function Dashboard() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
   return (
-    <div className="flex flex-grow flex-col min-h-screen">
-      <div className="flex flex-grow">
-        <div className="w-16 flex-shrink-0">
-          <Sidebar />
-        </div>
-        <div className="flex flex-col flex-grow">
-          <Navbar />
-          <main className="flex-grow p-4">
-            <Outlet />
-          </main>
-        </div>
+    <div className="flex min-h-screen bg-gray-100">
+      <SideBar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <NavBar toggleSidebar={toggleSidebar} />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6 lg:p-8">
+          <Outlet />
+        </main>
+        <Footer />
       </div>
-      <Footer />
     </div>
   )
 }

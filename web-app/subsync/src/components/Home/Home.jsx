@@ -1,25 +1,22 @@
-import './Home.css'
+import React from 'react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import Reminders from './Reminders/Reminders'
 import Warnings from './Warnings/Warnings'
 
-function Home() {
-
+export default function Home() {
   return (
-    <>
-      <div className='gist'>
-        <div className='home-comps'>
-          <h1 className='greeting'> Welcome Admin! </h1>
-        </div>
-        <div className='home-comps'>
-          <Reminders />
-        </div>
-        <br />
-        <div className='home-comps'>
-          <Warnings />
-        </div>      
+    <div className="space-y-6">
+      <Card className="bg-gradient-to-r from-cyan-500 to-blue-500 text-primary-foreground">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">
+            Welcome Admin!
+          </CardTitle>
+        </CardHeader>
+      </Card>
+      <div className="flex flex-col gap-6">
+        <Reminders />
+        <Warnings />
       </div>
-    </>
+    </div>
   )
 }
-
-export default Home

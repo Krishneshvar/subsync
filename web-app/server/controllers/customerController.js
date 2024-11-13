@@ -1,4 +1,59 @@
 import { getCustomers, addCustomer } from "../models/customerModel.js";
+import multer from "multer";
+import path from "path";
+
+// Configure multer for image file uploads
+    const storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+        cb(null, 'uploads/profile_pictures'); // Set the folder for storing profile pictures
+        },
+        filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname); // Get the original file extension
+        cb(null, `${req.body.customerId}${ext}`); // Use customer ID as filename
+        }
+    });
+  
+  const fileFilter = (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  };
+  
+  const upload = multer({ storage, fileFilter });
+  
+  const createCustomer = async (req, res) => {
+    try {
+      upload.single('profilePicture')(req, res, async (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+  
+        const { customerName, email, phoneNumber, address, domains } = req.body;
+        const domainArray = domains ? domains.split(',').map(domain => domain.trim()) : [];
+        
+        // Assuming customerId is generated and available in the response (or query the DB for the inserted row)
+        const customer = {
+          customerName,
+          email,
+          phoneNumber,
+          address,
+          domains: JSON.stringify(domainArray),
+          profilePicture: req.file ? req.file.filename : null // Save filename if uploaded
+        };
+  
+        const success = await addCustomer(customer);
+        
+        if (success) {
+          res.status(201).json({ message: "Customer added successfully!" });
+        } else {
+          res.status(400).json({ error: "Failed to add customer." });
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+};
 
 const getCustomersController = async (req, res) => {
     try {
@@ -34,24 +89,4 @@ const getCustomersController = async (req, res) => {
     }
 };
 
-async function createCustomer(req, res) {
-    try {
-        // Extract form data and the uploaded file
-        const { customerName, email, phoneNumber, address, domains } = req.body;
-        const pfp = req.file;  // Handle profile picture if you plan to store it later
-        const domainArray = domains ? domains.split(',').map(domain => domain.trim()) : [];
-
-        const customer = { customerName, email, phoneNumber, address, domains: JSON.stringify(domainArray) }; // Include pfp only if you want to store it later
-        const success = await addCustomer(customer);
-
-        if (success) {
-            res.status(201).json({ message: "Customer added successfully!" });
-        } else {
-            res.status(400).json({ error: "Failed to add customer." });
-        }
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-}
-
-export { getCustomersController, createCustomer };
+export { getCustomersController, createCustomer, upload };
