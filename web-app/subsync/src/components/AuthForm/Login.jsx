@@ -1,82 +1,99 @@
 import React, { useState } from 'react'
-import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Alert } from 'react-bootstrap'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
 
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
-  const formFields = [
-    { id: "formBasicUsername", label: "Username", type: "text", placeholder: "Enter username", value: username, onChange: (e) => setUsername(e.target.value) },
-    { id: "formBasicPassword", label: "Password", type: "password", placeholder: " Enter Password", value: password, onChange: (e) => setPassword(e.target.value) },
-  ];
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError('');
+    event.preventDefault()
+    setError('')
 
     try {
-        // Send login request with credentials included
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/login/user`, 
-            { username, password }, 
-            //{ withCredentials: true } // Include credentials (cookies)
-        );
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/login/user`, 
+        { username, password }
+      )
 
-        // Check if the response indicates success
-        if (response.status === 200) {
-            navigate(`/${username}/dashboard`);
-        }
+      if (response.status === 200) {
+        navigate(`/${username}/dashboard`)
+      }
+    } catch (error) {
+      if (error.response) {
+        setError(error.response.data.error || 'Invalid credentials')
+      } else {
+        setError('There was an error logging in.')
+      }
+      console.error("Login error:", error)
     }
-    catch (error) {
-        // Handle errors based on the response
-        if (error.response) {
-            // Set error message from server response or default message
-            setError(error.response.data.error || 'Invalid credentials');
-        }
-        else {
-            // Handle network or other errors
-            setError('There was an error logging in.');
-        }
-        console.error("Login error:", error);
-    }
-  };
+  }
 
   return (
-    <Container className="min-h-screen flex items-center justify-center bg-">
-      <Row className="w-full max-w-md">
-        <Col>
-          <div className="bg-white shadow-2xl rounded-lg p-8">
-            <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Sign In</h2>
-            { error && <Alert variant="danger" className="mb-4">{error}</Alert> }
-            <Form onSubmit={handleSubmit}>
-              {
-                formFields.map((field) => (
-                  <Form.Group className="mb-4" controlId={field.id} key={field.id}>
-                    <Form.Label className="text-sm font-medium text-gray-700">{field.label}</Form.Label>
-                    <Form.Control
-                      type={field.type}
-                      placeholder={field.placeholder}
-                      value={field.value}
-                      onChange={field.onChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                      required
-                    />
-                  </Form.Group>
-                ))
-              }
-
-              <Button variant="primary" type="submit" className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Sign In
-              </Button>
-            </Form>
-            <div className="mt-6 text-center">
-              <a href="#" className="text-sm text-indigo-600 hover:text-indigo-500">Forgot your password?</a>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tl from-cyan-500 to-blue-500">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Enter username"
+                className="shadow-sm border-2 border-gray-300 focus:border-blue-500"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
             </div>
-          </div>
-        </Col>
-      </Row>
-    </Container>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  className="shadow-sm border-2 border-gray-300 focus:border-blue-500"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                >
+                  {showPassword ? (
+                    <EyeOffIcon className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <EyeIcon className="h-4 w-4 text-gray-500" />
+                  )}
+                </button>
+              </div>
+            </div>
+            <Button type="submit" className="w-full">
+              Sign In
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <a href="#" className="text-sm text-blue-600 hover:underline">
+            Forgot your password?
+          </a>
+        </CardFooter>
+      </Card>
+    </div>
   )
 }
