@@ -32,7 +32,7 @@ export default function SearchFilterForm({
   onSearch
 }) {
   return (
-    <div className="w-full md:w-auto flex flex-wrap items-center gap-2 mb-6">
+    <div className="w-full md:w-auto flex flex-wrap items-center gap-2 mb-2">
       <SelectInput label="Filter By" value={filterBy} onChange={setFilterBy} options={headers} placeholder="Filter by" />
       <Input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} onKeyPress={onSearch} className="w-full md:w-auto" />
       <SelectInput label="Sort By" value={sortBy} onChange={setSortBy} options={headers} placeholder="Sort by" />

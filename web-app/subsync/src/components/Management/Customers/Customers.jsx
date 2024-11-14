@@ -7,7 +7,7 @@ import { Spinner } from "react-bootstrap"
 import GenericTable from '../../Common/GenericTable'
 import SearchFilterForm from '../../Common/SearchFilterForm'
 import useFetchData from '../../Common/useFetchData'
-import CustomerPagination from './CustomerPagination'
+import Pagination from '../../Common/Pagination'
 
 // Define headers to match database field names
 const headers = [
@@ -20,12 +20,6 @@ const headers = [
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' }
 ]
-
-function getKeyLabel(label) {
-  const key = headers.find(header => header.label === label)?.key;
-  console.log(`Mapping label '${label}' to key '${key}'`);
-  return key || null;
-}
 
 export default function Customers() {
   // Set filter and sort defaults to 'cname'
@@ -61,8 +55,8 @@ export default function Customers() {
   console.log("Customers Data:", dataArray);
 
   return (
-    <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-center mb-6 gap-4">
+    <div className="container shadow-lg rounded-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <SearchFilterForm
           filterBy={filterBy}
           setFilterBy={setFilterBy}
@@ -75,8 +69,8 @@ export default function Customers() {
           headers={headers.map(({ key, label }) => ({ key, label }))}
           onSearch={handleSearch}
         />
-        <Link to="add">
-          <Button className="w-full md:w-auto">
+        <Link to="add" className="w-full md:w-auto">
+          <Button className="w-full md:w-auto bg-gradient-to-l from-cyan-500 to-blue-500 text-white">
             <Plus className="mr-2 h-4 w-4" /> Add Customer
           </Button>
         </Link>
@@ -99,7 +93,7 @@ export default function Customers() {
         <>
           {/* Render GenericTable only if data exists */}
           <GenericTable headers={headers} data={dataArray} actions={true} />
-          <CustomerPagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+          <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
         </>
       ) : (
         <Alert>

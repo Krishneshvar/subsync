@@ -1,11 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { HelpCircle, User, Settings } from 'lucide-react'
 
 const navItems = [
-  { path: 'help', title: 'Help', key: 'help', icon: 'help' },
-  { path: 'notifications', title: 'Notifications', key: 'notifications', icon: 'notifications' },
-  { path: 'account', title: 'Account', key: 'account', icon: 'account_circle' },
+  { path: 'settings', title: 'Settings', key: 'settings', icon: Settings },
+  { path: 'help', title: 'Help', key: 'help', icon: HelpCircle },
 ]
 
 export default function NavBar({ toggleSidebar }) {
@@ -26,16 +27,25 @@ export default function NavBar({ toggleSidebar }) {
           </div>
         </div>
         <div className="flex items-center">
-          {navItems.map((item) => (
-            <Link
-              title={item.title}
-              key={item.key}
-              to={item.path}
-              className="ml-4 px-1 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-            </Link>
-          ))}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="ml-4 rounded-full border-2 border-gray-300">
+                <User className="h-5 w-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48" align="end">
+              {navItems.map((item) => (
+                <Link
+                  key={item.key}
+                  to={item.path}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.title}
+                </Link>
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </nav>
