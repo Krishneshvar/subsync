@@ -3,12 +3,19 @@ import getCurrentTime from "../middlewares/time.js";
 
 async function getCustomers(searchType, search, sort, order, page = 1, limit = 10) {
     try {
+        const validColumns = ["cid", "cname", "domains", "email", "phone", "address", "created_at", "updated_at"];
+        if (searchType && !validColumns.includes(searchType)) {
+            throw new Error("Invalid search type field");
+        }
+        if (sort && !validColumns.includes(sort)) {
+            throw new Error("Invalid sort field");
+        }
+
         let baseQuery = "SELECT * FROM customers";
         let countQuery = "SELECT COUNT(*) as totalCount FROM customers";
         const queryParams = [];
         const countParams = [];
 
-        // Dynamic filtering for both base query and count query
         if (searchType && search) {
             const filter = ` WHERE ${searchType} LIKE ?`;
             baseQuery += filter;
@@ -17,23 +24,21 @@ async function getCustomers(searchType, search, sort, order, page = 1, limit = 1
             countParams.push(`%${search}%`);
         }
 
-        // Dynamic sorting
         if (sort && order) {
             baseQuery += ` ORDER BY ${sort} ${order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}`;
         }
 
-        // Pagination
         const offset = (page - 1) * limit;
         baseQuery += ` LIMIT ? OFFSET ?`;
         queryParams.push(limit, offset);
 
-        console.log("Executing SQL query:", baseQuery); // Debug SQL query
-        console.log("With parameters:", queryParams); // Debug parameters
+        console.log("Executing SQL query:", baseQuery);
+        console.log("With parameters:", queryParams);
 
-        const [customers] = await appDB.query(baseQuery, queryParams);
+        const [dataArray] = await appDB.query(baseQuery, queryParams);
         const [[{ totalCount }]] = await appDB.query(countQuery, countParams);
 
-        return { customers, totalCount };
+        return { dataArray, totalCount };
     } catch (error) {
         console.error("Error fetching customers from database:", error.message);
         throw new Error("Database query failed");

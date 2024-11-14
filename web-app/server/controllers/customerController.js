@@ -56,37 +56,33 @@ import path from "path";
 };
 
 const getCustomersController = async (req, res) => {
-    try {
-        const { searchType, search, sort, order, page = 1 } = req.query;
-        const limit = 10; // Set your limit per page
-        const { customers, totalCount } = await getCustomers(searchType, search, sort, order, page, limit);
+  try {
+      const { searchType, search, sort, order, page = 1 } = req.query;
+      console.log("Controller received query params:", { searchType, search, sort, order, page });
 
-        if (customers.length === 0) {
-            return res.status(404).json({ message: "No customers found." });
-        }
+      const limit = 10;
+      const { dataArray, totalCount } = await getCustomers(searchType, search, sort, order, page, limit);
 
-        // Calculate total pages
-        const totalPages = Math.ceil(totalCount / limit);
+      if (dataArray.length === 0) {
+          return res.status(404).json({ message: "No customers found." });
+      }
 
-        // Set x-total-count header for frontend compatibility
-        res.set('x-total-count', totalCount);
+      const totalPages = Math.ceil(totalCount / limit);
+      res.set('x-total-count', totalCount);
 
-        // Send response with pagination metadata
-        res.status(200).json({
-            customers,
-            currentPage: parseInt(page, 10),
-            totalPages,
-            totalCount
-        });
-    } catch (error) {
-        console.error("Error in getCustomersController:", error.message);
-        
-        if (error.message.includes("Invalid")) {
-            return res.status(400).json({ message: error.message });
-        }
-
-        res.status(500).json({ message: "Failed to retrieve customers. Please try again later." });
-    }
+      res.status(200).json({
+          dataArray,
+          currentPage: parseInt(page, 10),
+          totalPages,
+          totalCount
+      });
+  } catch (error) {
+      console.error("Error in getCustomersController:", error.message);
+      if (error.message.includes("Invalid")) {
+          return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: "Failed to retrieve customers. Please try again later." });
+  }
 };
 
 export { getCustomersController, createCustomer, upload };

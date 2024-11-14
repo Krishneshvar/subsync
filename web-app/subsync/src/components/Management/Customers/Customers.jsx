@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Plus } from 'lucide-react'
@@ -22,39 +22,43 @@ const headers = [
 ]
 
 function getKeyLabel(label) {
-  for (let i = 0; i < headers.length; i++) {
-    if (headers[i].label === label) {
-      return headers[i].key
-    }
-  }
-  return null
+  const key = headers.find(header => header.label === label)?.key;
+  console.log(`Mapping label '${label}' to key '${key}'`);
+  return key || null;
 }
 
 export default function Customers() {
   // Set filter and sort defaults to 'cname'
-  const [filterBy, setFilterBy] = useState("")
-  const [search, setSearch] = useState("")
-  const [sortBy, setSortBy] = useState("")
-  const [order, setOrder] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [filterBy, setFilterBy] = useState("cname");
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("cname");
+  const [order, setOrder] = useState("asc"); // Default to ascending
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch data, ensuring correct parameters are passed to the API
-  const { data: customers = [], error, loading, totalPages } = useFetchData(`${import.meta.env.VITE_API_URL}/all-customers`, {
-    searchType: getKeyLabel(filterBy),
-    search,
-    sort: getKeyLabel(sortBy),
-    order,
-    currentPage
-  })
+  const { data: dataArray = [], error, loading, totalPages } = useFetchData(
+    `${import.meta.env.VITE_API_URL}/all-customers`,
+    {
+        searchType: filterBy || "",
+        search,
+        sort: sortBy || "",
+        order,
+        currentPage,
+    }
+  );
 
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
-      setCurrentPage(1)
+      setCurrentPage(1);
+      setSearch(e.target.value);  // Ensure search is triggered
     }
-  }
+  };
 
-  // Debugging: Log customers data structure
-  console.log("Customers Data:", customers)
+  useEffect(() => {
+    console.log("Order changed:", order); // Debugging line
+    setCurrentPage(1); // Reset to first page whenever filter, sort, or order changes
+  }, [filterBy, sortBy, order]);
+
+  console.log("Customers Data:", dataArray);
 
   return (
     <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -91,10 +95,10 @@ export default function Customers() {
             <span className="sr-only">Loading...</span>
           </Spinner>
         </div>
-      ) : customers && customers.length > 0 ? (
+      ) : dataArray && dataArray.length > 0 ? (
         <>
           {/* Render GenericTable only if data exists */}
-          <GenericTable headers={headers} data={customers} actions={true} />
+          <GenericTable headers={headers} data={dataArray} actions={true} />
           <CustomerPagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
         </>
       ) : (
