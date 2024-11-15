@@ -2,15 +2,11 @@ import { getSubscriptions, addSubscription } from "../models/subscriptionModel.j
 
 const createSubscription = async (req, res) => {
   try {
-    const { customer_id, service_id, amount, start_date, end_date, status } = req.body;
+    const { customerID, productID } = req.body;
     
     const subscription = {
-      customer_id,
-      service_id,
-      amount,
-      start_date,
-      end_date,
-      status,
+      customerID,
+      productID
     };
 
     const success = await addSubscription(subscription);
@@ -21,7 +17,7 @@ const createSubscription = async (req, res) => {
       res.status(400).json({ error: "Failed to add subscription." });
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || "An unexpected error occurred." });
   }
 };
 

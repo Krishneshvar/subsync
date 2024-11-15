@@ -1,5 +1,5 @@
 import appDB from "../db/subsyncDB.js";
-import getCurrentTime from "../middlewares/time.js";
+import { getCurrentTime } from "../middlewares/time.js";
 
 async function getProducts(searchType, search, sort, order, page = 1, limit = 10) {
   try {
@@ -46,11 +46,11 @@ async function getProducts(searchType, search, sort, order, page = 1, limit = 10
 }
 
 async function addProduct(product) {
-  const { productName, description, validity, price } = product; // Include domains
+  const { productName, description, validity, price } = product;
 
   // Basic validation for required fields
   if (!productName || !description || !validity || !price) {
-    throw new Error("Name, description, validity, and price are required fields.");
+    throw new Error("All fields (Name, Description, Validity, Price) are required.");
   }
 
   try {
@@ -67,9 +67,9 @@ async function addProduct(product) {
       throw new Error("Failed to add product. No rows affected.");
     }
   } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
+    if (error.code === "ER_DUP_ENTRY") {
       throw new Error("A product with this name already exists.");
-    } else if (error.code === 'ER_BAD_NULL_ERROR') {
+    } else if (error.code === "ER_BAD_NULL_ERROR") {
       throw new Error("One or more fields cannot be null.");
     } else {
       console.error("Database error:", error);

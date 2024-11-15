@@ -6,6 +6,8 @@ import Customers from './components/Management/Customers/Customers';
 import Products from './components/Management/Products/Products';
 import Subscriptions from './components/Management/Subscriptions/Subscriptions';
 import AddCustomer from './components/Management/Customers/AddCustomer';
+import AddProduct from './components/Management/Products/AddProduct';
+import AddSubscription from './components/Management/Subscriptions/AddSubscription';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -18,7 +20,9 @@ const router = createBrowserRouter([
       { path: "customers", element: <Customers /> },
       { path: "customers/add", element: <AddCustomer /> },
       { path: "products", element: <Products /> },
+      { path: "products/add", element: <AddProduct /> },
       { path: "subscriptions", element: <Subscriptions /> },
+      { path: "subscriptions/add", element: <AddSubscription /> },
     ],
   },
 ]);

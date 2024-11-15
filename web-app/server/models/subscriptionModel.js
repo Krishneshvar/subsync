@@ -1,5 +1,5 @@
 import appDB from "../db/subsyncDB.js";
-import getCurrentTime from "../middlewares/time.js";
+import { getCurrentTime, addDaysToTimestamp } from "../middlewares/time.js";
 
 async function getSubscriptions(searchType, search, sort, order, page = 1, limit = 10) {
   try {
@@ -46,35 +46,48 @@ async function getSubscriptions(searchType, search, sort, order, page = 1, limit
 }
 
 async function addSubscription(subscription) {
-  const { customer_id, service_id, amount, start_date, end_date, status } = subscription; // Include domains
+  const { customerID, productID } = subscription;
 
-  // Basic validation for required fields
-  if (!customer_id || !service_id || !amount || !start_date || !end_date || !status) {
-    throw new Error("Customer ID, service ID, amount, start date, end date, and status are required fields.");
+  // Validate required fields
+  if (!customerID || !productID) {
+    throw new Error("Customer ID and Product ID are required fields.");
   }
+
+  console.log("Adding subscription for:", subscription); // Log the input
 
   try {
     const currentTime = getCurrentTime();
+    console.log("Current time:", currentTime); // Log current time
+
+    // Validate product
+    const [productDetails] = await appDB.query("SELECT * FROM services WHERE sid = ?", [productID]);
+    console.log("Product details:", productDetails); // Log product details
+
+    if (!productDetails.length) {
+      throw new Error("Invalid Product ID. Product not found.");
+    }
+
+    const endDate = addDaysToTimestamp(currentTime, productDetails[0].validity);
+    console.log("Calculated end date:", endDate); // Log end date
 
     const [result] = await appDB.query(
       "INSERT INTO subscriptions (customer_id, service_id, amount, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?);",
-      [customer_id, service_id, amount, start_date, end_date, status]
+      [customerID, productID, productDetails[0].price, currentTime, endDate, "active"]
     );
 
-    if (result.affectedRows > 0) {
-      return true;
-    } else {
+    console.log("Insert result:", result); // Log insert result
+
+    if (result.affectedRows === 0) {
       throw new Error("Failed to add subscription. No rows affected.");
     }
+
+    return true;
   } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      throw new Error("A subscription with this customer ID and service ID already exists.");
-    } else if (error.code === 'ER_BAD_NULL_ERROR') {
-      throw new Error("One or more fields cannot be null.");
-    } else {
-      console.error("Database error:", error);
-      throw new Error("An unexpected error occurred while adding the subscription.");
+    console.error("Error in addSubscription:", error); // Log the error
+    if (error.code === "ER_DUP_ENTRY") {
+      throw new Error("A subscription with this Customer ID and Service ID already exists.");
     }
+    throw new Error("An unexpected error occurred while adding the subscription.");
   }
 }
 

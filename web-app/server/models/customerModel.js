@@ -1,5 +1,5 @@
 import appDB from "../db/subsyncDB.js";
-import getCurrentTime from "../middlewares/time.js";
+import { getCurrentTime } from "../middlewares/time.js";
 
 async function getCustomers(searchType, search, sort, order, page = 1, limit = 10) {
     try {
