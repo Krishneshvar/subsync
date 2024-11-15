@@ -10,7 +10,7 @@ import useFetchData from '../../Common/useFetchData'
 import Pagination from '../../Common/Pagination'
 
 const headers = [
-  { key: 'subid', label: 'ID' },
+  { key: 'sub_id', label: 'Subscription ID' },
   { key: 'customer_id', label: 'Customer ID' },
   { key: 'service_id', label: 'Product ID' },
   { key: 'amount', label: 'Price' },
@@ -20,14 +20,14 @@ const headers = [
 ]
 
 function Subscriptions() {
-  const [filterBy, setFilterBy] = useState("cname");
+  const [filterBy, setFilterBy] = useState("sub_id");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("cname");
+  const [sortBy, setSortBy] = useState("sub_id");
   const [order, setOrder] = useState("asc"); // Default to ascending
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: dataArray = [], error, loading, totalPages } = useFetchData(
-    `${import.meta.env.VITE_API_URL}/all-customers`,
+    `${import.meta.env.VITE_API_URL}/all-subscriptions`,
     {
       searchType: filterBy || "",
       search,

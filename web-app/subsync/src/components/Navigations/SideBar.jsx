@@ -18,7 +18,7 @@ export default function SideBar({ isOpen, toggleSidebar }) {
         transition-all duration-300 ease-in-out
         ${isOpen ? 'w-64' : 'w-16'}
         lg:relative lg:translate-x-0
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
     >
       <div className="flex items-center justify-between p-4 border-b border-primary-foreground/10">
