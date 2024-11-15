@@ -10,7 +10,7 @@ CREATE TABLE customers (
     cname VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(20) UNIQUE,
-    address TEXT,
+    address TEXT NOT NULL,
     domains JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -20,7 +20,7 @@ CREATE TABLE customers (
 CREATE TABLE services (
     sid SERIAL PRIMARY KEY,
     sname VARCHAR(255) NOT NULL,
-    description TEXT,
+    description TEXT NOT NULL,
     validity INTEGER NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

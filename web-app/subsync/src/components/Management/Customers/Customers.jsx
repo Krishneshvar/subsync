@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Plus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -28,6 +28,7 @@ export default function Customers() {
   const [sortBy, setSortBy] = useState("cname");
   const [order, setOrder] = useState("asc"); // Default to ascending
   const [currentPage, setCurrentPage] = useState(1);
+  const { username } = useParams();
 
   const { data: dataArray = [], error, loading, totalPages } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-customers`,
@@ -92,7 +93,14 @@ export default function Customers() {
       ) : dataArray && dataArray.length > 0 ? (
         <>
           {/* Render GenericTable only if data exists */}
-          <GenericTable headers={headers} data={dataArray} actions={true} />
+          <GenericTable
+            headers={headers}
+            data={dataArray}
+            actions={true}
+            basePath={`/${username}/dashboard/customers`}
+            primaryKey="cid"
+          />
+
           <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
         </>
       ) : (

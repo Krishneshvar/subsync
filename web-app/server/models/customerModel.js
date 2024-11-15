@@ -45,6 +45,22 @@ async function getCustomers(searchType, search, sort, order, page = 1, limit = 1
     }
 }
 
+async function getCustomerDetails(id) {
+    try {
+        // Fetch customer data
+        const [data] = await appDB.query("SELECT * FROM customers WHERE cid = ?", [id]);
+
+        // Fetch subscriptions for this customer
+        const [subscriptions] = await appDB.query("SELECT * FROM subscriptions WHERE customer_id = ?", [id]);
+
+        // Return both customer data and subscriptions
+        return { customer: data, subscriptions: subscriptions };
+    } catch (error) {
+        console.error("Error fetching customer details from database:", error.message);
+        throw new Error("Database query failed");
+    }
+}
+
 async function addCustomer(customer) {
     const { customerName, email, phoneNumber, address, domains } = customer; // Include domains
 
@@ -78,4 +94,4 @@ async function addCustomer(customer) {
     }
 }
 
-export { getCustomers, addCustomer };
+export { getCustomers, addCustomer, getCustomerDetails };

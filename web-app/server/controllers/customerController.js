@@ -1,4 +1,4 @@
-import { getCustomers, addCustomer } from "../models/customerModel.js";
+import { getCustomers, addCustomer, getCustomerDetails } from "../models/customerModel.js";
 import multer from "multer";
 import path from "path";
 
@@ -85,4 +85,18 @@ const getCustomersController = async (req, res) => {
   }
 };
 
-export { getCustomersController, createCustomer, upload };
+const getCustomerDetailsController = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get customer and subscriptions details
+    const { customer, subscriptions } = await getCustomerDetails(id);
+    
+    // Send both customer and subscriptions data in the response
+    res.status(200).json({ customer, subscriptions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export { getCustomersController, createCustomer, upload, getCustomerDetailsController };

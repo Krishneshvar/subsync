@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -25,6 +25,7 @@ function Subscriptions() {
   const [sortBy, setSortBy] = useState("sub_id");
   const [order, setOrder] = useState("asc"); // Default to ascending
   const [currentPage, setCurrentPage] = useState(1);
+  const { username } = useParams();
 
   const { data: dataArray = [], error, loading, totalPages } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-subscriptions`,
@@ -89,7 +90,14 @@ function Subscriptions() {
       ) : dataArray && dataArray.length > 0 ? (
         <>
           {/* Render GenericTable only if data exists */}
-          <GenericTable headers={headers} data={dataArray} actions={true} />
+          <GenericTable
+            headers={headers}
+            data={dataArray}
+            actions={true}
+            basePath={`/${username}/dashboard/subscriptions`}
+            primaryKey="sub_id"
+          />
+
           <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
         </>
       ) : (
