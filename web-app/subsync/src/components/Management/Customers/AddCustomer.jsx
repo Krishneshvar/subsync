@@ -33,23 +33,39 @@ export default function AddCustomer() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
-
-    for (const key in formData) {
-        data.append(key, formData[key]);
-    }
+  const handleFileUpload = async (file) => {
+    const formData = new FormData();
+    formData.append('profilePicture', file);
 
     try {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/add-customer`, data);
-        
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/upload-profile-picture`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        return response.data.filePath; // Return the unique file path
+    } catch (err) {
+        console.error("File upload error:", err);
+        throw new Error('Failed to upload file.');
+    }
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+        const filePath = await handleFileUpload(formData.profilePicture);
+
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/add-customer`, {
+            ...formData,
+            filePath, // Include the uploaded file path
+        });
+
         if (response.status === 201) {
             navigate(`/${username}/dashboard/customers`);
         }
     } catch (err) {
+        console.error("Error submitting form:", err);
         setError("Failed to add customer. Please try again.");
-        console.error("Error adding customer:", err);
     }
   };
 

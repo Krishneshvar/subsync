@@ -62,9 +62,8 @@ async function getCustomerDetails(id) {
 }
 
 async function addCustomer(customer) {
-    const { customerName, email, phoneNumber, address, domains } = customer; // Include domains
+    const { customerName, email, phoneNumber, address, domains } = customer;
 
-    // Basic validation for required fields
     if (!customerName || !email || !phoneNumber || !address) {
         throw new Error("Name, email, phone number, and address are required fields.");
     }
@@ -74,11 +73,12 @@ async function addCustomer(customer) {
 
         const [result] = await appDB.query(
             "INSERT INTO customers (cname, email, phone, address, domains, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);",
-            [customerName, email, phoneNumber, address, domains, currentTime, currentTime] // Add domains and currentTime to the values array
+            [customerName, email, phoneNumber, address, domains, currentTime, currentTime]
         );
 
         if (result.affectedRows > 0) {
-            return true;
+            // Return the inserted ID
+            return result.insertId;
         } else {
             throw new Error("Failed to add customer. No rows affected.");
         }
