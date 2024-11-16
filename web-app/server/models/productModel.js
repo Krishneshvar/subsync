@@ -78,4 +78,20 @@ async function addProduct(product) {
   }
 }
 
-export { getProducts, addProduct };
+async function getProductDetails(id) {
+  try {
+      // Fetch customer data
+      const [data] = await appDB.query("SELECT * FROM services WHERE sid = ?", [id]);
+
+      // Fetch subscriptions for this customer
+      const [subscriptions] = await appDB.query("SELECT * FROM subscriptions WHERE service_id = ?", [id]);
+
+      // Return both customer data and subscriptions
+      return { product: data, subscriptions: subscriptions };
+  } catch (error) {
+      console.error("Error fetching customer details from database:", error.message);
+      throw new Error("Database query failed");
+  }
+}
+
+export { getProducts, addProduct, getProductDetails };

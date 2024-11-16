@@ -1,4 +1,4 @@
-import { getProducts, addProduct } from "../models/productModel.js";
+import { getProducts, addProduct, getProductDetails } from "../models/productModel.js";
 
 const createProduct = async (req, res) => {
   try {
@@ -53,4 +53,18 @@ const getProductsController = async (req, res) => {
   }
 };
 
-export { getProductsController, createProduct };
+const getProductDetailsController = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+      // Get customer and subscriptions details
+      const { product, subscriptions } = await getProductDetails(id);
+      
+      // Send both customer and subscriptions data in the response
+      res.status(200).json({ product, subscriptions });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
+
+export { getProductsController, createProduct, getProductDetailsController };
