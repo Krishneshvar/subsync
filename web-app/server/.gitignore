@@ -1,0 +1,6 @@
+.env
+node_modules
+db_tests
+./controllers/uploads
+uploads
+profiles
