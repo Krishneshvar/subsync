@@ -1,7 +1,7 @@
 import React from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import Reminders from './Reminders/Reminders'
-import Warnings from './Warnings/Warnings'
+import { Card, CardHeader, CardTitle } from '@/components/ui/card'
+import Reminders from './Reminders'
+import Warnings from './Warnings'
 
 export default function Home() {
   return (

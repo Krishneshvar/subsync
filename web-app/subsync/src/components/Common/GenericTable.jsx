@@ -2,7 +2,7 @@ import React from 'react'
 import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Pencil } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 export default function GenericTable({ headers, data, actions, basePath, primaryKey = 'id' }) {
   console.log("Data passed to GenericTable:", data)
