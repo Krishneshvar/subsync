@@ -1,0 +1,11 @@
+# Environment variables file
+.env
+
+# Node Package Manager (NPM) modules
+node_modules
+
+# DB testing data
+db_tests
+
+# Profile pictures directory
+uploads/*
