@@ -15,3 +15,12 @@ Subsync a comprehensive tool, allowing companies to track their customers, servi
   - Warns customers to renew soon:
     1 day and 3 days after expiry.
 * Reminder and warning alerts are sent to the customers through email.
+
+## Versions
+
+<u>Desktop:</u>
+* Electron-React
+* Tauri-React
+
+<u>Web interface:</u>
+* SERN (SQL, Express.js, React.js, Node.js)
