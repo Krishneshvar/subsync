@@ -38,7 +38,7 @@ export default function NavBar({ toggleSidebar }) {
                 <Link
                   key={item.key}
                   to={item.path}
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                  className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
                 >
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.title}

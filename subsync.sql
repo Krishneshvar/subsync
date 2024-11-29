@@ -8,7 +8,7 @@ USE subsync;
 CREATE TABLE customers (
     cid SERIAL PRIMARY KEY,
     cname VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
     phone VARCHAR(20) UNIQUE,
     address TEXT NOT NULL,
     domains JSON,
