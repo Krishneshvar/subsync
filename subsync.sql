@@ -6,15 +6,17 @@ USE subsync;
 
 -- Create the Customers table
 CREATE TABLE customers (
-    cid SERIAL PRIMARY KEY,
-    cname VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) UNIQUE,
-    address TEXT NOT NULL,
-    domains JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    id INT AUTO_INCREMENT PRIMARY KEY,             -- Unique customer ID
+    cname VARCHAR(255) NOT NULL,           -- Customer Name
+    profile_picture VARCHAR(255),                 -- File path or URL for the profile picture
+    email VARCHAR(255) NOT NULL UNIQUE,           -- Email address, must be unique
+    phone_number VARCHAR(15) NOT NULL UNIQUE,     -- Phone Number, must be unique
+    gstno VARCHAR(15) NOT NULL UNIQUE,            -- GST Number, must be unique
+    address TEXT,                                  -- Customer Address
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Record creation timestamp
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Record update timestamp
 );
+
 
 -- Create the Services table
 CREATE TABLE services (

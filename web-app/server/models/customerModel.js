@@ -3,7 +3,7 @@ import { getCurrentTime } from "../middlewares/time.js";
 
 async function getCustomers(searchType, search, sort, order, page = 1, limit = 10) {
     try {
-        const validColumns = ["cid", "cname", "domains", "email", "phone", "address", "created_at", "updated_at"];
+        const validColumns = ["id", "cname", "gstno", "email", "phone_number", "address", "created_at", "updated_at"];
         if (searchType && !validColumns.includes(searchType)) {
             throw new Error("Invalid search type field");
         }
@@ -48,10 +48,10 @@ async function getCustomers(searchType, search, sort, order, page = 1, limit = 1
 async function getCustomerDetails(id) {
     try {
         // Fetch customer data
-        const [data] = await appDB.query("SELECT * FROM customers WHERE cid = ?", [id]);
+        const [data] = await appDB.query("SELECT * FROM customers WHERE id = ?", [id]);
 
         // Fetch subscriptions for this customer
-        const [subscriptions] = await appDB.query("SELECT * FROM subscriptions WHERE customer_id = ?", [id]);
+        const [subscriptions] = await appDB.query("SELECT * FROM subscriptions WHERE customers_id = ?", [id]);
 
         // Return both customer data and subscriptions
         return { customer: data, subscriptions: subscriptions };
@@ -61,19 +61,50 @@ async function getCustomerDetails(id) {
     }
 }
 
-async function addCustomer(customer) {
-    const { customerName, email, phoneNumber, address, domains } = customer;
+//GST Validation Regex
+function isValidGSTIN(gstno) {
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{1}[Z]{1}[A-Z0-9]{1}$/;
+    return gstRegex.test(gstno);
+}
 
-    if (!customerName || !email || !phoneNumber || !address) {
-        throw new Error("Name, email, phone number, and address are required fields.");
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function isValidPhoneNumber(phoneNumber) {
+    const phoneRegex = /^[0-9]{10}$/; // Adjust this regex for country-specific formats if needed
+    return phoneRegex.test(phoneNumber);
+}
+
+async function addCustomer(customer) {
+    const { customerName, email, phoneNumber, address, gstno } = customer;
+
+    if (!customerName || !address) {
+        throw new Error("Name and address are required.");
     }
+
+    if (!isValidGSTIN(gstno)) {
+        throw new Error("Invalid GSTIN format.");
+    }
+
+    // Email Validation
+    if (!isValidEmail(email)) {
+        throw new Error("Invalid email address format.");
+    }
+
+    // Phone Number Validation
+    if (!isValidPhoneNumber(phoneNumber)) {
+        throw new Error("Invalid phone number. It must be a 10-digit number.");
+    }
+    
 
     try {
         const currentTime = getCurrentTime();
 
         const [result] = await appDB.query(
-            "INSERT INTO customers (cname, email, phone, address, domains, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);",
-            [customerName, email, phoneNumber, address, domains, currentTime, currentTime]
+            "INSERT INTO customers (cname, email, phone_number, address, gstno, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);",
+            [customerName, email, phoneNumber, address, gstno, currentTime, currentTime]
         );
 
         if (result.affectedRows > 0) {

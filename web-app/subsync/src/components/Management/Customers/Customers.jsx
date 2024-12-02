@@ -11,11 +11,11 @@ import Pagination from '../../Common/Pagination'
 
 // Define headers to match database field names
 const headers = [
-  { key: 'cid', label: 'ID' },
+  { key: 'id', label: 'ID' },
   { key: 'cname', label: 'Name' },
-  { key: 'domains', label: 'Domains' },
+  { key: 'gstno', label: 'GST NO' },
   { key: 'email', label: 'Email' },
-  { key: 'phone', label: 'Phone Number' },
+  { key: 'phone_number', label: 'Phone Number' },
   { key: 'address', label: 'Address' },
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' }

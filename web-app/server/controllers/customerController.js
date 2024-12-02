@@ -11,8 +11,8 @@ const upload = multer({ dest: 'uploads/' });
 
 const createCustomer = async (req, res) => {
     try {
-        const { customerName, email, phoneNumber, address, domains, filePath } = req.body;
-        const domainArray = domains ? domains.split(',').map((d) => d.trim()) : [];
+        const { customerName, email, phoneNumber,gstno, address, filePath } = req.body;
+        // const domainArray = domains ? domains.split(',').map((d) => d.trim()) : [];
 
         if (!filePath) {
             return res.status(400).json({ error: 'Profile picture file path is required.' });
@@ -22,8 +22,9 @@ const createCustomer = async (req, res) => {
             customerName,
             email,
             phoneNumber,
+            gstno,
             address,
-            domains: JSON.stringify(domainArray),
+            // domains: JSON.stringify(domainArray),
         };
 
         const customerId = await addCustomer(customer);
