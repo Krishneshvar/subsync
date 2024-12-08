@@ -6,7 +6,7 @@ USE subsync;
 
 -- Create the Customers table
 CREATE TABLE customers (
-    id INT AUTO_INCREMENT PRIMARY KEY,             -- Unique customer ID
+    cid INT AUTO_INCREMENT PRIMARY KEY,             -- Unique customer ID
     cname VARCHAR(255) NOT NULL,           -- Customer Name
     profile_picture VARCHAR(255),                 -- File path or URL for the profile picture
     email VARCHAR(255) NOT NULL UNIQUE,           -- Email address, must be unique
