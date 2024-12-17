@@ -5,29 +5,46 @@ CREATE DATABASE subsync;
 USE subsync;
 
 -- Create the Customers table
-CREATE TABLE customers (
-    cid INT AUTO_INCREMENT PRIMARY KEY,             -- Unique customer ID
-    cname VARCHAR(255) NOT NULL,           -- Customer Name
-    profile_picture VARCHAR(255),                 -- File path or URL for the profile picture
-    email VARCHAR(255) NOT NULL UNIQUE,           -- Email address, must be unique
-    phone_number VARCHAR(15) NOT NULL UNIQUE,     -- Phone Number, must be unique
-    gstno VARCHAR(15) NOT NULL UNIQUE,            -- GST Number, must be unique
-    address TEXT,                                  -- Customer Address
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- Record creation timestamp
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Record update timestamp
+CREATE TABLE Customer (
+    customer_id VARCHAR(50) PRIMARY KEY,
+    salutation ENUM('Mr.', 'Ms.', 'Mrs.') NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    customer_address VARCHAR(255),
+    source VARCHAR(100),
+    notes TEXT,
+    phone_numbers JSON, 
+    emails JSON
 );
 
+CREATE TABLE Company (
+    company_id INT AUTO_INCREMENT PRIMARY KEY,
+    display_name VARCHAR(150) NOT NULL,
+    company_name VARCHAR(150) NOT NULL,
+    gst_id VARCHAR(50),
+    customer_id VARCHAR(50),
+    currency_code CHAR(3) NOT NULL,
+    payment_reminder JSON,
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
+);
 
 -- Create the Services table
-CREATE TABLE services (
-    sid SERIAL PRIMARY KEY,
-    sname VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    validity INTEGER NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+CREATE TABLE Service (
+    service_id INT AUTO_INCREMENT PRIMARY KEY,
+    item_name VARCHAR(150) NOT NULL,                         
+    rate DECIMAL(10,2) NOT NULL,                            
+    tax_name VARCHAR(100),                                  
+    description TEXT,                                        
+    tax_percentage DECIMAL(5,2),                            
+    intra_inter_state_tax_details JSON,                     
+    source_reference_id VARCHAR(100),                       
+    status ENUM('Active', 'Inactive') NOT NULL,            
+    usage_unit VARCHAR(50),                               
+    service_group VARCHAR(100),                            
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 );
+
 
 -- Create the Subscriptions table
 CREATE TABLE subscriptions (
