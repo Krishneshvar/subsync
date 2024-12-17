@@ -40,7 +40,7 @@ export default function Subscriptions({ subscriptions }) {
 
   return (
     <AccordionItem value="subscriptions">
-      <AccordionTrigger className="bg-gradient-to-r from-blue-500 to-cyan-500 text-primary-foreground rounded-lg p-4">
+      <AccordionTrigger className="bg-blue-500 text-primary-foreground rounded-lg p-4">
         <h2 className="text-xl font-bold">Subscriptions</h2>
       </AccordionTrigger>
       <AccordionContent>

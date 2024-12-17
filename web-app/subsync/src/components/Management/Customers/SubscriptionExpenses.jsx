@@ -17,7 +17,7 @@ export default function SubscriptionExpenses({ chartData }) {
 
   return (
     <AccordionItem value="spending-chart">
-      <AccordionTrigger className="bg-gradient-to-r from-blue-500 to-cyan-500 text-primary-foreground rounded-lg p-4">
+      <AccordionTrigger className="bg-blue-500 text-primary-foreground rounded-lg p-4">
         <h2 className="text-xl font-bold">Subscription Expenses</h2>
       </AccordionTrigger>
       <AccordionContent>

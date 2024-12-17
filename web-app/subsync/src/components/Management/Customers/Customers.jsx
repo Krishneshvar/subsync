@@ -71,7 +71,7 @@ export default function Customers() {
           onSearch={handleSearch}
         />
         <Link to="add" className="w-full md:w-auto">
-          <Button className="w-full md:w-auto bg-gradient-to-l from-cyan-500 to-blue-500 text-white">
+          <Button className="w-full md:w-auto bg-blue-500 text-white">
             <Plus className="mr-2 h-4 w-4" /> Add Customer
           </Button>
         </Link>

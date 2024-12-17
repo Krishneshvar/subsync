@@ -87,7 +87,7 @@ export default function ProductDetails() {
     <div className="container mx-auto py-4 px-2 sm:px-2 lg:px-6">
       <Accordion type="single" collapsible className="w-full space-y-4">
         <AccordionItem value="product-details">
-          <AccordionTrigger className="bg-gradient-to-r from-blue-500 to-cyan-500 text-primary-foreground rounded-lg p-4">
+          <AccordionTrigger className="bg-blue-500 text-primary-foreground rounded-lg p-4">
             <div className="flex justify-between items-center w-full">
               <h2 className="text-2xl font-bold">Product Details</h2>
               <Button
@@ -128,7 +128,7 @@ export default function ProductDetails() {
         </AccordionItem>
 
         <AccordionItem value="subscriptions">
-          <AccordionTrigger className="bg-gradient-to-r from-blue-500 to-cyan-500 text-primary-foreground rounded-lg p-4">
+          <AccordionTrigger className="bg-blue-500 text-primary-foreground rounded-lg p-4">
             <h2 className="text-xl font-bold">Subscriptions</h2>
           </AccordionTrigger>
           <AccordionContent>

@@ -55,7 +55,7 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
       <AccordionItem value="customer-details">
-        <AccordionTrigger className="bg-gradient-to-r from-blue-500 to-cyan-500 text-primary-foreground rounded-lg p-4">
+        <AccordionTrigger className="bg-blue-500 text-primary-foreground rounded-lg p-4">
           <h2 className="text-2xl font-bold">Customer Details</h2>
         </AccordionTrigger>
         <AccordionContent>

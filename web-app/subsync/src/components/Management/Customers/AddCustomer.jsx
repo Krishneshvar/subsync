@@ -95,7 +95,7 @@ export default function AddCustomer() {
   return (
     <div className="py-4 px-2 sm:px-6 lg:px-8 flex flex-col items-center">
       <div className="w-full max-w-4xl"> {/* Adjusted width */}
-        <h1 className="text-3xl font-extrabold text-center text-white py-3 bg-gradient-to-l from-cyan-500 to-blue-500 rounded-lg shadow-lg mb-4">
+        <h1 className="text-3xl font-extrabold text-center text-white py-3 bg-blue-500 rounded-lg shadow-lg mb-4">
           Add Customer
         </h1>
         {error && <Alert variant="danger" className="rounded-lg mb-2">{error}</Alert>}
@@ -135,7 +135,7 @@ export default function AddCustomer() {
             <Button
               variant="primary"
               type="submit"
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-l from-cyan-500 to-blue-500 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Add Customer
             </Button>
