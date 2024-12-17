@@ -25,7 +25,7 @@ CREATE TABLE Company (
     customer_id VARCHAR(50),
     currency_code CHAR(3) NOT NULL,
     payment_reminder JSON,
-    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
 );
 
 -- Create the Services table
