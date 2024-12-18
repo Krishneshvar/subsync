@@ -6,26 +6,25 @@ USE subsync;
 
 -- Create the Customers table
 CREATE TABLE Customer (
-    customer_id VARCHAR(50) PRIMARY KEY,
-    salutation ENUM('Mr.', 'Ms.', 'Mrs.') NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    customer_address VARCHAR(255),
-    source VARCHAR(100),
+    customer_id VARCHAR(15) PRIMARY KEY,
+    salutation ENUM('Mr.', 'Ms.', 'Mrs.', 'Dr.') NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    emails JSON NOT NULL,
+    phone_numbers JSON NOT NULL,
+    customer_address JSON NOT NULL,
     notes TEXT,
-    phone_numbers JSON, 
-    emails JSON
-);
 
-CREATE TABLE Company (
-    company_id INT AUTO_INCREMENT PRIMARY KEY,
-    display_name VARCHAR(150) NOT NULL,
-    company_name VARCHAR(150) NOT NULL,
-    gst_id VARCHAR(50),
-    customer_id VARCHAR(50),
+    company_name VARCHAR(128) NOT NULL,
+    display_name VARCHAR(128) NOT NULL,
+    gst_in VARCHAR(15) NOT NULL,
     currency_code CHAR(3) NOT NULL,
-    payment_reminder JSON,
-    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
+    place_of_supply TEXT NOT NULL,
+    gst_treatment ENUM('iGST', 'CGST & SGST', 'No GST') NOT NULL,
+    tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL,
+    exemption_reason TEXT,
+
+    custom_fields JSON
 );
 
 -- Create the Services table
