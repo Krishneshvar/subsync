@@ -1,11 +1,11 @@
 -- Create the database
-CREATE DATABASE subsync;
+CREATE DATABASE ocs_srms;
 
 -- Connect to the subsync database
-USE subsync;
+USE ocs_srms;
 
 -- Create the Customers table
-CREATE TABLE Customer (
+CREATE TABLE customers (
     customer_id VARCHAR(15) PRIMARY KEY,
     salutation ENUM('Mr.', 'Ms.', 'Mrs.', 'Dr.') NOT NULL,
     first_name TEXT NOT NULL,
@@ -25,45 +25,6 @@ CREATE TABLE Customer (
     exemption_reason TEXT,
 
     custom_fields JSON
-);
-
--- Create the Services table
-CREATE TABLE Service (
-    service_id INT AUTO_INCREMENT PRIMARY KEY,
-    item_name VARCHAR(150) NOT NULL,                         
-    rate DECIMAL(10,2) NOT NULL,                            
-    tax_name VARCHAR(100),                                  
-    description TEXT,                                        
-    tax_percentage DECIMAL(5,2),                            
-    intra_inter_state_tax_details JSON,                     
-    source_reference_id VARCHAR(100),                       
-    status ENUM('Active', 'Inactive') NOT NULL,            
-    usage_unit VARCHAR(50),                               
-    service_group VARCHAR(100),                            
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
-);
-
-
--- Create the Subscriptions table
-CREATE TABLE subscriptions (
-    sub_id SERIAL PRIMARY KEY,
-    customer_id INT REFERENCES customers(cid) ON DELETE CASCADE,
-    service_id INT REFERENCES services(sid) ON DELETE CASCADE,
-    amount DECIMAL(10, 2) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date TIMESTAMP NOT NULL,
-    status VARCHAR(16)
-);
-
--- Create the Reminders table
-CREATE TABLE reminders (
-    rid SERIAL PRIMARY KEY,
-    subscription_id INT REFERENCES subscriptions(sub_id) ON DELETE CASCADE,
-    reminder_date DATE NOT NULL,
-    status VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the Users table
