@@ -10,9 +10,10 @@ CREATE TABLE customers (
     salutation ENUM('Mr.', 'Ms.', 'Mrs.', 'Dr.') NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    emails JSON NOT NULL,
-    phone_numbers JSON NOT NULL,
+    primary_email TEXT NOT NULL,
+    primary_phone_number BIGINT(13) NOT NULL,
     customer_address JSON NOT NULL,
+    other_contacts JSON,
     notes TEXT,
 
     company_name VARCHAR(128) NOT NULL,
@@ -24,7 +25,9 @@ CREATE TABLE customers (
     tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL,
     exemption_reason TEXT,
 
-    custom_fields JSON
+    custom_fields JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the Users table
