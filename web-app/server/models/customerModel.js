@@ -3,7 +3,10 @@ import { getCurrentTime } from "../middlewares/time.js";
 
 async function getCustomers(searchType, search, sort, order, page = 1, limit = 10) {
     try {
-        const validColumns = ["cid", "cname", "gstno", "email", "phone_number", "address", "created_at", "updated_at"];
+        const validColumns = [
+            "customer_id", "salutation", "first_name", "last_name", "primary_email", "primary_phone_number",
+            "company_name", "display_name", "gst_in"
+        ];
         if (searchType && !validColumns.includes(searchType)) {
             throw new Error("Invalid search type field");
         }

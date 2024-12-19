@@ -11,21 +11,22 @@ import Pagination from '../../Common/Pagination'
 
 // Define headers to match database field names
 const headers = [
-  { key: 'cid', label: 'ID' },
-  { key: 'cname', label: 'Name' },
-  { key: 'gstno', label: 'GST NO' },
-  { key: 'email', label: 'Email' },
-  { key: 'phone_number', label: 'Phone Number' },
-  { key: 'address', label: 'Address' },
-  { key: 'created_at', label: 'Created At' },
-  { key: 'updated_at', label: 'Updated At' }
+  { key: 'customer_id', label: 'ID' },
+  { key: 'salutation', label: 'Salutation' },
+  { key: 'first_name', label: 'First Name' },
+  { key: 'last_name', label: 'Last Name' },
+  { key: 'primary_email', label: 'Email' },
+  { key: 'primary_phone_number', label: 'Phone Number' },
+  { key: 'company_name', label: 'Company Name' },
+  { key: 'display_name', label: 'Display Name' },
+  { key: 'gst_in', label: 'GSTIN' }
 ]
 
 export default function Customers() {
   // Set filter and sort defaults to 'cname'
-  const [filterBy, setFilterBy] = useState("cname");
+  const [filterBy, setFilterBy] = useState("first_name");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("cname");
+  const [sortBy, setSortBy] = useState("first_name");
   const [order, setOrder] = useState("asc"); // Default to ascending
   const [currentPage, setCurrentPage] = useState(1);
   const { username } = useParams();
