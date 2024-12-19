@@ -11,21 +11,32 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
   const [isEditing, setIsEditing] = useState(false);
   const [editableDetails, setEditableDetails] = useState(customerDetails[0] || {});
 
-  const renderDetails = (label, value, isEditable = false) => (
-    <div>
-      <p className="text-sm font-medium text-gray-500">{label}</p>
-      {isEditing && isEditable ? (
-        <Input
-          type="text"
-          value={editableDetails[value] || ""}
-          onChange={(e) => setEditableDetails({ ...editableDetails, [value]: e.target.value })}
-          className="mt-1"
-        />
-      ) : (
-        <p className="text-lg">{editableDetails[value] || "N/A"}</p>
-      )}
-    </div>
-  );
+  const renderDetails = (label, value, isEditable = false) => {
+    const displayValue = editableDetails[value];
+  
+    const safeDisplayValue = () => {
+      if (typeof displayValue === "object" && displayValue !== null) {
+        return JSON.stringify(displayValue); // Convert objects to strings
+      }
+      return displayValue || "N/A"; // Default to "N/A" for undefined/null
+    };
+  
+    return (
+      <div>
+        <p className="text-sm font-medium text-gray-500">{label}</p>
+        {isEditing && isEditable ? (
+          <Input
+            type="text"
+            value={displayValue || ""}
+            onChange={(e) => setEditableDetails({ ...editableDetails, [value]: e.target.value })}
+            className="mt-1"
+          />
+        ) : (
+          <p className="text-lg">{safeDisplayValue()}</p>
+        )}
+      </div>
+    );
+  };  
 
   const handleUpdate = async () => {
     try {
@@ -63,11 +74,27 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
             <CardContent className="grid gap-4 md:grid-cols-2 pt-4">
               {editableDetails ? (
                 <>
-                  {renderDetails("Customer ID", "cid")}
-                  {renderDetails("Name", "cname", true)}
-                  {renderDetails("Email", "email", true)}
-                  {renderDetails("Phone Number", "phone", true)}
-                  {renderDetails("Address", "address", true)}
+                  <h2>Customer:</h2>
+                  {renderDetails("Customer ID", "customer_id")}
+                  {renderDetails("Salutation", "salutation", true)}
+                  {renderDetails("First Name", "first_name", true)}
+                  {renderDetails("Last Name", "last_name", true)}
+                  {renderDetails("Email", "primary_email", true)}
+                  {renderDetails("Phone Number", "primary_phone_number", true)}
+                  {renderDetails("Address", "customer_address", true)}
+                  {renderDetails("Other Contacts", "other_contacts", true)}
+                  {renderDetails("Notes", "customer_address", true)}
+
+                  <h2>Company:</h2>
+                  {renderDetails("Company Name", "company_name", true)}
+                  {renderDetails("Display Name", "display_name", true)}
+                  {renderDetails("GSTIN", "gst_in", true)}
+                  {renderDetails("Currency Code", "currency_code", true)}
+                  {renderDetails("Place of Suply", "place_of_supply", true)}
+                  {renderDetails("GST Treatment", "gst_treatment", true)}
+                  {renderDetails("Tax Preference", "tax_preference", true)}
+                  {renderDetails("Exemption Reason", "exemption_reason", true)}
+                  {renderDetails("Custom Fields", "custom_fields", true)}
                   {renderDetails("Created At", "created_at")}
                   {renderDetails("Updated At", "updated_at")}
 

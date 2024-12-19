@@ -51,10 +51,10 @@ async function getCustomers(searchType, search, sort, order, page = 1, limit = 1
 async function getCustomerDetails(id) {
     try {
         // Fetch customer data
-        const [data] = await appDB.query("SELECT * FROM customers WHERE id = ?", [id]);
+        const [data] = await appDB.query("SELECT * FROM customers WHERE customer_id = ?", [id]);
 
         // Fetch subscriptions for this customer
-        const [subscriptions] = await appDB.query("SELECT * FROM subscriptions WHERE customers_id = ?", [id]);
+        const [subscriptions] = []; // = await appDB.query("SELECT * FROM subscriptions WHERE customer_id = ?", [id]);
 
         // Return both customer data and subscriptions
         return { customer: data, subscriptions: subscriptions };
