@@ -1,40 +1,25 @@
-import { getCustomers, addCustomer, getCustomerDetails } from "../models/customerModel.js";
-import multer from "multer";
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from 'url';
+import { addCustomer, updateCustomer } from "../models/customerModel.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const upload = multer({ dest: 'uploads/' });
-
+// Add Customer
 const createCustomer = async (req, res) => {
     try {
-        const { customerName, email, phoneNumber,gstno, address, filePath } = req.body;
-        // const domainArray = domains ? domains.split(',').map((d) => d.trim()) : [];
+        const { salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
+                company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
+                tax_preference, exemption_reason, custom_fields, notes } = req.body;
 
-        if (!filePath) {
-            return res.status(400).json({ error: 'Profile picture file path is required.' });
+        // Validate required fields
+        if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
+            !company_name || !display_name || !gst_in || !currency_code || !place_of_supply || !gst_treatment || !tax_preference) {
+            return res.status(400).json({ error: 'All required fields must be provided.' });
         }
 
         const customer = {
-            customerName,
-            email,
-            phoneNumber,
-            gstno,
-            address,
-            // domains: JSON.stringify(domainArray),
+            salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
+            company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
+            tax_preference, exemption_reason, custom_fields, notes
         };
 
         const customerId = await addCustomer(customer);
-
-        // Rename the file with customerId
-        const uploadDir = path.join(__dirname, '../uploads');
-        const oldFilePath = path.join(uploadDir, filePath);
-        const newFilePath = path.join(uploadDir, `${customerId}${path.extname(filePath)}`);
-
-        await fs.rename(oldFilePath, newFilePath);
 
         res.status(201).json({ message: 'Customer created successfully!' });
     } catch (error) {
@@ -43,77 +28,28 @@ const createCustomer = async (req, res) => {
     }
 };
 
-const getCustomersController = async (req, res) => {
+// Update Customer
+const updateCustomerDetails = async (req, res) => {
+    const { cid } = req.params;
     try {
-        const { searchType, search, sort, order, page = 1 } = req.query;
-        console.log("Controller received query params:", { searchType, search, sort, order, page });
+        const { salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
+                company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
+                tax_preference, exemption_reason, custom_fields, notes } = req.body;
 
-        const limit = 10;
-        const { dataArray, totalCount } = await getCustomers(searchType, search, sort, order, page, limit);
+        const updatedData = {
+            salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
+            company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
+            tax_preference, exemption_reason, custom_fields, notes
+        };
 
-        if (dataArray.length === 0) {
-            return res.status(404).json({ message: "No customers found." });
-        }
+        // Update customer
+        await updateCustomer(cid, updatedData);
 
-        const totalPages = Math.ceil(totalCount / limit);
-        res.set('x-total-count', totalCount);
-
-        res.status(200).json({
-            dataArray,
-            currentPage: parseInt(page, 10),
-            totalPages,
-            totalCount
-        });
+        res.status(200).json({ message: 'Customer updated successfully!' });
     } catch (error) {
-        console.error("Error in getCustomersController:", error.message);
-        if (error.message.includes("Invalid")) {
-            return res.status(400).json({ message: error.message });
-        }
-        res.status(500).json({ message: "Failed to retrieve customers. Please try again later." });
-    }
-};
-
-const getCustomerDetailsController = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        // Get customer and subscriptions details
-        const { customer, subscriptions } = await getCustomerDetails(id);
-        
-        // Send both customer and subscriptions data in the response
-        res.status(200).json({ customer, subscriptions });
-    } catch (error) {
+        console.error("Customer update error:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
-const uploadProfilePicture = async (req, res) => {
-    try {
-        await new Promise((resolve, reject) => {
-            upload.single('profilePicture')(req, res, (err) => {
-                if (err) return reject(err);
-                resolve();
-            });
-        });
-
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded.' });
-        }
-
-        const uniqueFilename = `${Date.now()}-${req.file.originalname}`;
-        const uploadDir = path.join(__dirname, '../uploads');
-        
-        await fs.mkdir(uploadDir, { recursive: true });
-        
-        const filePath = path.join(uploadDir, uniqueFilename);
-        
-        await fs.rename(req.file.path, filePath);
-
-        res.status(201).json({ filePath: uniqueFilename, message: 'File uploaded successfully.' });
-    } catch (err) {
-        console.error("File upload error:", err);
-        res.status(500).json({ error: err.message });
-    }
-};
-
-export { getCustomersController, createCustomer, getCustomerDetailsController, uploadProfilePicture };
+export { createCustomer, updateCustomerDetails };
