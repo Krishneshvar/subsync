@@ -124,4 +124,4 @@ async function updateCustomer(customerId, updatedData) {
 }
 
 
-export { addCustomer };
+export { addCustomer, updateCustomer };
