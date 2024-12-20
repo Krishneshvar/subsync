@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const useFetchData = (url, { searchType, search, sort, order, currentPage }) => {
+const useFetchData = (url, params = {}) => {
+  const { searchType = '', search = '', sort = '', order = '', currentPage = 1 } = params;
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,15 +14,14 @@ const useFetchData = (url, { searchType, search, sort, order, currentPage }) => 
         setLoading(true);
         setError(null);
 
-        console.log("Fetching data with order:", order); // Debugging line
-
         const response = await axios.get(url, {
           params: { searchType, search, sort, order, page: currentPage },
           withCredentials: true,
         });
 
-        setData(response.data.dataArray);
-        setTotalPages(response.data.totalPages);
+        // Ensure data is set as an array and handle response format
+        setData(response.data.customers || []);  // Assuming the response has 'customers'
+        setTotalPages(response.data.totalPages || 1);  // Assuming the response has 'totalPages'
       } catch (err) {
         setError("Failed to load data. Please try again later.");
         console.error("Error fetching data:", err);

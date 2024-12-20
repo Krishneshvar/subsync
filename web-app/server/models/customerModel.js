@@ -105,7 +105,7 @@ async function updateCustomer(customerId, updatedData) {
             "UPDATE customers SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, primary_phone_number = ?, " +
             "customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, place_of_supply = ?, " +
             "gst_treatment = ?, tax_preference = ?, exemption_reason = ?, custom_fields = ?, notes = ?, updated_at = ? " +
-            "WHERE id = ?;", [
+            "WHERE customer_id = ?;", [
                 salutation, first_name, last_name, primary_email, primary_phone_number, JSON.stringify(customer_address),
                 company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment, tax_preference,
                 exemption_reason, JSON.stringify(custom_fields), notes, currentTime, customerId
@@ -123,5 +123,46 @@ async function updateCustomer(customerId, updatedData) {
     }
 }
 
+const getAllCustomers = async ({ search = "", sort = "display_name", order = "asc", page = 1, limit = 10 }) => {
+    const offset = (page - 1) * limit;
+    const searchQuery = `%${search}%`;
 
-export { addCustomer, updateCustomer };
+    try {
+      const [customers] = await appDB.query(
+        `SELECT customer_id, display_name, company_name, primary_phone_number, primary_email 
+         FROM customers 
+         WHERE display_name LIKE ? 
+         ORDER BY ?? ${order.toUpperCase()} 
+         LIMIT ? OFFSET ?`,
+        [searchQuery, sort, parseInt(limit), parseInt(offset)]
+      );
+
+      const [[{ total }]] = await appDB.query(
+        `SELECT COUNT(*) as total FROM customers WHERE display_name LIKE ?`,
+        [searchQuery]
+      );
+
+      const totalPages = Math.ceil(total / limit);
+      return { customers, totalPages };
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      throw error;
+    }
+};
+
+// Fetch a single customer by ID
+const getCustomerById = async (customerId) => {
+    try {
+        const [result] = await appDB.query(
+            `SELECT * FROM customers WHERE customer_id = ?`,
+            [customerId]
+        );
+        return result[0]; // Return the first record or undefined if not found
+    } catch (error) {
+        console.error("Error fetching customer by ID:", error);
+        throw error;
+    }
+};
+
+// Export the functions
+export { addCustomer, updateCustomer, getAllCustomers, getCustomerById };

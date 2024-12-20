@@ -127,8 +127,8 @@ const AddCustomer = ({ editableCustomerId = null }) => {
 
     const method = isEditing ? "PUT" : "POST"; // Use PUT for editing, POST for new customer
     const url = isEditing
-      ? `${import.meta.env.VITE_API_URL}/customer/${customerData.cid}`
-      : `${import.meta.env.VITE_API_URL}/add-customer`;
+      ? `${import.meta.env.VITE_API_URL}/update-customer/${customerData.cid}`
+      : `${import.meta.env.VITE_API_URL}/create-customer`;
 
     try {
       const response = await fetch(url, {
@@ -188,7 +188,6 @@ const AddCustomer = ({ editableCustomerId = null }) => {
     { label: "Maharashtra", value: "MH" },
     { label: "Tamil Nadu", value: "TN" },
     { label: "Karnataka", value: "KA" },
-    // Add more states as necessary
   ];
 
   return (

@@ -1,4 +1,5 @@
-import { addCustomer, updateCustomer } from "../models/customerModel.js";
+import { addCustomer, updateCustomer, getAllCustomers, getCustomerById } from "../models/customerModel.js"; // Import the correct function
+import appDB from "../db/subsyncDB.js"; // Import the connection pool
 
 // Add Customer
 const createCustomer = async (req, res) => {
@@ -52,4 +53,36 @@ const updateCustomerDetails = async (req, res) => {
     }
 };
 
-export { createCustomer, updateCustomerDetails };
+// Fetch all customers
+const fetchAllCustomers = async (req, res) => {  // Correct function definition
+    const { search = "", sort = "display_name", order = "asc", page = 1, limit = 10 } = req.query;
+    const offset = (page - 1) * limit;
+    const searchQuery = `%${search}%`;
+
+    try {
+        // Query to fetch filtered and paginated customers
+        const [customers] = await appDB.query(  // Changed 'db' to 'appDB'
+            `SELECT customer_id, display_name, company_name, primary_phone_number, primary_email
+             FROM customers 
+             WHERE display_name LIKE ? 
+             ORDER BY ?? ${order.toUpperCase()} 
+             LIMIT ? OFFSET ?`, 
+            [searchQuery, sort, parseInt(limit), parseInt(offset)]
+        );
+
+        // Query to count total records for pagination
+        const [[{ total }]] = await appDB.query(  // Changed 'db' to 'appDB'
+            `SELECT COUNT(*) as total FROM customers WHERE display_name LIKE ?`,
+            [searchQuery]
+        );
+
+        const totalPages = Math.ceil(total / limit);
+        res.status(200).json({ customers, totalPages });
+    } catch (error) {
+        console.error("Error fetching customers:", error);
+        res.status(500).json({ error: "Failed to fetch customers from the database." });
+    }
+};
+
+// Export the functions correctly
+export { createCustomer, updateCustomerDetails, fetchAllCustomers, getCustomerById };

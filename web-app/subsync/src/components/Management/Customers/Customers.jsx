@@ -1,79 +1,84 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { Button } from "@/components/ui/button"
-import { Plus } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Spinner } from "react-bootstrap"
-import GenericTable from '../../Common/GenericTable'
-import SearchFilterForm from '../../Common/SearchFilterForm'
-import useFetchData from '../../Common/useFetchData'
-import Pagination from '../../Common/Pagination'
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Spinner } from "react-bootstrap";
+import GenericTable from "../../Common/GenericTable";
+import Pagination from "../../Common/Pagination";
+import useFetchData from "../../Common/useFetchData";
 
-// Define headers to match database field names
 const headers = [
-  { key: 'customer_id', label: 'ID' },
-  { key: 'salutation', label: 'Salutation' },
-  { key: 'first_name', label: 'First Name' },
-  { key: 'last_name', label: 'Last Name' },
-  { key: 'primary_email', label: 'Email' },
-  { key: 'primary_phone_number', label: 'Phone Number' },
-  { key: 'company_name', label: 'Company Name' },
-  { key: 'display_name', label: 'Display Name' },
-  { key: 'gst_in', label: 'GSTIN' }
-]
+  { key: "customer_id", label: "CID" },
+  { key: "display_name", label: "Display Name" },
+  { key: "company_name", label: "Company Name" },
+  { key: "primary_phone_number", label: "Phone Number" },
+  { key: "primary_email", label: "Email" },
+  { key: "actions", label: "Actions" }, // For view/edit actions
+];
 
 export default function Customers() {
-  // Set filter and sort defaults to 'cname'
-  const [filterBy, setFilterBy] = useState("first_name");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState("first_name");
-  const [order, setOrder] = useState("asc"); // Default to ascending
   const [currentPage, setCurrentPage] = useState(1);
   const { username } = useParams();
 
-  const { data: dataArray = [], error, loading, totalPages } = useFetchData(
+  // Corrected: Pass an object with the parameters needed for useFetchData
+  const { data = [], error, loading, totalPages = 0 } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-customers`,
     {
-        searchType: filterBy || "",
-        search,
-        sort: sortBy || "",
-        order,
-        currentPage,
+      searchType: "display_name",  // You can adjust this as needed
+      search,
+      sort: "customer_id",
+      order: "asc",
+      currentPage,
     }
   );
 
+  // Reset to the first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
   const handleSearch = (e) => {
-    if (e.key === 'Enter') {
-      setCurrentPage(1);
-      setSearch(e.target.value);  // Ensure search is triggered
+    if (e.key === "Enter") {
+      setSearch(e.target.value);
+      setCurrentPage(1); // Reset page when search changes
     }
   };
 
-  useEffect(() => {
-    console.log("Order changed:", order); // Debugging line
-    setCurrentPage(1); // Reset to first page whenever filter, sort, or order changes
-  }, [filterBy, sortBy, order]);
+  // Render actions for each customer
+  const renderActions = (customerId) => (
+    <div className="flex gap-2">
+      <Link to={`/customers/${customerId}`}>
+        <Button className="bg-green-500 text-white">View</Button>
+      </Link>
+      <Link to={`/customers/${customerId}/edit`}>
+        <Button className="bg-yellow-500 text-white">Edit</Button>
+      </Link>
+    </div>
+  );
 
-  console.log("Customers Data:", dataArray);
+  // Map through data to add action buttons to each customer
+  const modifiedData = (data || []).map((customer) => ({
+    ...customer,
+    actions: renderActions(customer.customer_id),
+  }));
 
   return (
     <div className="container shadow-lg rounded-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <SearchFilterForm
-          filterBy={filterBy}
-          setFilterBy={setFilterBy}
-          search={search}
-          setSearch={setSearch}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          order={order}
-          setOrder={setOrder}
-          headers={headers.map(({ key, label }) => ({ key, label }))}
-          onSearch={handleSearch}
-        />
-        <Link to="add" className="w-full md:w-auto">
+        <div className="w-full md:w-auto">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search customers..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearch}
+          />
+        </div>
+        <Link to={`add`} className="w-full md:w-auto">
           <Button className="w-full md:w-auto bg-blue-500 text-white">
-            <Plus className="mr-2 h-4 w-4" /> Add Customer
+            Add Customer
           </Button>
         </Link>
       </div>
@@ -91,18 +96,19 @@ export default function Customers() {
             <span className="sr-only">Loading...</span>
           </Spinner>
         </div>
-      ) : dataArray && dataArray.length > 0 ? (
+      ) : modifiedData.length > 0 ? (
         <>
-          {/* Render GenericTable only if data exists */}
           <GenericTable
             headers={headers}
-            data={dataArray}
-            actions={true}
-            basePath={`/${username}/dashboard/customers`}
-            primaryKey="cid"
+            data={modifiedData}
+            primaryKey="customer_id"
           />
 
-          <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+          />
         </>
       ) : (
         <Alert>
@@ -111,5 +117,5 @@ export default function Customers() {
         </Alert>
       )}
     </div>
-  )
+  );
 }
