@@ -157,7 +157,7 @@ const getCustomerById = async (customerId) => {
             `SELECT * FROM customers WHERE customer_id = ?`,
             [customerId]
         );
-        return result[0]; // Return the first record or undefined if not found
+        return result[0];
     } catch (error) {
         console.error("Error fetching customer by ID:", error);
         throw error;

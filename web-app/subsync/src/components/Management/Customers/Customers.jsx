@@ -48,10 +48,10 @@ export default function Customers() {
   // Render actions for each customer
   const renderActions = (customerId) => (
     <div className="flex gap-2">
-      <Link to={`/customers/${customerId}`}>
+      <Link to={`${customerId}`}>
         <Button className="bg-green-500 text-white">View</Button>
       </Link>
-      <Link to={`/customers/${customerId}/edit`}>
+      <Link to={`${customerId}/edit`}>
         <Button className="bg-yellow-500 text-white">Edit</Button>
       </Link>
     </div>

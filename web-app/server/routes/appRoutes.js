@@ -1,6 +1,6 @@
 import express from 'express';
 import { validateLogin } from '../controllers/loginController.js';
-import { createCustomer, updateCustomerDetails, fetchAllCustomers, getCustomerById } from '../controllers/customerController.js';
+import { createCustomer, updateCustomerDetails, fetchAllCustomers, customerDetailsByID } from '../controllers/customerController.js';
 import { getProductsController, createProduct, getProductDetailsController } from '../controllers/productController.js';
 import { getSubscriptionsController, createSubscription } from '../controllers/subscriptionController.js';
 
@@ -13,7 +13,7 @@ router.post('/login/user', validateLogin);
 router.post('/create-customer', createCustomer);
 router.put('/update-customer/:cid', updateCustomerDetails);
 router.get('/all-customers', fetchAllCustomers);
-router.get('/customer/:cid', getCustomerById);
+router.get('/customer/:cid', customerDetailsByID);
 
 // Products
 router.get('/all-products', getProductsController);

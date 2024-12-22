@@ -33,6 +33,7 @@ export default function CustomerDetails() {
 
         const data = await response.json();
         setCustomerDetails(data.customer);
+        console.log("Customer details:", customerDetails);
 
         // Use real subscriptions or mock data
         const subscriptionData = mockSubscriptions; //data.subscriptions.length > 0 ? data.subscriptions : mockSubscriptions;

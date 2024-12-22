@@ -1,131 +1,92 @@
-import React, { useState } from "react";
+import React from "react";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Pencil, Save } from "lucide-react";
 import Subscriptions from "./Subscriptions";
 import SubscriptionExpenses from "./SubscriptionExpenses";
 
 export default function DisplayCustomer({ customerDetails, subscriptions, chartData }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editableDetails, setEditableDetails] = useState(customerDetails[0] || {});
+  const renderDetails = (label, value) => (
+    <div className="mb-4">
+      <p className="text-sm font-medium text-gray-500">{label}</p>
+      <p className="text-lg">{value}</p>
+    </div>
+  );
 
-  const renderDetails = (label, value, isEditable = false) => {
-    const displayValue = editableDetails[value];
-  
-    const safeDisplayValue = () => {
-      if (typeof displayValue === "object" && displayValue !== null) {
-        return JSON.stringify(displayValue); // Convert objects to strings
-      }
-      return displayValue || "N/A"; // Default to "N/A" for undefined/null
-    };
-  
+  const renderObjectDetails = (label, object) => {
+    if (typeof object !== "object" || object === null) {
+      return <p>{object ?? "N/A"}</p>;
+    }
+
     return (
-      <div>
+      <div className="space-y-2">
         <p className="text-sm font-medium text-gray-500">{label}</p>
-        {isEditing && isEditable ? (
-          <Input
-            type="text"
-            value={displayValue || ""}
-            onChange={(e) => setEditableDetails({ ...editableDetails, [value]: e.target.value })}
-            className="mt-1"
-          />
-        ) : (
-          <p className="text-lg">{safeDisplayValue()}</p>
-        )}
+        {Object.entries(object).map(([key, value]) => (
+          <div key={key} className="pl-4 border-l-2 border-gray-300">
+            <p className="text-sm font-medium text-gray-500">{key}</p>
+            {typeof value === "object" && value !== null ? (
+              renderObjectDetails(value)
+            ) : (
+              <p className="text-lg">{value ?? "N/A"}</p>
+            )}
+          </div>
+        ))}
       </div>
     );
-  };  
-
-  const handleUpdate = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/customer/${editableDetails.cid}`, {
-        method: "PUT", // or "PATCH" based on your API
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editableDetails),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update customer details: ${response.statusText}`);
-      }
-
-      const updatedCustomer = await response.json();
-      console.log("Updated customer details:", updatedCustomer);
-
-      // Assuming the API returns the updated details:
-      setEditableDetails(updatedCustomer);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating customer details:", error.message);
-    }
   };
 
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
       <AccordionItem value="customer-details">
-        <AccordionTrigger className="bg-blue-500 text-primary-foreground rounded-lg p-4">
+        <AccordionTrigger className="bg-blue-500 text-white rounded-lg p-4 hover:bg-blue-600 transition-colors">
           <h2 className="text-2xl font-bold">Customer Details</h2>
         </AccordionTrigger>
         <AccordionContent>
           <Card>
-            <CardContent className="grid gap-4 md:grid-cols-2 pt-4">
-              {editableDetails ? (
-                <>
-                  <h2>Customer:</h2>
-                  {renderDetails("Customer ID", "customer_id")}
-                  {renderDetails("Salutation", "salutation", true)}
-                  {renderDetails("First Name", "first_name", true)}
-                  {renderDetails("Last Name", "last_name", true)}
-                  {renderDetails("Email", "primary_email", true)}
-                  {renderDetails("Phone Number", "primary_phone_number", true)}
-                  {renderDetails("Address", "customer_address", true)}
-                  {renderDetails("Other Contacts", "other_contacts", true)}
-                  {renderDetails("Notes", "customer_address", true)}
-
-                  <h2>Company:</h2>
-                  {renderDetails("Company Name", "company_name", true)}
-                  {renderDetails("Display Name", "display_name", true)}
-                  {renderDetails("GSTIN", "gst_in", true)}
-                  {renderDetails("Currency Code", "currency_code", true)}
-                  {renderDetails("Place of Suply", "place_of_supply", true)}
-                  {renderDetails("GST Treatment", "gst_treatment", true)}
-                  {renderDetails("Tax Preference", "tax_preference", true)}
-                  {renderDetails("Exemption Reason", "exemption_reason", true)}
-                  {renderDetails("Custom Fields", "custom_fields", true)}
-                  {renderDetails("Created At", "created_at")}
-                  {renderDetails("Updated At", "updated_at")}
-
-                  <Button
-                    size="lg"
-                    className="w-48"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isEditing) {
-                        handleUpdate();
-                      } else {
-                        setIsEditing(true);
-                      }
-                    }}
-                  >
-                    {isEditing ? (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        <span>Update</span>
-                      </>
-                    ) : (
-                      <>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        <span>Edit customer details</span>
-                      </>
-                    )}
-                  </Button>
-                </>
-              ) : (
-                <p className="text-gray-500">Customer details not available.</p>
-              )}
+            <CardContent className="pt-4">
+              <div>
+                <h3 className="text-lg font-bold pb-2">Customer</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                  {renderDetails("Customer ID", customerDetails.customer_id)}
+                  {renderDetails("Salutation", customerDetails.salutation)}
+                  {renderDetails("First Name", customerDetails.first_name)}
+                  {renderDetails("Last Name", customerDetails.last_name)}
+                  {renderDetails("Email", customerDetails.primary_email)}
+                  {renderDetails("Phone Number", customerDetails.primary_phone_number)}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold pb-2">Address</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {renderDetails("Street Address", customerDetails.customer_address.street_address)}
+                    {renderDetails("City", customerDetails.customer_address.city)}
+                    {renderDetails("State", customerDetails.customer_address.state)}
+                    {renderDetails("Pin Code", customerDetails.customer_address.pin_code)}
+                    {renderDetails("Country", customerDetails.customer_address.country)}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold pb-2">Other Contacts</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {renderDetails("Salutation", customerDetails.other_contacts[0].salutation)}
+                    {renderDetails("Name", customerDetails.other_contacts[0].name)}
+                    {renderDetails("Email", customerDetails.other_contacts[0].email)}
+                    {renderDetails("Phone Number", customerDetails.other_contacts[0].phone_number)}
+                  </div>
+                </div>
+                {renderObjectDetails("Other Contacts", customerDetails.other_contacts)}
+                {/* {renderDetails("Notes", customerDetails.notes)} */}
+              </div>
+                {/* <h3 className="">Company</h3>
+                {renderDetails("Company Name", customerDetails.company_name)}
+                {renderDetails("Display Name", customerDetails.display_name)}
+                {renderDetails("GSTIN", customerDetails.gst_in)}
+                {renderDetails("Currency Code", customerDetails.currency_code)}
+                {renderDetails("Place of Supply", customerDetails.place_of_supply)}
+                {renderDetails("GST Treatment", customerDetails.gst_treatment)}
+                {renderDetails("Tax Preference", customerDetails.tax_preference)}
+                {renderDetails("Exemption Reason", customerDetails.exemption_reason)}
+                {renderObjectDetails("Custom Fields", customerDetails.custom_fields)}
+                {renderDetails("Created At", customerDetails.created_at)}
+                {renderDetails("Updated At", customerDetails.updated_at)} */}
             </CardContent>
           </Card>
         </AccordionContent>

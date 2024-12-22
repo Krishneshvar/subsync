@@ -84,5 +84,18 @@ const fetchAllCustomers = async (req, res) => {  // Correct function definition
     }
 };
 
+const customerDetailsByID = async (req, res) => {
+    try {
+        const customer = await getCustomerById(req.params.cid); // Use req.params.cid
+        if (!customer) {
+            return res.status(404).json({ error: "Customer not found." });
+        }
+        res.status(200).json({ customer });
+    } catch (error) {
+        console.error("Error fetching customer details:", error);
+        res.status(500).json({ error: "Failed to fetch customer details." });
+    }
+};
+
 // Export the functions correctly
-export { createCustomer, updateCustomerDetails, fetchAllCustomers, getCustomerById };
+export { createCustomer, updateCustomerDetails, fetchAllCustomers, customerDetailsByID };
