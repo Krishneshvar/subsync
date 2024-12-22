@@ -10,7 +10,7 @@ export default function GenericTable({ headers, data, actions, basePath, primary
   return (
     <div className="overflow-x-auto">
       <Table>
-        <TableHeader className="bg-gradient-to-l from-cyan-500 to-blue-500 text-primary-foreground">
+        <TableHeader className="bg-blue-500 text-primary-foreground">
           {headers.map(header => <TableCell key={header.key}>{header.label}</TableCell>)}
           {actions && <TableCell>Actions</TableCell>}
         </TableHeader>

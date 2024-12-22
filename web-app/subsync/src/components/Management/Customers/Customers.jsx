@@ -3,17 +3,20 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Spinner } from "react-bootstrap";
+import { Eye } from 'lucide-react';
 import GenericTable from "../../Common/GenericTable";
 import Pagination from "../../Common/Pagination";
 import useFetchData from "../../Common/useFetchData";
 
 const headers = [
   { key: "customer_id", label: "CID" },
+  { key: "salutation", label: "Salutation" },
+  { key: "first_name", label: "Name" },
   { key: "display_name", label: "Display Name" },
   { key: "company_name", label: "Company Name" },
   { key: "primary_phone_number", label: "Phone Number" },
   { key: "primary_email", label: "Email" },
-  { key: "actions", label: "Actions" }, // For view/edit actions
+  { key: "actions", label: "View" },
 ];
 
 export default function Customers() {
@@ -21,7 +24,6 @@ export default function Customers() {
   const [currentPage, setCurrentPage] = useState(1);
   const { username } = useParams();
 
-  // Corrected: Pass an object with the parameters needed for useFetchData
   const { data = [], error, loading, totalPages = 0 } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-customers`,
     {
@@ -49,10 +51,9 @@ export default function Customers() {
   const renderActions = (customerId) => (
     <div className="flex gap-2">
       <Link to={`${customerId}`}>
-        <Button className="bg-green-500 text-white">View</Button>
-      </Link>
-      <Link to={`${customerId}/edit`}>
-        <Button className="bg-yellow-500 text-white">Edit</Button>
+        <Button className="bg-transparent text-gray-500 shadow-none">
+          <Eye />
+        </Button>
       </Link>
     </div>
   );

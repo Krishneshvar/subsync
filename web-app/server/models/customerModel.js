@@ -128,22 +128,23 @@ const getAllCustomers = async ({ search = "", sort = "display_name", order = "as
     const searchQuery = `%${search}%`;
 
     try {
-      const [customers] = await appDB.query(
-        `SELECT customer_id, display_name, company_name, primary_phone_number, primary_email 
-         FROM customers 
-         WHERE display_name LIKE ? 
-         ORDER BY ?? ${order.toUpperCase()} 
-         LIMIT ? OFFSET ?`,
-        [searchQuery, sort, parseInt(limit), parseInt(offset)]
-      );
+      const [customers] = await appDB.query(  // Changed 'db' to 'appDB'
+            `SELECT customer_id, salutation, first_name, display_name, company_name, primary_phone_number, primary_email
+             FROM customers 
+             WHERE display_name LIKE ? 
+             ORDER BY ?? ${order.toUpperCase()} 
+             LIMIT ? OFFSET ?`, 
+            [searchQuery, sort, parseInt(limit), parseInt(offset)]
+        );
 
-      const [[{ total }]] = await appDB.query(
-        `SELECT COUNT(*) as total FROM customers WHERE display_name LIKE ?`,
-        [searchQuery]
-      );
+        // Query to count total records for pagination
+        const [[{ total }]] = await appDB.query(  // Changed 'db' to 'appDB'
+            `SELECT COUNT(*) as total FROM customers WHERE display_name LIKE ?`,
+            [searchQuery]
+        );
 
-      const totalPages = Math.ceil(total / limit);
-      return { customers, totalPages };
+        const totalPages = Math.ceil(total / limit);
+        return({customers, totalPages});
     } catch (error) {
       console.error("Error fetching customers:", error);
       throw error;
