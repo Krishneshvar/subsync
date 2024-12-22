@@ -1,6 +1,8 @@
 import React from "react";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
+import Table from 'react-bootstrap/Table';
+import { Button } from "react-bootstrap";
 import Subscriptions from "./Subscriptions";
 import SubscriptionExpenses from "./SubscriptionExpenses";
 
@@ -44,7 +46,7 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
           <Card>
             <CardContent className="pt-4">
               <div>
-                <h3 className="text-lg font-bold pb-2">Customer</h3>
+                <h3 className="text-lg font-bold pb-2"><u> Customer </u></h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                   {renderDetails("Customer ID", customerDetails.customer_id)}
                   {renderDetails("Salutation", customerDetails.salutation)}
@@ -54,7 +56,7 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                   {renderDetails("Phone Number", customerDetails.primary_phone_number)}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold pb-2">Address</h3>
+                  <h3 className="text-lg font-bold pb-2"><u> Address </u></h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                     {renderDetails("Street Address", customerDetails.customer_address.street_address)}
                     {renderDetails("City", customerDetails.customer_address.city)}
@@ -63,30 +65,63 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                     {renderDetails("Country", customerDetails.customer_address.country)}
                   </div>
                 </div>
+                <div className="p-2">
+                  <h3 className="text-lg font-bold pb-2"><u> Other Contacts </u></h3>
+                  <Table striped bordered size="sm" responsive>
+                    <thead>
+                      <tr>
+                        <th>Salutation</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {customerDetails.other_contacts &&
+                      customerDetails.other_contacts.map((contact, index) => (                        
+                            <tr>
+                              <td>{renderDetails("", contact.salutation)}</td>
+                              <td>{renderDetails("", contact.name)}</td>
+                              <td>{renderDetails("", contact.email)}</td>
+                              <td>{renderDetails("", contact.phone_number)}</td>
+                            </tr>
+                    ))}
+                    </tbody>
+                  </Table>
+                </div>
+
                 <div>
-                  <h3 className="text-lg font-bold pb-2">Other Contacts</h3>
+                  <h3 className="text-lg font-bold pb-2"><u> Notes </u></h3>
+                  {renderDetails("", customerDetails.notes)}
+                </div>
+
+                <div className="pt-4">
+                  <h3 className="text-lg font-bold pb-2"><u> Company </u></h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {renderDetails("Salutation", customerDetails.other_contacts[0].salutation)}
-                    {renderDetails("Name", customerDetails.other_contacts[0].name)}
-                    {renderDetails("Email", customerDetails.other_contacts[0].email)}
-                    {renderDetails("Phone Number", customerDetails.other_contacts[0].phone_number)}
+                    {renderDetails("Company Name", customerDetails.company_name)}
+                    {renderDetails("Display Name", customerDetails.display_name)}
+                    {renderDetails("GSTIN", customerDetails.gst_in)}
+                    {renderDetails("Currency Code", customerDetails.currency_code)}
+                    {renderDetails("Place of Supply", customerDetails.place_of_supply)}
+                    {renderDetails("GST Treatment", customerDetails.gst_treatment)}
+                    {renderDetails("Tax Preference", customerDetails.tax_preference)}
+                    {(customerDetails.tax_preference == "Taxable") ? (
+                      null
+                    ) : (renderDetails("Exemption Reason", customerDetails.exemption_reason))}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold pb-2"><u> Custom Fields </u></h3>
+                    {renderObjectDetails("", customerDetails.custom_fields)}
+                  </div>
+                  <div className="w-full flex flex-row justify-between pt-4">
+                    <div className="flex gap-4">
+                      {renderDetails("Created At", customerDetails.created_at)}
+                      {renderDetails("Updated At", customerDetails.updated_at)}
+                    </div>
+                    <Button className="">Edit</Button>
                   </div>
                 </div>
-                {renderObjectDetails("Other Contacts", customerDetails.other_contacts)}
-                {/* {renderDetails("Notes", customerDetails.notes)} */}
               </div>
-                {/* <h3 className="">Company</h3>
-                {renderDetails("Company Name", customerDetails.company_name)}
-                {renderDetails("Display Name", customerDetails.display_name)}
-                {renderDetails("GSTIN", customerDetails.gst_in)}
-                {renderDetails("Currency Code", customerDetails.currency_code)}
-                {renderDetails("Place of Supply", customerDetails.place_of_supply)}
-                {renderDetails("GST Treatment", customerDetails.gst_treatment)}
-                {renderDetails("Tax Preference", customerDetails.tax_preference)}
-                {renderDetails("Exemption Reason", customerDetails.exemption_reason)}
-                {renderObjectDetails("Custom Fields", customerDetails.custom_fields)}
-                {renderDetails("Created At", customerDetails.created_at)}
-                {renderDetails("Updated At", customerDetails.updated_at)} */}
             </CardContent>
           </Card>
         </AccordionContent>
