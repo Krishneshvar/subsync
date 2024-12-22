@@ -7,11 +7,10 @@ import axios from 'axios';
 
 const AddCustomer = ({ editableCustomerId = null }) => {
   const [activeTab, setActiveTab] = useState("otherDetails");
-  const countries = countryList().getData(); // Fetch list of countries
+  const countries = countryList().getData();
   const [contactPersons, setContactPersons] = useState([]);
   const [states, setStates] = useState([]);
-  
-  // State for customer data
+
   const [customerData, setCustomerData] = useState({
     firstName: "",
     lastName: "",
@@ -33,9 +32,8 @@ const AddCustomer = ({ editableCustomerId = null }) => {
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");  // For showing errors
-  const [successMessage, setSuccessMessage] = useState(""); // For showing success messages
-
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     if (editableCustomerId) {
@@ -46,59 +44,63 @@ const AddCustomer = ({ editableCustomerId = null }) => {
 
   const fetchCustomerDetails = async (cid) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/customer/${cid}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch customer details: ${response.statusText}`);
-      }
-      const data = await response.json();
-      setCustomerData(data);
-      setContactPersons(data.contactPersons || []);
-      setStates(data.address.country === "IN" ? indiaStates : []); // Assuming 'IN' for India
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/customer/${cid}`);
+      setCustomerData(response.data);
+      setContactPersons(response.data.contactPersons || []);
+      setStates(response.data.address.country.value === "IN" ? indiaStates : []);
     } catch (error) {
-      console.error("Error fetching customer details:", error.message);
       setErrorMessage("Error fetching customer details.");
     }
   };
 
   const handleCancel = () => {
-    // Reset the form to initial state
-    setFormData({
-      salutation: "",
-      first_name: "",
-      last_name: "",
-      primary_email: "",
-      primary_phone_number: "",
-      customer_address: "",
-      company_name: "",
-      display_name: "",
-      gst_in: "",
-      currency_code: "",
-      place_of_supply: "",
-      gst_treatment: "",
-      tax_preference: "",
-      exemption_reason: "",
-      custom_fields: "",
-      notes: ""
+    setCustomerData({
+      firstName: "",
+      lastName: "",
+      companyName: "",
+      displayName: "",
+      email: "",
+      phoneNumber: "",
+      gstin: "",
+      currencyCode: { label: "INR", value: "INR" },
+      address: {
+        country: { label: "India", value: "IN" },
+        addressLine: "",
+        state: null,
+        city: "",
+        zipCode: "",
+      },
+      contactPersons: [],
+      notes: "",
     });
-
-    // Optionally redirect or close modal (if needed)
-    // history.push("/customer-list");  // If you want to navigate to another page
+    setContactPersons([]);
   };
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCustomerData({
-      ...customerData,
-      [name]: value,
-    });
+    const keys = name.split(".");
+
+    if (keys.length > 1) {
+      setCustomerData((prevData) => ({
+        ...prevData,
+        [keys[0]]: {
+          ...prevData[keys[0]],
+          [keys[1]]: value
+        }
+      }));
+    } else {
+      setCustomerData((prevData) => ({
+        ...prevData,
+        [name]: value
+      }));
+    }
   };
 
   const handleSelectChange = (field, value) => {
-    setCustomerData({
-      ...customerData,
+    setCustomerData((prevData) => ({
+      ...prevData,
       [field]: value,
-    });
+    }));
   };
 
   const handleContactPersonChange = (index, field, value) => {
@@ -108,8 +110,8 @@ const AddCustomer = ({ editableCustomerId = null }) => {
   };
 
   const addContactPerson = () => {
-    setContactPersons([
-      ...contactPersons,
+    setContactPersons([...
+      contactPersons,
       { salutation: "", firstName: "", lastName: "", email: "", phone: "" },
     ]);
   };
@@ -125,70 +127,68 @@ const AddCustomer = ({ editableCustomerId = null }) => {
       contactPersons,
     };
 
-    const method = isEditing ? "PUT" : "POST"; // Use PUT for editing, POST for new customer
+    console.log('Payload being sent:', payload);
+
     const url = isEditing
-      ? `${import.meta.env.VITE_API_URL}/update-customer/${customerData.cid}`
+      ? `${import.meta.env.VITE_API_URL}/update-customer/${editableCustomerId}`
       : `${import.meta.env.VITE_API_URL}/create-customer`;
 
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      const response = await axios({
+        method: isEditing ? "PUT" : "POST",
+        url,
+        data: payload,
       });
 
-      if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(`Failed to save customer details: ${errorDetails}`);
-      }
-
-      const savedCustomer = await response.json();
-      console.log("Customer saved:", savedCustomer);
-
       setSuccessMessage("Customer details saved successfully.");
-      setErrorMessage(""); // Clear any previous error message
-
-      // If you're editing, update the state with the new data
-      if (isEditing) {
-        setCustomerData(savedCustomer);
-      } else {
-        setCustomerData({
-          firstName: "",
-          lastName: "",
-          companyName: "",
-          displayName: "",
-          email: "",
-          phoneNumber: "",
-          gstin: "",
-          currencyCode: { label: "INR", value: "INR" },
-          address: {
-            addressLine: "",
-            country: { label: "India", value: "IN" },
-            region: "",
-            city: "",
-            state: "",
-            zipCode: "",
-          },
-          contactPersons: [],
-          notes: "",
-        });
-        setContactPersons([]);
-      }
+      setErrorMessage("");
+      if (!isEditing) handleCancel();
     } catch (error) {
-      console.error("Error saving customer details:", error.message);
       setErrorMessage("Error saving customer details.");
-      setSuccessMessage(""); // Clear success message if there's an error
+      setSuccessMessage("");
     }
   };
 
   const indiaStates = [
-    { label: "Delhi", value: "DL" },
-    { label: "Maharashtra", value: "MH" },
-    { label: "Tamil Nadu", value: "TN" },
+    { label: "Andhra Pradesh", value: "AP" },
+    { label: "Arunachal Pradesh", value: "AR" },
+    { label: "Assam", value: "AS" },
+    { label: "Bihar", value: "BR" },
+    { label: "Chhattisgarh", value: "CG" },
+    { label: "Goa", value: "GA" },
+    { label: "Gujarat", value: "GJ" },
+    { label: "Haryana", value: "HR" },
+    { label: "Himachal Pradesh", value: "HP" },
+    { label: "Jharkhand", value: "JH" },
     { label: "Karnataka", value: "KA" },
-  ];
+    { label: "Kerala", value: "KL" },
+    { label: "Madhya Pradesh", value: "MP" },
+    { label: "Maharashtra", value: "MH" },
+    { label: "Manipur", value: "MN" },
+    { label: "Meghalaya", value: "ML" },
+    { label: "Mizoram", value: "MZ" },
+    { label: "Nagaland", value: "NL" },
+    { label: "Odisha", value: "OR" },
+    { label: "Punjab", value: "PB" },
+    { label: "Rajasthan", value: "RJ" },
+    { label: "Sikkim", value: "SK" },
+    { label: "Tamil Nadu", value: "TN" },
+    { label: "Telangana", value: "TG" },
+    { label: "Tripura", value: "TR" },
+    { label: "Uttar Pradesh", value: "UP" },
+    { label: "Uttarakhand", value: "UK" },
+    { label: "West Bengal", value: "WB" },
+    { label: "Andaman and Nicobar Islands", value: "AN" },
+    { label: "Chandigarh", value: "CH" },
+    { label: "Dadra and Nagar Haveli and Daman and Diu", value: "DN" },
+    { label: "Delhi", value: "DL" },
+    { label: "Jammu and Kashmir", value: "JK" },
+    { label: "Ladakh", value: "LA" },
+    { label: "Lakshadweep", value: "LD" },
+    { label: "Puducherry", value: "PY" },
+];
+
+
 
   return (
     <div className="container mt-4">
@@ -381,7 +381,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
           </Tab>
 
           {/* Address */}
-          <Tab eventKey="address" title="Address">
+           <Tab eventKey="address" title="Address">
             <Form>
               <Row className="mb-3">
                 <Col md={6}>
@@ -389,7 +389,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                     <Form.Label>Address Line</Form.Label>
                     <Form.Control
                       type="text"
-                      name="addressLine"
+                      name="address.addressLine"
                       value={customerData.address.addressLine}
                       onChange={handleInputChange}
                       required
@@ -426,7 +426,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                   </Form.Group>
                 </Col>
               </Row>
-
+                    
               <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group>
@@ -452,7 +452,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                     <Form.Label>City</Form.Label>
                     <Form.Control
                       type="text"
-                      name="city"
+                      name="address.city"
                       value={customerData.address.city}
                       onChange={handleInputChange}
                       required
@@ -465,14 +465,14 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                   </Form.Group>
                 </Col>
               </Row>
-
+                    
               <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group>
                     <Form.Label>Zip Code</Form.Label>
                     <Form.Control
                       type="text"
-                      name="zipCode"
+                      name="address.zipCode"
                       value={customerData.address.zipCode}
                       onChange={handleInputChange}
                       required
@@ -500,7 +500,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                   <th>Phone</th>
                   <th>Actions</th>
                 </tr>
-              </thead>
+              </thead> 
               <tbody>
                 {contactPersons.map((person, index) => (
                   <tr key={index}>
