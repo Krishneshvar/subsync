@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Tabs, Tab, Row, Col, InputGroup, Table, Alert } from "react-bootstrap";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
+import Dropdown from 'react-bootstrap/Dropdown';
 import Select from "react-select";
 import countryList from "react-select-country-list"; // To get a list of countries
 import axios from 'axios';
@@ -55,6 +56,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
 
   const handleCancel = () => {
     setCustomerData({
+      salutation: { label: "Mr.", value: "Mr." },
       firstName: "",
       lastName: "",
       companyName: "",
@@ -66,7 +68,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
       address: {
         country: { label: "India", value: "IN" },
         addressLine: "",
-        state: null,
+        state: { label: "Tamil Nadu", value: "TN" },
         city: "",
         zipCode: "",
       },
@@ -204,7 +206,31 @@ const AddCustomer = ({ editableCustomerId = null }) => {
       {/* Customer Information */}
       <Form onSubmit={handleSubmit}>
         <Row className="mb-3">
-          <Col md={6}>
+          <Col md={2}>
+            <Form.Group>
+              <Form.Label>Salutation</Form.Label>
+              <Select
+                options={[
+                  { label: "Mr.", value: "Mr." },
+                  { label: "Ms.", value: "Ms." },
+                  { label: "Mrs.", value: "Mrs." },
+                  { label: "Dr.", value: "Dr." },
+                ]}
+                value={customerData.salutation}
+                onChange={(e) => handleSelectChange("salutation", e)}
+                required
+                styles={{
+                  control: (provided) => ({
+                    ...provided,
+                    borderRadius: "10px",
+                    padding: "10px",
+                    fontSize: "16px",
+                  }),
+                }}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={5}>
             <Form.Group>
               <Form.Label>First Name</Form.Label>
               <Form.Control
@@ -222,7 +248,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
+          <Col md={5}>
             <Form.Group>
               <Form.Label>Last Name</Form.Label>
               <Form.Control
