@@ -1,5 +1,6 @@
 import appDB from "../db/subsyncDB.js";
 import { getCurrentTime } from "../middlewares/time.js";
+import { generateID } from "../middlewares/customerIDGen.js";
 
 // GST Validation Regex
 function isValidGSTIN(gstno) {
@@ -18,45 +19,46 @@ function isValidPhoneNumber(phoneNumber) {
 }
 
 async function addCustomer(customer) {
-    const {
-        salutation, first_name, last_name, primary_email, primary_phone_number,
-        customer_address, company_name, display_name, gst_in, currency_code, place_of_supply,
-        gst_treatment, tax_preference, exemption_reason, custom_fields, notes
-    } = customer;
 
     // Validation for required fields
-    if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
-        !company_name || !display_name || !gst_in || !currency_code || !place_of_supply || !gst_treatment || !tax_preference) {
-        throw new Error("All required fields must be provided.");
-    }
+    // if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
+    //     !company_name || !display_name || !gst_in || !currency_code || !place_of_supply || !gst_treatment || !tax_preference) {
+    //     throw new Error("All required fields must be provided.");
+    // }
 
     // Validate GSTIN format
-    if (!isValidGSTIN(gst_in)) {
-        throw new Error("Invalid GSTIN format.");
-    }
+    // if (!isValidGSTIN(gst_in)) {
+    //     throw new Error("Invalid GSTIN format.");
+    // }
 
     // Email Validation
-    if (!isValidEmail(primary_email)) {
-        throw new Error("Invalid email address format.");
-    }
+    // if (!isValidEmail(primary_email)) {
+    //     throw new Error("Invalid email address format.");
+    // }
 
     // Phone Number Validation
-    if (!isValidPhoneNumber(primary_phone_number)) {
-        throw new Error("Invalid phone number. It must be a 10-digit number.");
-    }
+    // if (!isValidPhoneNumber(primary_phone_number)) {
+    //     throw new Error("Invalid phone number. It must be a 10-digit number.");
+    // }
 
     try {
         const currentTime = getCurrentTime();
 
+        const cid = generateID();
+
+        const customerAddress = JSON.stringify(customer.address);
+        const otherContacts = JSON.stringify(customer.contactPersons);
+
         const [result] = await appDB.query(
-            "INSERT INTO customers (salutation, first_name, last_name, primary_email, primary_phone_number, customer_address, " +
-            "company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment, tax_preference, exemption_reason, " +
-            "custom_fields, notes, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email, primary_phone_number, customer_address, " +
+            "other_contacts, company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment, tax_preference, exemption_reason, " +
+            "notes, created_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             [
-                salutation, first_name, last_name, primary_email, primary_phone_number, JSON.stringify(customer_address),
-                company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment, tax_preference,
-                exemption_reason, JSON.stringify(custom_fields), notes, currentTime, currentTime
+                cid, customer.salutation, customer.firstName, customer.lastName, customer.email, customer.phoneNumber,
+                customerAddress, otherContacts, customer.companyName, customer.displayName, customer.gstin,
+                customer.currencyCode, "TN", customer.gst_treatment, customer.tax_preference, customer.exemption_reason || "",
+                customer.notes || "", currentTime, currentTime,
             ]
         );
 

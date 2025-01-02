@@ -4,23 +4,8 @@ import appDB from "../db/subsyncDB.js"; // Import the connection pool
 // Add Customer
 const createCustomer = async (req, res) => {
     try {
-        const { salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
-                company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
-                tax_preference, exemption_reason, custom_fields, notes } = req.body;
-
-        // Validate required fields
-        if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
-            !company_name || !display_name || !gst_in || !currency_code || !place_of_supply || !gst_treatment || !tax_preference) {
-            return res.status(400).json({ error: 'All required fields must be provided.' });
-        }
-
-        const customer = {
-            salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
-            company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
-            tax_preference, exemption_reason, custom_fields, notes
-        };
-
-        const customerId = await addCustomer(customer);
+        console.log(req.body);
+        addCustomer(req.body);
 
         res.status(201).json({ message: 'Customer created successfully!' });
     } catch (error) {

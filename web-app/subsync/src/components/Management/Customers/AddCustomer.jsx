@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Tabs, Tab, Row, Col, InputGroup, Table, Alert } from "react-bootstrap";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
-import Dropdown from 'react-bootstrap/Dropdown';
 import Select from "react-select";
 import countryList from "react-select-country-list"; // To get a list of countries
 import axios from 'axios';
@@ -20,6 +19,9 @@ const AddCustomer = ({ editableCustomerId = null }) => {
     email: "",
     phoneNumber: "",
     gstin: "",
+    gst_treatment: "",
+    tax_preference: "",
+    exemption_reason: "",
     currencyCode: { label: "INR", value: "INR" },
     address: {
       country: { label: "India", value: "IN" },
@@ -56,7 +58,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
 
   const handleCancel = () => {
     setCustomerData({
-      salutation: { label: "Mr.", value: "Mr." },
+      salutation: "Mr.",
       firstName: "",
       lastName: "",
       companyName: "",
@@ -64,11 +66,11 @@ const AddCustomer = ({ editableCustomerId = null }) => {
       email: "",
       phoneNumber: "",
       gstin: "",
-      currencyCode: { label: "INR", value: "INR" },
+      currencyCode: "INR",
       address: {
-        country: { label: "India", value: "IN" },
+        country: "India",
         addressLine: "",
-        state: { label: "Tamil Nadu", value: "TN" },
+        state: "Tamil Nadu",
         city: "",
         zipCode: "",
       },
@@ -128,28 +130,34 @@ const AddCustomer = ({ editableCustomerId = null }) => {
       ...customerData,
       contactPersons,
     };
-
+  
     console.log('Payload being sent:', payload);
-
+  
     const url = isEditing
       ? `${import.meta.env.VITE_API_URL}/update-customer/${editableCustomerId}`
       : `${import.meta.env.VITE_API_URL}/create-customer`;
-
+  
     try {
-      const response = await axios({
+      const response = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
-        url,
-        data: payload,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-
+  
+      if (!response.ok) {
+        throw new Error("Error saving customer details.");
+      }
+  
       setSuccessMessage("Customer details saved successfully.");
       setErrorMessage("");
       if (!isEditing) handleCancel();
     } catch (error) {
-      setErrorMessage("Error saving customer details.");
+      setErrorMessage(error.message || "Error saving customer details.");
       setSuccessMessage("");
     }
-  };
+  };  
 
   const indiaStates = [
     { label: "Andhra Pradesh", value: "AP" },
@@ -190,8 +198,6 @@ const AddCustomer = ({ editableCustomerId = null }) => {
     { label: "Puducherry", value: "PY" },
 ];
 
-
-
   return (
     <div className="container mt-4">
       <h2 className="mb-4" style={{ fontWeight: "bold", fontSize: "30px" }}>
@@ -216,8 +222,8 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                   { label: "Mrs.", value: "Mrs." },
                   { label: "Dr.", value: "Dr." },
                 ]}
-                value={customerData.salutation}
-                onChange={(e) => handleSelectChange("salutation", e)}
+                value={customerData.salutation ? { label: customerData.salutation, value: customerData.salutation } : null}
+                onChange={(e) => handleSelectChange("salutation", e.value)}
                 required
                 styles={{
                   control: (provided) => ({
@@ -388,9 +394,12 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                         { label: "USD", value: "USD" },
                         { label: "EUR", value: "EUR" },
                       ]}
-                      value={customerData.currencyCode}
-                      onChange={(e) => handleSelectChange("currencyCode", e)}
-                      required
+                      value={
+                        customerData.currencyCode && typeof customerData.currencyCode === 'string' 
+                          ? { label: customerData.currencyCode, value: customerData.currencyCode }
+                          : null
+                      }
+                      onChange={(e) => handleSelectChange("currencyCode", e.value)}
                       styles={{
                         control: (provided) => ({
                           ...provided,
@@ -403,6 +412,85 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                   </Form.Group>
                 </Col>
               </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>GST Treatment</Form.Label> 
+                    <Select
+                      options={[
+                        { label: "iGST", value: "iGST" },
+                        { label: "CGST & SGST", value: "CGST & SGST" },
+                        { label: "No GST", value: "No GST" },
+                      ]}
+                      value={
+                        customerData.gst_treatment && typeof customerData.gst_treatment === 'string' 
+                          ? { label: customerData.gst_treatment, value: customerData.gst_treatment }
+                          : null
+                      }
+                      onChange={(e) => handleSelectChange("gst_treatment", e.value)}
+                      styles={{
+                        control: (provided) => ({
+                          ...provided,
+                          borderRadius: "10px",
+                          padding: "12px",
+                          fontSize: "16px",
+                        }),
+                      }}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>Tax Preference</Form.Label> 
+                    <Select
+                      options={[
+                        { label: "Taxable", value: "Taxable" },
+                        { label: "Tax Exempt", value: "Tax Exempt" },
+                      ]}
+                      value={
+                        customerData.tax_preference && typeof customerData.tax_preference === 'string' 
+                          ? { label: customerData.tax_preference, value: customerData.tax_preference }
+                          : null
+                      }
+                      onChange={(e) => handleSelectChange("tax_preference", e.value)}
+                      styles={{
+                        control: (provided) => ({
+                          ...provided,
+                          borderRadius: "10px",
+                          padding: "12px",
+                          fontSize: "16px",
+                        }),
+                      }}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              {
+                (customerData.tax_preference === "Tax Exempt" )
+                ? (
+                  <Row className="mb-3">
+                    <Col>
+                      <Form.Group>
+                        <Form.Label>Tax Exemption Reason</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="gstin"
+                          value={customerData.exemption_reason}
+                          onChange={handleInputChange}
+                          required
+                          style={{
+                            borderRadius: "10px",
+                            padding: "12px",
+                            fontSize: "16px",
+                          }}
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                ) : (
+                  null
+                )
+              }
             </Form>
           </Tab>
 
@@ -432,9 +520,13 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                     <Form.Label>Country</Form.Label>
                     <Select
                       options={countries}
-                      value={customerData.address.country}
+                      value={
+                        customerData.address.country && typeof customerData.address.country === 'string' 
+                          ? { label: customerData.address.country, value: customerData.address.country }
+                          : null
+                      }
                       onChange={(e) => {
-                        handleSelectChange("address", { ...customerData.address, country: e });
+                        handleSelectChange("address", { ...customerData.address, country: e.value });
                         if (e.value === "IN") {
                           setStates(indiaStates);
                         }
@@ -458,9 +550,13 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                   <Form.Group>
                     <Form.Label>State</Form.Label>
                     <Select
-                      options={states}
-                      value={customerData.address.state}
-                      onChange={(e) => handleSelectChange("address", { ...customerData.address, state: e })}
+                      options={indiaStates}
+                      value={
+                        customerData.address.state && typeof customerData.address.state === 'string' 
+                          ? { label: customerData.address.state, value: customerData.address.state }
+                          : null
+                      }
+                      onChange={(e) => handleSelectChange("address", { ...customerData.address, state: e.value })}
                       required
                       styles={{
                         control: (provided) => ({
