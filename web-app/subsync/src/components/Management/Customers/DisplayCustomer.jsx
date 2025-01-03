@@ -102,16 +102,11 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                     {renderDetails("Display Name", customerDetails.display_name)}
                     {renderDetails("GSTIN", customerDetails.gst_in)}
                     {renderDetails("Currency Code", customerDetails.currency_code)}
-                    {renderDetails("Place of Supply", customerDetails.place_of_supply)}
                     {renderDetails("GST Treatment", customerDetails.gst_treatment)}
                     {renderDetails("Tax Preference", customerDetails.tax_preference)}
                     {(customerDetails.tax_preference == "Taxable") ? (
                       null
                     ) : (renderDetails("Exemption Reason", customerDetails.exemption_reason))}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold pb-2"><u> Custom Fields </u></h3>
-                    {renderObjectDetails("", customerDetails.custom_fields)}
                   </div>
                   <div className="w-full flex flex-row justify-between pt-4">
                     <div className="flex gap-4">
