@@ -11,7 +11,7 @@ CREATE TABLE customers (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     primary_email TEXT NOT NULL,
-    primary_phone_number BIGINT(13) NOT NULL,
+    primary_phone_number BIGINT NOT NULL,
     customer_address JSON NOT NULL,
     other_contacts JSON,
     notes TEXT,
@@ -20,12 +20,10 @@ CREATE TABLE customers (
     display_name VARCHAR(128) NOT NULL,
     gst_in VARCHAR(15) NOT NULL,
     currency_code CHAR(3) NOT NULL,
-    place_of_supply TEXT NOT NULL,
     gst_treatment ENUM('iGST', 'CGST & SGST', 'No GST') NOT NULL,
     tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL,
     exemption_reason TEXT,
 
-    custom_fields JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -38,3 +36,5 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+select * from customers;
