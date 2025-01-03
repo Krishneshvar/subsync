@@ -1,5 +1,11 @@
 import { checkLogin } from '../models/loginModel.js';
 
+/**
+ * Function to be executed when user login details are sent for validation
+ * @param   {Request}  req The request received from the client in an endpoint
+ * @param   {Response} res The response sent to the client in that endpoint
+ * @returns {Promise<*>}
+ */
 const validateLogin = async (req, res) => {
     const { username, password } = req.body;
 

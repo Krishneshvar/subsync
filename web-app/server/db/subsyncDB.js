@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+/**
+ * Function to create a database connection pool
+ * @type {Pool}
+ */
 const appDB = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -11,6 +15,10 @@ const appDB = mysql.createPool({
   waitForConnections: true,
 });
 
+/**
+ * Database connection pool function call
+ * @returns {Promise<void>}
+ */
 async function testConnection() {
   try {
     const connection = await appDB.getConnection();

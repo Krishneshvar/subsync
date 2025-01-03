@@ -19,23 +19,24 @@ app.use(cors({
   credentials: true,
 }));
 
-// Rate limiting middleware
+/**
+ * Rate limiting middleware
+ * @type {RateLimitRequestHandler}
+ */
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100, // 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
 });
 
-app.use(limiter); // Apply rate limiting to all requests
-app.use("/", router); // Route definitions
+app.use(limiter);
+app.use("/", router);
 
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
 
-// Start server
 app.listen(process.env.NODE_PORT, () => {
   console.log(`Server is running at http://localhost:${process.env.NODE_PORT}`);
 });

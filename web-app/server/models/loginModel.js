@@ -1,5 +1,11 @@
 import appDB from "../db/subsyncDB.js";
 
+/**
+ * Function to validate user login
+ * @param   {string}                 username      The username to be validated
+ * @param   {string}                 inputPassword The password input by the user
+ * @returns {Promise<number|number>}               The result of validation
+ */
 async function checkLogin(username, inputPassword) {
     try {
         const result = await appDB.query("SELECT password FROM users WHERE username = ?;", [username]);
@@ -12,7 +18,7 @@ async function checkLogin(username, inputPassword) {
         return match ? 1 : 0;
     }
     catch (err) {
-        console.error("Error during login:", err);
+        console.error("Error during user login:\n", err);
         throw err;
     }
 }

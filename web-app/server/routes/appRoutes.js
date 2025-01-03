@@ -23,6 +23,5 @@ router.get('/product/:id', getProductDetailsController);
 // Subscriptions
 router.get('/all-subscriptions', getSubscriptionsController);
 router.post('/add-subscription', createSubscription);
-// router.get('/subscription/:id', getSubscriptionDetailsController);
 
 export default router;
