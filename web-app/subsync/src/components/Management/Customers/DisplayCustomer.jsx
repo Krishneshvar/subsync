@@ -1,40 +1,116 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
-import Table from 'react-bootstrap/Table';
-import { Button } from "react-bootstrap";
-import Subscriptions from "./Subscriptions";
-import SubscriptionExpenses from "./SubscriptionExpenses";
+import Table from "react-bootstrap/Table";
+import { Button, FormControl } from "react-bootstrap";
 
 export default function DisplayCustomer({ customerDetails, subscriptions, chartData }) {
-  const renderDetails = (label, value) => (
+  const navigate = useNavigate();
+
+  // Local state for editing fields
+  const [editableDetails, setEditableDetails] = useState(customerDetails);
+  const [otherContacts, setOtherContacts] = useState(customerDetails.other_contacts || []);
+
+  // Handle field changes
+  const handleFieldChange = (field, value) => {
+    setEditableDetails((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddressChange = (field, value) => {
+    setEditableDetails((prev) => ({
+      ...prev,
+      customer_address: { ...prev.customer_address, [field]: value },
+    }));
+  };
+
+  const handleContactChange = (index, field, value) => {
+    setOtherContacts((prev) =>
+      prev.map((contact, i) =>
+        i === index ? { ...contact, [field]: value } : contact
+      )
+    );
+  };
+
+  const handleCompanyFieldChange = (field, value) => {
+    setEditableDetails((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const saveChanges = () => {
+    const updatedTimestamp = new Date().toISOString();
+    setEditableDetails((prev) => ({ ...prev, updated_at: updatedTimestamp }));
+
+    console.log("Updated Customer Details:", editableDetails);
+    console.log("Updated Other Contacts:", otherContacts);
+    // Save changes via an API call or state management solution
+  };
+
+  const renderEditableField = (label, field, value, handleChange) => (
     <div className="mb-4">
       <p className="text-sm font-medium text-gray-500">{label}</p>
-      <p className="text-lg">{value}</p>
+      <FormControl
+        type="text"
+        value={value || ""}
+        onChange={(e) => handleChange(field, e.target.value)}
+        className="text-lg"
+      />
     </div>
   );
 
-  const renderObjectDetails = (label, object) => {
-    if (typeof object !== "object" || object === null) {
-      return <p>{object ?? "N/A"}</p>;
-    }
-
-    return (
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-gray-500">{label}</p>
-        {Object.entries(object).map(([key, value]) => (
-          <div key={key} className="pl-4 border-l-2 border-gray-300">
-            <p className="text-sm font-medium text-gray-500">{key}</p>
-            {typeof value === "object" && value !== null ? (
-              renderObjectDetails(value)
-            ) : (
-              <p className="text-lg">{value ?? "N/A"}</p>
-            )}
-          </div>
+  const renderEditableContactsTable = () => (
+    <Table striped bordered size="sm" responsive>
+      <thead>
+        <tr>
+          <th>Salutation</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone Number</th>
+        </tr>
+      </thead>
+      <tbody>
+        {otherContacts.map((contact, index) => (
+          <tr key={index}>
+            <td>
+              <FormControl
+                type="text"
+                value={contact.salutation || ""}
+                onChange={(e) =>
+                  handleContactChange(index, "salutation", e.target.value)
+                }
+              />
+            </td>
+            <td>
+              <FormControl
+                type="text"
+                value={contact.name || ""}
+                onChange={(e) =>
+                  handleContactChange(index, "name", e.target.value)
+                }
+              />
+            </td>
+            <td>
+              <FormControl
+                type="email"
+                value={contact.email || ""}
+                onChange={(e) =>
+                  handleContactChange(index, "email", e.target.value)
+                }
+              />
+            </td>
+            <td>
+              <FormControl
+                type="text"
+                value={contact.phone_number || ""}
+                onChange={(e) =>
+                  handleContactChange(index, "phone_number", e.target.value)
+                }
+              />
+            </td>
+          </tr>
         ))}
-      </div>
-    );
-  };
+      </tbody>
+    </Table>
+  );
 
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
@@ -46,84 +122,60 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
           <Card>
             <CardContent className="pt-4">
               <div>
-                <h3 className="text-lg font-bold pb-2"><u> Customer </u></h3>
+                <h3 className="text-lg font-bold pb-2"><u>Customer</u></h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                  {renderDetails("Customer ID", customerDetails.customer_id)}
-                  {renderDetails("Salutation", customerDetails.salutation)}
-                  {renderDetails("First Name", customerDetails.first_name)}
-                  {renderDetails("Last Name", customerDetails.last_name)}
-                  {renderDetails("Email", customerDetails.primary_email)}
-                  {renderDetails("Phone Number", customerDetails.primary_phone_number)}
+                  {renderEditableField("Customer ID", "customer_id", editableDetails.customer_id, handleFieldChange)}
+                  {renderEditableField("Salutation", "salutation", editableDetails.salutation, handleFieldChange)}
+                  {renderEditableField("First Name", "first_name", editableDetails.first_name, handleFieldChange)}
+                  {renderEditableField("Last Name", "last_name", editableDetails.last_name, handleFieldChange)}
+                  {renderEditableField("Email", "primary_email", editableDetails.primary_email, handleFieldChange)}
+                  {renderEditableField("Phone Number", "primary_phone_number", editableDetails.primary_phone_number, handleFieldChange)}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold pb-2"><u> Address </u></h3>
+                  <h3 className="text-lg font-bold pb-2"><u>Address</u></h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {renderDetails("Street Address", customerDetails.customer_address.street_address)}
-                    {renderDetails("City", customerDetails.customer_address.city)}
-                    {renderDetails("State", customerDetails.customer_address.state)}
-                    {renderDetails("Pin Code", customerDetails.customer_address.pin_code)}
-                    {renderDetails("Country", customerDetails.customer_address.country)}
+                    {renderEditableField("Street Address", "street_address", editableDetails.customer_address.street_address, handleAddressChange)}
+                    {renderEditableField("City", "city", editableDetails.customer_address.city, handleAddressChange)}
+                    {renderEditableField("State", "state", editableDetails.customer_address.state, handleAddressChange)}
+                    {renderEditableField("Pin Code", "pin_code", editableDetails.customer_address.pin_code, handleAddressChange)}
+                    {renderEditableField("Country", "country", editableDetails.customer_address.country, handleAddressChange)}
                   </div>
                 </div>
                 <div className="p-2">
-                  <h3 className="text-lg font-bold pb-2"><u> Other Contacts </u></h3>
-                  <Table striped bordered size="sm" responsive>
-                    <thead>
-                      <tr>
-                        <th>Salutation</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone Number</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    {customerDetails.other_contacts &&
-                      customerDetails.other_contacts.map((contact, index) => (                        
-                            <tr>
-                              <td>{renderDetails("", contact.salutation)}</td>
-                              <td>{renderDetails("", contact.name)}</td>
-                              <td>{renderDetails("", contact.email)}</td>
-                              <td>{renderDetails("", contact.phone_number)}</td>
-                            </tr>
-                    ))}
-                    </tbody>
-                  </Table>
+                  <h3 className="text-lg font-bold pb-2"><u>Other Contacts</u></h3>
+                  {renderEditableContactsTable()}
                 </div>
-
                 <div>
-                  <h3 className="text-lg font-bold pb-2"><u> Notes </u></h3>
-                  {renderDetails("", customerDetails.notes)}
-                </div>
-
-                <div className="pt-4">
-                  <h3 className="text-lg font-bold pb-2"><u> Company </u></h3>
+                  <h3 className="text-lg font-bold pb-2"><u>Company</u></h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {renderDetails("Company Name", customerDetails.company_name)}
-                    {renderDetails("Display Name", customerDetails.display_name)}
-                    {renderDetails("GSTIN", customerDetails.gst_in)}
-                    {renderDetails("Currency Code", customerDetails.currency_code)}
-                    {renderDetails("GST Treatment", customerDetails.gst_treatment)}
-                    {renderDetails("Tax Preference", customerDetails.tax_preference)}
-                    {(customerDetails.tax_preference == "Taxable") ? (
-                      null
-                    ) : (renderDetails("Exemption Reason", customerDetails.exemption_reason))}
+                    {renderEditableField("Company Name", "company_name", editableDetails.company_name, handleCompanyFieldChange)}
+                    {renderEditableField("Display Name", "display_name", editableDetails.display_name, handleCompanyFieldChange)}
+                    {renderEditableField("GSTIN", "gst_in", editableDetails.gst_in, handleCompanyFieldChange)}
+                    {renderEditableField("Currency Code", "currency_code", editableDetails.currency_code, handleCompanyFieldChange)}
+                    {renderEditableField("GST Treatment", "gst_treatment", editableDetails.gst_treatment, handleCompanyFieldChange)}
+                    {renderEditableField("Tax Preference", "tax_preference", editableDetails.tax_preference, handleCompanyFieldChange)}
+                    {editableDetails.tax_preference !== "Taxable" &&
+                      renderEditableField("Exemption Reason", "exemption_reason", editableDetails.exemption_reason, handleCompanyFieldChange)}
                   </div>
-                  <div className="w-full flex flex-row justify-between pt-4">
-                    <div className="flex gap-4">
-                      {renderDetails("Created At", customerDetails.created_at)}
-                      {renderDetails("Updated At", customerDetails.updated_at)}
+                </div>
+                <div className="w-full flex flex-row justify-between pt-4">
+                  <div className="flex gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Created At</p>
+                      <p className="text-lg">{editableDetails.created_at}</p>
                     </div>
-                    <Button className="">Edit</Button>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Updated At</p>
+                      <p className="text-lg">{editableDetails.updated_at}</p>
+                    </div>
                   </div>
+                  <Button onClick={saveChanges}>Save Changes</Button>
                 </div>
               </div>
             </CardContent>
           </Card>
         </AccordionContent>
       </AccordionItem>
-
-      <Subscriptions subscriptions={subscriptions} />
-      <SubscriptionExpenses chartData={chartData} />
     </Accordion>
   );
 }
