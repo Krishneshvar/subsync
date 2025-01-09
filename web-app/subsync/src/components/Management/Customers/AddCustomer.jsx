@@ -5,8 +5,9 @@ import Select from "react-select";
 import countryList from "react-select-country-list"; // To get a list of countries
 import axios from 'axios';
 
-const AddCustomer = ({ editableCustomerId = null }) => {
+const AddCustomer = () => {
   const [activeTab, setActiveTab] = useState("otherDetails");
+  const editableCustomerId = location.state?.editableCustomerId || null;  
   const countries = countryList().getData();
   const [contactPersons, setContactPersons] = useState([]);
   const [states, setStates] = useState([]);
@@ -40,21 +41,79 @@ const AddCustomer = ({ editableCustomerId = null }) => {
 
   useEffect(() => {
     if (editableCustomerId) {
+      console.log(editableCustomerId);
       setIsEditing(true);
       fetchCustomerDetails(editableCustomerId);
+    }else{
+      setIsEditing(false);
+      resetCustomerData();
     }
   }, [editableCustomerId]);
 
+  const resetCustomerData = () => {
+    setCustomerData({
+      firstName: "",
+      lastName: "",
+      companyName: "",
+      displayName: "",
+      email: "",
+      phoneNumber: "",
+      gstin: "",
+      gst_treatment: "",
+      tax_preference: "",
+      exemption_reason: "",
+      currencyCode: { label: "INR", value: "INR" },
+      address: {
+        country: { label: "India", value: "IN" },
+        addressLine: "",
+        state: null,
+        city: "",
+        zipCode: "",
+      },
+      contactPersons: [],
+      notes: "",
+    });
+  };
+
   const fetchCustomerDetails = async (cid) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/customer/${cid}`);
-      setCustomerData(response.data);
-      setContactPersons(response.data.contactPersons || []);
-      setStates(response.data.address.country.value === "IN" ? indiaStates : []);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/customer/${cid}`
+      );
+      console.log("Retrieved data: ", response.data);
+  
+      const customer = response.data.customer; // Adjust based on your API structure
+  
+      setCustomerData({
+        firstName: customer.first_name,
+        lastName: customer.last_name,
+        companyName: customer.company_name,
+        displayName: customer.display_name,
+        email: customer.primary_email,
+        phoneNumber: customer.primary_phone_number,
+        gstin: customer.gst_in,
+        gst_treatment: customer.gst_treatment,
+        tax_preference: customer.tax_preference,
+        exemption_reason: customer.exemption_reason,
+        currencyCode: { label: customer.currency_code, value: customer.currency_code },
+        address: {
+          country: { label: customer.customer_address.country, value: customer.customer_address.country },
+          addressLine: customer.customer_address.addressLine,
+          state: customer.customer_address.state,
+          city: customer.customer_address.city,
+          zipCode: customer.customer_address.zipCode,
+        },
+        contactPersons: customer.other_contacts || [],
+        notes: customer.notes || "",
+      });
+      setContactPersons(customer.other_contacts || []);
+      setStates(customer.customer_address.country === "IN" ? indiaStates : []);
     } catch (error) {
+      console.error("Error fetching customer details:", error);
       setErrorMessage("Error fetching customer details.");
     }
   };
+  
 
   const handleCancel = () => {
     setCustomerData({
@@ -474,7 +533,7 @@ const AddCustomer = ({ editableCustomerId = null }) => {
                         <Form.Label>Tax Exemption Reason</Form.Label>
                         <Form.Control
                           type="text"
-                          name="gstin"
+                          name="exemption_reason"
                           value={customerData.exemption_reason}
                           onChange={handleInputChange}
                           required
