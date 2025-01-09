@@ -10,7 +10,7 @@ import SubscriptionExpenses from "./SubscriptionExpenses";
 export default function DisplayCustomer({ customerDetails, subscriptions, chartData }) {
   const navigate = useNavigate();
 
-  // console.log(customerDetails);
+   console.log(customerDetails);
 
 
   const renderDetails = (label, value) => (
@@ -64,10 +64,10 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                 <div>
                   <h3 className="text-lg font-bold pb-2"><u> Address </u></h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {renderDetails("Street Address", customerDetails.customer_address.addressLine)}
+                    {renderDetails("Street Address", customerDetails.customer_address.city)}
                     {renderDetails("City", customerDetails.customer_address.city)}
                     {renderDetails("State", customerDetails.customer_address.state)}
-                    {renderDetails("Pin Code", customerDetails.customer_address.zipCode)}
+                    {renderDetails("Pin Code", customerDetails.customer_address.pin_code)}
                     {renderDetails("Country", customerDetails.customer_address.country)}
                   </div>
                 </div>
@@ -87,9 +87,9 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                       customerDetails.other_contacts.map((contact, index) => (                        
                             <tr>
                               <td>{renderDetails("", contact.salutation)}</td>
-                              <td>{renderDetails("", contact.firstName)}</td>
+                              <td>{renderDetails("", contact.name)}</td>
                               <td>{renderDetails("", contact.email)}</td>
-                              <td>{renderDetails("", contact.phone)}</td>
+                              <td>{renderDetails("", contact.phone_number)}</td>
                             </tr>
                     ))}
                     </tbody>
