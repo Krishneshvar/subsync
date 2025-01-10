@@ -70,7 +70,7 @@ async function addCustomer(customer) {
  */
 async function updateCustomer(customerId, updatedData) {
     const { salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
-            company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,
+            company_name, display_name, gst_in, currency_code, place_of_supply, gst_treatment,otherContacts,
             tax_preference, exemption_reason, custom_fields, notes } = updatedData;
 
     if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
@@ -92,11 +92,11 @@ async function updateCustomer(customerId, updatedData) {
         const currentTime = getCurrentTime();
         const [result] = await appDB.query(
             "UPDATE customers SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, primary_phone_number = ?, " +
-            "customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, gst_treatment = ?, " +
+            "customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, gst_treatment = ?, other_contacts = ? " +
             "tax_preference = ?, exemption_reason = ?, notes = ?, updated_at = ? " +
             "WHERE customer_id = ?;", [
                 salutation, first_name, last_name, primary_email, primary_phone_number, JSON.stringify(customer_address),
-                company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference,
+                company_name, display_name, gst_in, currency_code, gst_treatment,otherContacts,  tax_preference,
                 exemption_reason, notes, currentTime, customerId
             ]
         );

@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Form, Button, Tabs, Tab, Row, Col, InputGroup, Table, Alert } from "react-bootstrap";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
@@ -6,11 +7,15 @@ import countryList from "react-select-country-list"; // To get a list of countri
 import axios from 'axios';
 
 const AddCustomer = () => {
+  const location = useLocation();
+  const editableCustomerId = location.state?.editableCustomerId || null;
   const [activeTab, setActiveTab] = useState("otherDetails");
-  const editableCustomerId = location.state?.editableCustomerId || null;  
   const countries = countryList().getData();
   const [contactPersons, setContactPersons] = useState([]);
   const [states, setStates] = useState([]);
+  const [isEditing, setIsEditing] = useState(!!editableCustomerId);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [customerData, setCustomerData] = useState({
     firstName: "",
@@ -35,9 +40,7 @@ const AddCustomer = () => {
     notes: "",
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+ 
 
   useEffect(() => {
     if (editableCustomerId) {
@@ -80,11 +83,12 @@ const AddCustomer = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/customer/${cid}`
       );
-      console.log("Retrieved data: ", response.data);
+      console.log("Customer data fetched: ", response.data);
   
       const customer = response.data.customer; // Adjust based on your API structure
   
       setCustomerData({
+        salutation: customer.salutation,
         firstName: customer.first_name,
         lastName: customer.last_name,
         companyName: customer.company_name,
@@ -92,16 +96,16 @@ const AddCustomer = () => {
         email: customer.primary_email,
         phoneNumber: customer.primary_phone_number,
         gstin: customer.gst_in,
+        currency_code: customer.currency_code,
         gst_treatment: customer.gst_treatment,
         tax_preference: customer.tax_preference,
         exemption_reason: customer.exemption_reason,
-        currencyCode: { label: customer.currency_code, value: customer.currency_code },
         address: {
           country: { label: customer.customer_address.country, value: customer.customer_address.country },
-          addressLine: customer.customer_address.addressLine,
+          addressLine: customer.customer_address.street_address,
           state: customer.customer_address.state,
           city: customer.customer_address.city,
-          zipCode: customer.customer_address.zipCode,
+          zipCode: customer.customer_address.pin_code,
         },
         contactPersons: customer.other_contacts || [],
         notes: customer.notes || "",
