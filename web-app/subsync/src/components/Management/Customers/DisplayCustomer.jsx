@@ -120,7 +120,7 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                       {renderDetails("Updated At", customerDetails.updated_at)}
                     </div>
                   </div>
-                  {/* Edit Buttin reroutes to add customer for edit */}
+                  {/* Edit Button reroutes to add customer for edit */}
                   <Link
                    to={`/john_doe/dashboard/customers/${customerDetails.customer_id}/edit`}
                    state={{editableCustomerId: customerDetails.customer_id}}
