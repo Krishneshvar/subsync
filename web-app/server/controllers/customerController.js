@@ -8,7 +8,9 @@ import { addCustomer, updateCustomer, getAllCustomers, getCustomerById } from ".
  */
 const createCustomer = async (req, res) => {
     try {
+        console.log("Received Data", req.body)
         addCustomer(req.body);
+        
 
         res.status(201).json({ message: 'Customer created successfully!' });
     } catch (error) {

@@ -96,18 +96,27 @@ const AddCustomer = () => {
         email: customer.primary_email,
         phoneNumber: customer.primary_phone_number,
         gstin: customer.gst_in,
-        currency_code: customer.currency_code,
+        currencyCode: {
+          label:  customer.currency_code || "Select Currency",
+          value: customer.currency_code || "",
+        },
         gst_treatment: customer.gst_treatment,
         tax_preference: customer.tax_preference,
         exemption_reason: customer.exemption_reason,
         address: {
-          country: { label: customer.customer_address.country, value: customer.customer_address.country },
+          country: { label: customer.customer_address.country || "Select Country", value: customer.customer_address.country },
           addressLine: customer.customer_address.street_address,
           state: customer.customer_address.state,
           city: customer.customer_address.city,
           zipCode: customer.customer_address.pin_code,
         },
-        contactPersons: customer.other_contacts || [],
+        contactPersons: customer.other_contacts?.map((contact) => ({
+          salutation: contact.salutation,
+          firstName: contact.name.split("")[0] || "",
+          lastName: contact.name.split("")[1] || "",
+          email: contact.email,
+          phone: contact.phone_number,
+        })) || [],
         notes: customer.notes || "",
       });
       setContactPersons(customer.other_contacts || []);
@@ -304,9 +313,20 @@ const AddCustomer = () => {
   
       // Construct the payload
       const payload = {
-        ...customerData,
-        contactPersons,
-      };
+  ...customerData,
+  contactPersons: contactPersons.map((contact) => ({
+    salutation: contact.salutation,
+    first_name: contact.firstName,
+    last_name: contact.lastName,
+    email: contact.email,
+    phone_number: contact.phone,
+  })),
+  address: {
+    ...customerData.address,
+    street_address: customerData.address.addressLine,
+    pin_code: customerData.address.zipCode,
+  },
+};
     
       console.log("Payload being sent:", payload);
   
@@ -580,7 +600,7 @@ const AddCustomer = () => {
                           ? { label: customerData.currencyCode, value: customerData.currencyCode }
                           : null
                       }
-                      onChange={(e) => handleSelectChange("currencyCode", e.value)}
+                      onChange={(e) => handleSelectChange("currencyCode", {label: e.label, value: e.value})}
                       styles={{
                         control: (provided) => ({
                           ...provided,
