@@ -64,7 +64,7 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                 <div>
                   <h3 className="text-lg font-bold pb-2"><u> Address </u></h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {renderDetails("Street Address", customerDetails.customer_address.city)}
+                    {renderDetails("Street Address", customerDetails.customer_address.addressLine)}
                     {renderDetails("City", customerDetails.customer_address.city)}
                     {renderDetails("State", customerDetails.customer_address.state)}
                     {renderDetails("Pin Code", customerDetails.customer_address.pin_code)}
@@ -77,7 +77,8 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                     <thead>
                       <tr>
                         <th>Salutation</th>
-                        <th>Name</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
                         <th>Email</th>
                         <th>Phone Number</th>
                       </tr>
@@ -87,7 +88,8 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                       customerDetails.other_contacts.map((contact, index) => (                        
                             <tr>
                               <td>{renderDetails("", contact.salutation)}</td>
-                              <td>{renderDetails("", contact.name)}</td>
+                              <td>{renderDetails("", contact.first_name)}</td>
+                              <td>{renderDetails("", contact.last_name)}</td>
                               <td>{renderDetails("", contact.email)}</td>
                               <td>{renderDetails("", contact.phone_number)}</td>
                             </tr>

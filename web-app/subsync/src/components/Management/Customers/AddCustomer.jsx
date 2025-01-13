@@ -80,52 +80,54 @@ const AddCustomer = () => {
 
   const fetchCustomerDetails = async (cid) => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/customer/${cid}`
-      );
-      console.log("Customer data fetched: ", response.data);
-  
-      const customer = response.data.customer; // Adjust based on your API structure
-  
-      setCustomerData({
-        salutation: customer.salutation,
-        firstName: customer.first_name,
-        lastName: customer.last_name,
-        companyName: customer.company_name,
-        displayName: customer.display_name,
-        email: customer.primary_email,
-        phoneNumber: customer.primary_phone_number,
-        gstin: customer.gst_in,
-        currencyCode: {
-          label:  customer.currency_code || "Select Currency",
-          value: customer.currency_code || "",
-        },
-        gst_treatment: customer.gst_treatment,
-        tax_preference: customer.tax_preference,
-        exemption_reason: customer.exemption_reason,
-        address: {
-          country: { label: customer.customer_address.country || "Select Country", value: customer.customer_address.country },
-          addressLine: customer.customer_address.street_address,
-          state: customer.customer_address.state,
-          city: customer.customer_address.city,
-          zipCode: customer.customer_address.pin_code,
-        },
-        contactPersons: customer.other_contacts?.map((contact) => ({
-          salutation: contact.salutation,
-          firstName: contact.name.split("")[0] || "",
-          lastName: contact.name.split("")[1] || "",
-          email: contact.email,
-          phone: contact.phone_number,
-        })) || [],
-        notes: customer.notes || "",
-      });
-      setContactPersons(customer.other_contacts || []);
-      setStates(customer.customer_address.country === "IN" ? indiaStates : []);
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/customer/${cid}`
+        );
+        console.log("Customer data fetched: ", response.data);
+
+        const customer = response.data.customer || {}; // Ensure customer is an object
+
+        setCustomerData({
+            salutation: customer.salutation || "",
+            firstName: customer.first_name || "",
+            lastName: customer.last_name || "",
+            companyName: customer.company_name || "",
+            displayName: customer.display_name || "",
+            email: customer.primary_email || "",
+            phoneNumber: customer.primary_phone_number || "",
+            gstin: customer.gst_in || "",
+            currencyCode: {
+                label: customer.currency_code || "Select Currency",
+                value: customer.currency_code || "",
+            },
+            gst_treatment: customer.gst_treatment || "",
+            tax_preference: customer.tax_preference || "",
+            exemption_reason: customer.exemption_reason || "",
+            address: {
+                country: { label: customer.customer_address?.country || "Select Country", value: customer.customer_address?.country || "" },
+                addressLine: customer.customer_address?.addressLine || "",
+                state: customer.customer_address?.state || "",
+                city: customer.customer_address?.city || "",
+                zipCode: customer.customer_address?.zipCode || "",
+            },
+            contactPersons: customer.other_contacts?.map((contact) => ({
+                salutation: contact.salutation || "",
+                firstName: contact.first_name || "",
+                lastName: contact.last_name || "",
+                email: contact.email || "",
+                phone: contact.phone_number || "",
+            })) || [],
+            notes: customer.notes || "",
+        });
+
+        setContactPersons(customer.other_contacts || []);
+        setStates(customer.customer_address?.country === "IN" ? indiaStates : []);
     } catch (error) {
-      console.error("Error fetching customer details:", error);
-      setErrorMessage("Error fetching customer details.");
+        console.error("Error fetching customer details:", error);
+        setErrorMessage("Error fetching customer details.");
     }
-  };
+};
+
 
   //Validate Customers
   const isValidGSTIN = (gstin) => {
@@ -595,11 +597,8 @@ const AddCustomer = () => {
                         { label: "USD", value: "USD" },
                         { label: "EUR", value: "EUR" },
                       ]}
-                      value={
-                        customerData.currencyCode && typeof customerData.currencyCode === 'string' 
-                          ? { label: customerData.currencyCode, value: customerData.currencyCode }
-                          : null
-                      }
+                      value={customerData.currencyCode}
+                      
                       onChange={(e) => handleSelectChange("currencyCode", {label: e.label, value: e.value})}
                       styles={{
                         control: (provided) => ({
