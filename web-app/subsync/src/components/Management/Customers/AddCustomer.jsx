@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Form, Button, Tabs, Tab, Row, Col, InputGroup, Table, Alert } from "react-bootstrap";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
@@ -7,6 +7,7 @@ import countryList from "react-select-country-list"; // To get a list of countri
 import axios from 'axios';
 
 const AddCustomer = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const editableCustomerId = location.state?.editableCustomerId || null;
   const [activeTab, setActiveTab] = useState("otherDetails");
@@ -104,7 +105,7 @@ const AddCustomer = () => {
             tax_preference: customer.tax_preference || "",
             exemption_reason: customer.exemption_reason || "",
             address: {
-                country: { label: customer.customer_address?.country || "Select Country", value: customer.customer_address?.country || "" },
+                country: customer.customer_address?.country,
                 addressLine: customer.customer_address?.addressLine || "",
                 state: customer.customer_address?.state || "",
                 city: customer.customer_address?.city || "",
@@ -112,10 +113,10 @@ const AddCustomer = () => {
             },
             contactPersons: customer.other_contacts?.map((contact) => ({
                 salutation: contact.salutation || "",
-                firstName: contact.first_name || "",
-                lastName: contact.last_name || "",
+                first_name: contact.first_name,
+                last_name: contact.last_name || "",
                 email: contact.email || "",
-                phone: contact.phone_number || "",
+                phone_number: contact.phone_number || "",
             })) || [],
             notes: customer.notes || "",
         });
@@ -213,22 +214,22 @@ const AddCustomer = () => {
     }
   
     // Validate Contact Persons
-    if (customerData.contactPersons && customerData.contactPersons.length > 0) {
-      customerData.contactPersons.forEach((contact, index) => {
-        if (!contact.name || !/^[a-zA-Z\s]+$/.test(contact.name)) {
-          throw new Error(`Contact person ${index + 1}: Name is required and must contain only alphabets.`);
-        }
-        if (!isValidEmail(contact.email)) {
-          throw new Error(`Contact person ${index + 1}: Invalid email address format.`);
-        }
-        if (!contact.salutation) {
-          throw new Error(`Contact person ${index + 1}: Salutation is required.`);
-        }
-        if (!isValidPhoneNumber(contact.phone_number)) {
-          throw new Error(`Contact person ${index + 1}: Phone number must be a 10-digit number.`);
-        }
-      });
-    }
+    // if (customerData.contactPersons && customerData.contactPersons.length > 0) {
+    //   customerData.contactPersons.forEach((contact, index) => {
+    //     if (!contact.name || !/^[a-zA-Z\s]+$/.test(contact.name)) {
+    //       throw new Error(`Contact person ${index + 1}: Name is required and must contain only alphabets.`);
+    //     }
+    //     if (!isValidEmail(contact.email)) {
+    //       throw new Error(`Contact person ${index + 1}: Invalid email address format.`);
+    //     }
+    //     if (!contact.salutation) {
+    //       throw new Error(`Contact person ${index + 1}: Salutation is required.`);
+    //     }
+    //     if (!isValidPhoneNumber(contact.phone_number)) {
+    //       throw new Error(`Contact person ${index + 1}: Phone number must be a 10-digit number.`);
+    //     }
+    //   });
+    // }
   
     // Validate Notes (Optional)
     if (customerData.notes && customerData.notes.length > 500) {
@@ -298,7 +299,7 @@ const AddCustomer = () => {
   const addContactPerson = () => {
     setContactPersons([...
       contactPersons,
-      { salutation: "", firstName: "", lastName: "", email: "", phone: "" },
+      { salutation: "", first_name: "", last_name: "", email: "", phone_number: "" },
     ]);
   };
 
@@ -318,10 +319,10 @@ const AddCustomer = () => {
   ...customerData,
   contactPersons: contactPersons.map((contact) => ({
     salutation: contact.salutation,
-    first_name: contact.firstName,
-    last_name: contact.lastName,
+    first_name: contact.first_name,
+    last_name: contact.last_name,
     email: contact.email,
-    phone_number: contact.phone,
+    phone_number: contact.phone_number,
   })),
   address: {
     ...customerData.address,
@@ -351,9 +352,14 @@ const AddCustomer = () => {
       }
   
       // Handle success
-      setSuccessMessage("Customer details saved successfully.");
+      setSuccessMessage(isEditing ? "Customer Updated Successfully." : "Customer created Successfully");
       setErrorMessage("");
       if (!isEditing) handleCancel();
+
+      setTimeout(() => {
+        navigate("/john_doe/dashboard/customers");
+      }, 2000);
+
     } catch (error) {
       // Handle validation or API errors
       setErrorMessage(error.message || "Error saving customer details.");
@@ -841,15 +847,15 @@ const AddCustomer = () => {
                     <td>
                       <Form.Control
                         type="text"
-                        value={person.firstName}
-                        onChange={(e) => handleContactPersonChange(index, "firstName", e.target.value)}
+                        value={person.first_name}
+                        onChange={(e) => handleContactPersonChange(index, "first_name", e.target.value)}
                       />
                     </td>
                     <td>
                       <Form.Control
                         type="text"
-                        value={person.lastName}
-                        onChange={(e) => handleContactPersonChange(index, "lastName", e.target.value)}
+                        value={person.last_name}
+                        onChange={(e) => handleContactPersonChange(index, "last_name", e.target.value)}
                       />
                     </td>
                     <td>
@@ -862,8 +868,8 @@ const AddCustomer = () => {
                     <td>
                       <Form.Control
                         type="text"
-                        value={person.phone}
-                        onChange={(e) => handleContactPersonChange(index, "phone", e.target.value)}
+                        value={person.phone_number}
+                        onChange={(e) => handleContactPersonChange(index, "phone_number", e.target.value)}
                       />
                     </td>
                     <td>

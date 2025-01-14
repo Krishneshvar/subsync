@@ -8,6 +8,7 @@ import router from './routes/appRoutes.js';
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
 // CORS configuration
@@ -15,7 +16,8 @@ app.use(cors({
   origin: [
     `http://localhost:${process.env.CLIENT_PORT}`, `http://${process.env.HOME_IP}:${process.env.CLIENT_PORT}`,
   ],
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST','PUT','DELETE'],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 }));
 

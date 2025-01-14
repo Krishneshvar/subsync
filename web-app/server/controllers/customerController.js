@@ -27,25 +27,60 @@ const createCustomer = async (req, res) => {
  */
 const updateCustomerDetails = async (req, res) => {
     try {
-        const { cid } = req.params;
-        const { salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
-                company_name, display_name, gst_in, currency_code, gst_treatment,
-                tax_preference, exemption_reason, notes } = req.body;
-
-        const updatedData = {
-            salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
-            company_name, display_name, gst_in, currency_code, gst_treatment,
-            tax_preference, exemption_reason, notes
-        };
-
-        await updateCustomer(cid, updatedData);
-
-        res.status(200).json({ message: 'Customer updated successfully!' });
+      console.log("Request body received:", req.body);
+  
+      // Destructure fields with camelCase to snake_case mapping
+      const {
+        salutation,
+        firstName: first_name,
+        lastName: last_name,
+        email: primary_email,
+        phoneNumber: primary_phone_number,
+        address: customer_address,
+        companyName: company_name,
+        displayName: display_name,
+        gstin: gst_in,
+        currencyCode: currency_code,
+        gst_treatment,
+        tax_preference,
+        exemption_reason,
+        notes,
+        contactPersons: other_contacts,
+      } = req.body;
+  
+      // Construct updatedData
+      const updatedData = {
+        salutation,
+        first_name,
+        last_name,
+        primary_email,
+        primary_phone_number,
+        customer_address,
+        company_name,
+        display_name,
+        gst_in,
+        currency_code: currency_code.value || currency_code,
+        gst_treatment,
+        tax_preference,
+        exemption_reason,
+        notes,
+        other_contacts,
+      };
+  
+      console.log("Updated data:", updatedData);
+  
+      // Update the customer
+      const { cid } = req.params;
+      await updateCustomer(cid, updatedData);
+  
+      res.status(200).json({ message: "Customer updated successfully!" });
     } catch (error) {
-        console.error("Customer update error:", error);
-        res.status(500).json({ error: error.message });
+      console.error("Customer update error:", error);
+      res.status(500).json({ error: error.message });
     }
-};
+  };
+  
+
 
 /**
  * Controller function for getAllcustomers() to be executed at /all-customers
