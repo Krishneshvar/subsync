@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DisplayCustomer from "./DisplayCustomer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { data } from "autoprefixer";
 
 export default function CustomerDetails() {
   const { id } = useParams();
@@ -33,7 +34,7 @@ export default function CustomerDetails() {
 
         const data = await response.json();
         setCustomerDetails(data.customer);
-        console.log("Customer details:", customerDetails);
+        console.log("data.customer details:", data.customer);
 
         // Use real subscriptions or mock data
         const subscriptionData = mockSubscriptions; //data.subscriptions.length > 0 ? data.subscriptions : mockSubscriptions;
