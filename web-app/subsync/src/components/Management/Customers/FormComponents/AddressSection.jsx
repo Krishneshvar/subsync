@@ -11,10 +11,11 @@ const AddressSection = ({
   setStates,
 }) => {
   const handleCountryChange = (selectedOption) => {
+    // Save only the value of the selected country
     handleSelectChange("address", {
       ...customerData.address,
-      country: selectedOption, // Save both value and label
-      state: null, // Reset state when country changes
+      country: selectedOption.value, // Save only the value
+      state: "", // Reset state when country changes
     });
 
     const indianStates = [
@@ -64,9 +65,10 @@ const AddressSection = ({
   };
 
   const handleStateChange = (selectedOption) => {
+    // Save only the value of the selected state
     handleSelectChange("address", {
       ...customerData.address,
-      state: selectedOption, // Save both value and label
+      state: selectedOption.value, // Save only the value
     });
   };
 
@@ -102,7 +104,8 @@ const AddressSection = ({
             <Form.Label>Country</Form.Label>
             <Select
               options={countries}
-              value={country} // Pass the whole object { label, value }
+              // Match country value with country options
+              value={countries.find((option) => option.value === country) || null} // Display country label
               onChange={handleCountryChange}
               getOptionLabel={(e) => e.label} // Ensure label is displayed
               getOptionValue={(e) => e.value} // Use value for comparisons
@@ -122,7 +125,8 @@ const AddressSection = ({
             <Form.Label>State</Form.Label>
             <Select
               options={states}
-              value={state} // Pass the whole object { label, value }
+              // Match state value with state options
+              value={states.find((option) => option.value === state) || null} // Display state label
               onChange={handleStateChange}
               getOptionLabel={(e) => e.label} // Ensure label is displayed
               getOptionValue={(e) => e.value} // Use value for comparisons
