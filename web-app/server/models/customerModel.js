@@ -78,12 +78,15 @@ async function addCustomer(customer) {
  * @returns {Promise<*>}
  */
 async function updateCustomer(customerId, updatedData) {
-    const { salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
-            company_name, display_name, gst_in, currency_code,  gst_treatment,otherContacts,
-            tax_preference, exemption_reason, notes } = updatedData;
+    const {
+        salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
+        company_name, display_name, gst_in, currency_code, gst_treatment, other_contacts, // Fixed name
+        tax_preference, exemption_reason, notes
+    } = updatedData;
 
-     console.log("Updated data received:", updatedData);
+    console.log("Updated data received:", updatedData);
 
+    // Validation
     if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
         !company_name || !display_name || !gst_in || !currency_code || !gst_treatment || !tax_preference) {
         throw new Error("All required fields must be provided.");
@@ -102,18 +105,22 @@ async function updateCustomer(customerId, updatedData) {
     try {
         const currentTime = getCurrentTime();
         const [result] = await appDB.query(
-            "UPDATE customers SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, primary_phone_number = ?, " +
-            "customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, gst_treatment = ?, other_contacts = ? , " +
-            "tax_preference = ?, exemption_reason = ?, notes = ?, updated_at = ? " +
-            "WHERE customer_id = ?;", [
-                salutation, first_name, last_name, primary_email, primary_phone_number, JSON.stringify(customer_address),
-                company_name, display_name, gst_in, currency_code, gst_treatment,JSON.stringify(otherContacts),  tax_preference,
-                exemption_reason, notes, currentTime, customerId
+            `UPDATE customers 
+             SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, primary_phone_number = ?, 
+                 customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, 
+                 gst_treatment = ?, other_contacts = ?, tax_preference = ?, exemption_reason = ?, notes = ?, updated_at = ? 
+             WHERE customer_id = ?;`,
+            [
+                salutation, first_name, last_name, primary_email, primary_phone_number,
+                JSON.stringify(customer_address), // Ensure proper serialization
+                company_name, display_name, gst_in, currency_code, gst_treatment,
+                JSON.stringify(other_contacts), // Ensure consistent reference
+                tax_preference, exemption_reason, notes, currentTime, customerId
             ]
         );
 
         if (result.affectedRows > 0) {
-            return customerId;  // Return the customer ID if the update was successful
+            return customerId; // Return the customer ID if the update was successful
         } else {
             throw new Error("Failed to update customer. No rows affected.");
         }
@@ -122,6 +129,7 @@ async function updateCustomer(customerId, updatedData) {
         throw new Error("An unexpected error occurred while updating the customer.");
     }
 }
+
 
 /**
  * Function to get all customer details to be displayed
@@ -170,6 +178,7 @@ const getCustomerById = async (customerId) => {
             `SELECT * FROM customers WHERE customer_id = ?`,
             [customerId]
         );
+        console.log(result);
         return result[0];
     } catch (error) {
         console.error("Error fetching customer by ID:", error);

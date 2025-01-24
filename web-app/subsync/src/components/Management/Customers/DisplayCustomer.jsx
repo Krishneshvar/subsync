@@ -46,11 +46,11 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                 <u>Address</u>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                {renderDetails("Street Address", customerDetails.customer_address?.addressLine)}
-                {renderDetails("City", customerDetails.customer_address?.city)}
-                {renderDetails("State", customerDetails.customer_address?.state.value)}
-                {renderDetails("Pin Code", customerDetails.customer_address?.zipCode)}
-                {renderDetails("Country", customerDetails.customer_address?.country.value)}
+                {renderDetails("Street Address", customerDetails.customer_address.addressLine)}
+                {renderDetails("City", customerDetails.customer_address.city)}
+                {renderDetails("State", customerDetails.customer_address.state)}
+                {renderDetails("Pin Code", customerDetails.customer_address.zipCode)}
+                {renderDetails("Country", customerDetails.customer_address.country)}
               </div>
 
               {/* Other Contacts */}

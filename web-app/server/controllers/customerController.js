@@ -26,60 +26,57 @@ const createCustomer = async (req, res) => {
  * @returns {Promise<void>}
  */
 const updateCustomerDetails = async (req, res) => {
-    try {
+  try {
       console.log("Request body received:", req.body);
-  
-      // Destructure fields with camelCase to snake_case mapping
+
       const {
-        salutation,
-        firstName: first_name,
-        lastName: last_name,
-        email: primary_email,
-        phoneNumber: primary_phone_number,
-        address: customer_address,
-        companyName: company_name,
-        displayName: display_name,
-        gstin: gst_in,
-        currencyCode: currency_code,
-        gst_treatment,
-        tax_preference,
-        exemption_reason,
-        notes,
-        contactPersons: other_contacts,
+          salutation,
+          firstName: first_name,
+          lastName: last_name,
+          email: primary_email,
+          phoneNumber: primary_phone_number,
+          address: customer_address,
+          companyName: company_name,
+          displayName: display_name,
+          gstin: gst_in,
+          currencyCode: currency_code,
+          gst_treatment,
+          tax_preference,
+          exemption_reason,
+          notes,
+          contactPersons: other_contacts,
       } = req.body;
-  
-      // Construct updatedData
+
       const updatedData = {
-        salutation,
-        first_name,
-        last_name,
-        primary_email,
-        primary_phone_number,
-        customer_address,
-        company_name,
-        display_name,
-        gst_in,
-        currency_code: currency_code.value || currency_code,
-        gst_treatment,
-        tax_preference,
-        exemption_reason,
-        notes,
-        other_contacts,
+          salutation,
+          first_name,
+          last_name,
+          primary_email,
+          primary_phone_number,
+          customer_address,
+          company_name,
+          display_name,
+          gst_in,
+          currency_code: currency_code.value || currency_code,
+          gst_treatment,
+          tax_preference,
+          exemption_reason,
+          notes,
+          other_contacts,
       };
-  
+
       console.log("Updated data:", updatedData);
-  
-      // Update the customer
+
       const { cid } = req.params;
-      await updateCustomer(cid, updatedData);
-  
+      await updateCustomer(cid, updatedData);  // Await the async call
+
       res.status(200).json({ message: "Customer updated successfully!" });
-    } catch (error) {
+  } catch (error) {
       console.error("Customer update error:", error);
       res.status(500).json({ error: error.message });
-    }
-  };
-  
+  }
+};
+
 
 
 /**
@@ -107,17 +104,23 @@ const fetchAllCustomers = async (req, res) => {
  * @returns {Promise<*>}
  */
 const customerDetailsByID = async (req, res) => {
-    try {
-        const customer = await getCustomerById(req.params.cid); 
-        if (!customer) {
-            return res.status(404).json({ error: "Customer not found." });
-        }
+  try {
+      const customer = await getCustomerById(req.params.cid); 
+      if (!customer) {
+          return res.status(404).json({ error: "Customer not found." });
+      }
 
-        res.status(200).json({ customer });
-    } catch (error) {
-        console.error("Error fetching customer details:", error);
-        res.status(500).json({ error: "Failed to fetch customer details." });
-    }
+      // Ensure `other_contacts` is properly handled
+      if (typeof customer.other_contacts === "string") {
+          customer.other_contacts = JSON.parse(customer.other_contacts); // Parse if it's a string
+      }
+
+      res.status(200).json({ customer });
+  } catch (error) {
+      console.error("Error fetching customer details:", error);
+      res.status(500).json({ error: "Failed to fetch customer details." });
+  }
 };
+
 
 export { createCustomer, updateCustomerDetails, fetchAllCustomers, customerDetailsByID };
