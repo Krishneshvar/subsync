@@ -75,6 +75,14 @@
       setContactPersons([]); 
     };  
 
+    const handleCancel = () => {
+      const currentPath = location.pathname;
+      const userSegment = currentPath.split("/")[1]; 
+      setErrorMessage(error.message || "Returning to customer details");
+    
+      setTimeout(() => navigate(`/${userSegment}/dashboard/customers`), 2000);
+    };
+
     useEffect(() => {
       // Fetch data for edit mode
       const fetchCustomerData = async () => {
@@ -217,7 +225,8 @@
 
     return (
       <div className="container mt-4">
-        <h1 className="mb-4">{isEditing ? "Edit Customer" : "Add Customer"}</h1>
+        <h1 className="mb-4 text-3xl font-bold ">{isEditing ? "Edit Customer" : "Add Customer"}</h1>
+        <hr className="mb-4 border-blue-500 border-3 size-auto" />
 
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
@@ -233,7 +242,7 @@
             handleInputChange={handleInputChange}
             handleSelectChange={handleSelectChange}
           />
-          <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-4">
+          <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-2 ">
             <Tab eventKey="otherDetails" title="Other Details">
               <OtherDetails
                 customerData={customerData}
@@ -273,6 +282,14 @@
               variant="secondary"
               type="button"
               onClick={resetCustomerData}
+              style={{ marginLeft: "10px" }}
+            >
+              Reset
+            </Button>
+            <Button
+              variant="danger"
+              type="button"
+              onClick={handleCancel}
               style={{ marginLeft: "10px" }}
             >
               Cancel

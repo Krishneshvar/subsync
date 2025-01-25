@@ -17,6 +17,7 @@ const RemarksSection = ({ customerData, handleInputChange }) => {
           padding: "12px",
           fontSize: "16px",
           border: "1px solid #ccc",
+          marginBottom: "1rem", 
         }}
       />
     </Form.Group>

@@ -1,6 +1,7 @@
 // components/ContactPersonsSection.jsx
 import React from "react";
 import { Table, Button, Form } from "react-bootstrap";
+import { UserPlus } from "lucide-react";
 
 const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
   const handleInputChange = (index, field, value) => {
@@ -92,7 +93,8 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
         </tbody>
       </Table>
       <Button variant="primary" onClick={addContactPerson}>
-        Add Person
+       <UserPlus />
+  
       </Button>
     </>
   );
