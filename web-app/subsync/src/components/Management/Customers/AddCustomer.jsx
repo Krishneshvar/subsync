@@ -105,13 +105,9 @@
             exemption_reason: data.exemption_reason,
             currencyCode: { label: data.currency_code, value: data.currency_code },
             address: {
-              country: data.customer_address.country
-                ? { label: data.customer_address.country, value: data.customer_address.country }
-                : null, // Handle missing country
+              country: data.customer_address.country || "",
               addressLine: data.customer_address.addressLine || "",
-              state: data.customer_address.state
-                ? { label: data.customer_address.state, value: data.customer_address.state }
-                : null, // Handle missing state
+              state: data.customer_address.state || "", // Handle missing state
               city: data.customer_address.city || "",
               zipCode: data.customer_address.zipCode || "",
             },
@@ -150,10 +146,21 @@
     };
 
     const handleSelectChange = (field, value) => {
-      setCustomerData((prevData) => ({
-        ...prevData,
-        [field]: value,
-      }));
+      const keys = field.split(".");
+      if (keys.length > 1) {
+        setCustomerData((prevData) => ({
+          ...prevData,
+          [keys[0]]: {
+            ...prevData[keys[0]],
+            [keys[1]]: value?.value || "", // Save only the `value` property
+          },
+        }));
+      } else {
+        setCustomerData((prevData) => ({
+          ...prevData,
+          [field]: value,
+        }));
+      }
     };
 
     const handleSubmit = async (e) => {

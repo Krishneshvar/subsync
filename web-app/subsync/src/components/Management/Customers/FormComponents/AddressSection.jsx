@@ -105,10 +105,8 @@ const AddressSection = ({
             <Select
               options={countries}
               // Match country value with country options
-              value={countries.find((option) => option.value === country) || null} // Display country label
+              value={countries.find((option) => option.value === customerData.address.country) || null} // Display country label
               onChange={handleCountryChange}
-              getOptionLabel={(e) => e.label} // Ensure label is displayed
-              getOptionValue={(e) => e.value} // Use value for comparisons
               styles={{
                 control: (provided) => ({
                   ...provided,
@@ -126,10 +124,8 @@ const AddressSection = ({
             <Select
               options={states}
               // Match state value with state options
-              value={states.find((option) => option.value === state) || null} // Display state label
+              value={states.find((option) => option.value === customerData.address.state) || null} // Display state label
               onChange={handleStateChange}
-              getOptionLabel={(e) => e.label} // Ensure label is displayed
-              getOptionValue={(e) => e.value} // Use value for comparisons
               styles={{
                 control: (provided) => ({
                   ...provided,
