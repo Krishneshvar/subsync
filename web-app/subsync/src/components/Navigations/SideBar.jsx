@@ -14,7 +14,7 @@ export default function SideBar({ isOpen, toggleSidebar }) {
 
   return (
     <aside
-      className={`flex flex-col top-0 left-0 z-40 min-h-screen bg-blue-500 text-primary-foreground
+      className={`lg:flex lg:flex-col fixed top-0 left-0 z-40 min-h-screen bg-blue-500 text-primary-foreground
         transition-all duration-300 ease-in-out
         ${isOpen ? 'w-64' : 'w-16'}
         lg:relative lg:translate-x-0

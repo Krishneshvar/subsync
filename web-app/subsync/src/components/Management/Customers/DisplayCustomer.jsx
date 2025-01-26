@@ -10,10 +10,10 @@ import SubscriptionExpenses from "./SubscriptionExpenses";
 export default function DisplayCustomer({ customerDetails, subscriptions, chartData }) {
   const navigate = useNavigate();
 
-  const renderDetails = (label, value) => (
+  const renderDetails = (label, value, styles=null) => (
     <div className="mb-4">
       <p className="text-sm font-medium text-gray-500">{label}</p>
-      <p className="text-lg">
+      <p className={`text-lg ${styles}`}>
         {typeof value === "object" && value !== null ? value.label || "N/A" : value ?? "N/A"}
       </p>
     </div>
@@ -32,6 +32,10 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
               <h3 className="text-lg font-bold pb-2">
                 <u>Customer</u>
               </h3>
+              { customerDetails.customer_status === "Active" && 
+                renderDetails("Customer Status", customerDetails.customer_status, "bg-green-500 text-white py-1 px-2 rounded-lg w-max")}
+              { customerDetails.customer_status === "Inactive" && 
+                renderDetails("Customer Status", customerDetails.customer_status, "bg-red-500 text-white py-1 px-2 rounded-lg w-max")}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                 {renderDetails("Customer ID", customerDetails.customer_id)}
                 {renderDetails("Salutation", customerDetails.salutation)}

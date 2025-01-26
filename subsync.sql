@@ -18,12 +18,13 @@ CREATE TABLE customers (
 
     company_name VARCHAR(128) NOT NULL,
     display_name VARCHAR(128) NOT NULL,
-    gst_in VARCHAR(15) NOT NULL,
+    gst_in VARCHAR(15) UNIQUE NOT NULL,
     currency_code CHAR(3) NOT NULL,
     gst_treatment ENUM('iGST', 'CGST & SGST', 'No GST') NOT NULL,
     tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL,
     exemption_reason TEXT,
 
+    customer_status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

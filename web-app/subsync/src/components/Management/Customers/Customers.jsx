@@ -16,6 +16,7 @@ const headers = [
   { key: "company_name", label: "Company Name" },
   { key: "primary_phone_number", label: "Phone Number" },
   { key: "primary_email", label: "Email" },
+  { key: "customer_status", label: "Status" },
   { key: "actions", label: "View" },
 ];
 
@@ -49,7 +50,7 @@ export default function Customers() {
 
   // Render actions for each customer
   const renderActions = (customerId) => (
-    <div className="flex gap-2">
+    <div className="flex align-center">
       <Link to={`${customerId}`}>
         <Button className="bg-transparent text-gray-500 shadow-none">
           <Eye />

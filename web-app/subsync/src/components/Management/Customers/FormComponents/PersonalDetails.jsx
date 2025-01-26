@@ -1,12 +1,34 @@
-// components/PersonalDetails.jsx
 import React from "react";
-import { Form, Row, Col } from "react-bootstrap";
+import { Form, Row, Col, ButtonGroup, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import Select from "react-select";
 
-const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange }) => {
+const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, handleStatusChange }) => {
   return (
     <>
     <Row className="mb-3">
+      <Col className="flex flex-col mb-2" md={12}>
+        <label className="mb-2">Customer Status</label>
+        <ToggleButtonGroup type="radio" name="options" defaultValue={`${customerData.customerStatus}`} className="w-max">
+          <ToggleButton
+            id="tbg-radio-1"
+            variant="outline-success"
+            name="customerStatus"
+            value="Active"
+            onChange={(e) => handleStatusChange(e.currentTarget.value)}
+          >
+            Active
+          </ToggleButton>
+          <ToggleButton
+            id="tbg-radio-2"
+            variant="outline-danger"
+            name="customerStatus"
+            value="Inactive"
+            onChange={(e) => handleStatusChange(e.currentTarget.value)}
+          >
+            Inactive
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Col>
       <Col md={2}>
         <Form.Group>
             <Form.Label>Salutation</Form.Label>

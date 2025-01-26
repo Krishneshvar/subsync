@@ -45,6 +45,7 @@ const updateCustomerDetails = async (req, res) => {
           exemption_reason,
           notes,
           contactPersons: other_contacts,
+          customerStatus: customer_status,
       } = req.body;
 
       const updatedData = {
@@ -63,6 +64,7 @@ const updateCustomerDetails = async (req, res) => {
           exemption_reason,
           notes,
           other_contacts,
+          customer_status,
       };
 
       console.log("Updated data:", updatedData);
@@ -76,8 +78,6 @@ const updateCustomerDetails = async (req, res) => {
       res.status(500).json({ error: error.message });
   }
 };
-
-
 
 /**
  * Controller function for getAllcustomers() to be executed at /all-customers
@@ -121,6 +121,5 @@ const customerDetailsByID = async (req, res) => {
       res.status(500).json({ error: "Failed to fetch customer details." });
   }
 };
-
 
 export { createCustomer, updateCustomerDetails, fetchAllCustomers, customerDetailsByID };
