@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Alert, Form, Tabs, Tab, Button } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 import countryList from "react-select-country-list";
 import axios from "axios";
 
@@ -133,7 +134,7 @@ const AddCustomer = () => {
         setContactPersons(data.other_contacts || []);
         setLoading(false);
       } catch (error) {
-        setErrorMessage(error.message || "Failed to fetch customer data.");
+        toast.error(error.message || "Failed to fetch customer data.");
         setLoading(false);
       }
     };
@@ -209,14 +210,13 @@ const AddCustomer = () => {
         throw new Error("Error saving customer details.");
       }
 
-      setSuccessMessage(isEditing ? "Customer Updated Successfully." : "Customer Created Successfully.");
-      setErrorMessage("");
+      toast.success(isEditing ? "Customer Updated Successfully." : "Customer Created Successfully.");
       if (!isEditing) resetCustomerData();
       const userSegment = location.pathname.split("/")[1];
       setTimeout(() => navigate(`/${userSegment}/dashboard/customers`), 2000);
     } catch (error) {
-      setErrorMessage(error.message || "Error saving customer details.");
-      setSuccessMessage("");
+      toast.error(error.message || "Error saving customer details.");
+
     }
   };
 
@@ -224,11 +224,13 @@ const AddCustomer = () => {
 
   return (
     <div className="container mt-4">
+      <ToastContainer position="top-center" autoClose={2000} theme="dark" transition={Bounce} pauseOnHover  />
       <h1 className="mb-4 text-3xl font-bold ">{isEditing ? "Edit Customer" : "Add Customer"}</h1>
       <hr className="mb-4 border-blue-500 border-3 size-auto" />
 
+      {/* 
       {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-      {successMessage && <Alert variant="success">{successMessage}</Alert>}
+      {successMessage && <Alert variant="success">{successMessage}</Alert>} */}
 
       <Form onSubmit={handleSubmit}>
         <PersonalDetails
