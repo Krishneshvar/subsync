@@ -137,7 +137,7 @@ export default function Customers() {
         </div>
         <div className="flex gap-2">
           <Dropdown>
-            <Dropdown.Toggle className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+            <Dropdown.Toggle className="bg-blue-500 text-white">
               Export
             </Dropdown.Toggle>
             <Dropdown.Menu>
