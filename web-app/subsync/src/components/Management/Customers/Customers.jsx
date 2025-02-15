@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button, Dropdown } from "react-bootstrap";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Spinner } from "react-bootstrap";
 import { Eye } from 'lucide-react';
 import GenericTable from "../../Common/GenericTable";
 import Pagination from "../../Common/Pagination";
 import useFetchData from "../../Common/useFetchData";
+import { saveAs } from 'file-saver';
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const headers = [
   { key: "customer_id", label: "CID" },
@@ -48,6 +51,45 @@ export default function Customers() {
     }
   };
 
+  const exportToCSV = () => {
+    const csvData = data.map(customer => ({
+      CID: customer.customer_id,
+      Salutation: customer.salutation,
+      Name: customer.first_name,
+      "Display Name": customer.display_name,
+      "Company Name": customer.company_name,
+      "Phone Number": customer.primary_phone_number,
+      Email: customer.primary_email,
+      Status: customer.customer_status,
+    }));
+
+    const csvContent = [
+      Object.keys(csvData[0]).join(","),
+      ...csvData.map(row => Object.values(row).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "customers.csv");
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.autoTable({
+      head: [headers.map(header => header.label)],
+      body: data.map(customer => [
+        customer.customer_id,
+        customer.salutation,
+        customer.first_name,
+        customer.display_name,
+        customer.company_name,
+        customer.primary_phone_number,
+        customer.primary_email,
+        customer.customer_status,
+      ]),
+    });
+    doc.save("customers.pdf");
+  };
+
   // Render actions for each customer
   const renderActions = (customerId) => (
     <div className="flex align-center">
@@ -77,6 +119,17 @@ export default function Customers() {
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleSearch}
           />
+        </div>
+        <div className="flex gap-2">
+          <Dropdown>
+            <Dropdown.Toggle className="bg-blue-500 text-white">
+              Export
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={exportToCSV}>Export as CSV</Dropdown.Item>
+              <Dropdown.Item onClick={exportToPDF}>Export as PDF</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
         <Link to={`add`} className="w-full md:w-auto">
           <Button className="w-full md:w-auto bg-blue-500 text-white">
