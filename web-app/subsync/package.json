@@ -36,6 +36,7 @@
     "react-router-dom": "^6.26.2",
     "react-select": "^5.9.0",
     "react-select-country-list": "^2.2.3",
+    "react-toastify": "^11.0.3",
     "recharts": "^2.13.3",
     "subsync": "file:",
     "tailwind-merge": "^2.5.4",

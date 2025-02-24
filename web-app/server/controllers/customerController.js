@@ -1,4 +1,4 @@
-import { addCustomer, updateCustomer, getAllCustomers, getCustomerById } from "../models/customerModel.js";
+import { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails } from "../models/customerModel.js";
 
 /**
  * Controller function for addCustomer() to be executed at /create-customer
@@ -98,6 +98,22 @@ const fetchAllCustomers = async (req, res) => {
 };  
 
 /**
+ * Controller function for fetchAllCustomerDetails() to be executed at /all-customer-details
+ * @param   {Request}  req The request received from the client in an endpoint
+ * @param   {Response} res The response sent to the client in that endpoint
+ * @returns {Promise<void>}
+ */
+const fetchAllCustomerDetails = async (req, res) => {
+    try {
+        const customers = await getAllCustomersDetails();
+        res.status(200).json({ customers });
+    } catch (error) {
+        console.error("Error fetching all customer details:", error);
+        res.status(500).json({ error: "Failed to fetch all customer details." });
+    }
+};
+
+/**
  * Controller function for getCustomerById() to be executed at /customer/:cid
  * @param   {Request}  req The request received from the client in an endpoint
  * @param   {Response} res The response sent to the client in that endpoint
@@ -122,4 +138,4 @@ const customerDetailsByID = async (req, res) => {
   }
 };
 
-export { createCustomer, updateCustomerDetails, fetchAllCustomers, customerDetailsByID };
+export { createCustomer, updateCustomerDetails, fetchAllCustomers, fetchAllCustomerDetails, customerDetailsByID };

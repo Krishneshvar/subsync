@@ -168,6 +168,22 @@ const getAllCustomers = async ({ search = "", sort = "display_name", order = "as
     }
 };
 
+
+/**
+* Function to get all customer details to be displayed
+* @returns {Promise<{ customers: *}>}
+*/
+const getAllCustomersDetails = async () => {
+   try {
+     const [customers] = await appDB.query("SELECT * FROM customers;");
+     return customers;
+   } catch (error) {
+     console.error("Error fetching all customer Details:", error);
+     throw error;
+   }
+};
+
+
 /**
  * Fetch a single customer by given ID
  * @param   {string}     customerId The ID of the customer, whose details are to be fetched
@@ -187,4 +203,4 @@ const getCustomerById = async (customerId) => {
     }
 };
 
-export { addCustomer, updateCustomer, getAllCustomers, getCustomerById };
+export { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails };
