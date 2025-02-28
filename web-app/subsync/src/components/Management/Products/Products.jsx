@@ -20,18 +20,14 @@ const headers = [
 ]
 
 function Products() {
-  const [filterBy, setFilterBy] = useState("sname");
-  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("sname");
-  const [order, setOrder] = useState("asc"); // Default to ascending
+  const [order, setOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const { username } = useParams();
 
   const { data: dataArray = [], error, loading, totalPages } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-products`,
     {
-      searchType: filterBy || "",
-      search,
       sort: sortBy || "",
       order,
       currentPage,
@@ -56,16 +52,11 @@ function Products() {
     <div className="container shadow-lg rounded-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <SearchFilterForm
-          filterBy={filterBy}
-          setFilterBy={setFilterBy}
-          search={search}
-          setSearch={setSearch}
           sortBy={sortBy}
           setSortBy={setSortBy}
           order={order}
           setOrder={setOrder}
           headers={headers.map(({ key, label }) => ({ key, label }))}
-          onSearch={handleSearch}
         />
         <Link to="add" className="w-full md:w-auto">
           <Button className="w-full md:w-auto bg-blue-500 text-white">
