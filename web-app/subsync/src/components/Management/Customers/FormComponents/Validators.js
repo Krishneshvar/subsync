@@ -7,8 +7,9 @@ const isValidEmail = (email) => {
 };
 
 const isValidPhoneNumber = (phone) => {
-  return /^\d{10}$/.test(phone);
+  return /^\+?[1-9]\d{0,2}[-.\s]?\d{6,14}$/.test(phone);
 };
+
 
 const validateCustomerData = (customerData) => {
   // Validate Salutation
@@ -17,12 +18,12 @@ const validateCustomerData = (customerData) => {
   }
 
   // Validate First Name
-  if (!customerData.firstName || !/^[a-zA-Z]+$/.test(customerData.firstName)) {
+  if (!customerData.firstName || !/^[a-zA-Z ]+$/.test(customerData.firstName)) {
     throw new Error("First name is required and must contain only alphabets.");
   }
 
   // Validate Last Name
-  if (!customerData.lastName || !/^[a-zA-Z]+$/.test(customerData.lastName)) {
+  if (!customerData.lastName || !/^[a-zA-Z ]+$/.test(customerData.lastName)) {
     throw new Error("Last name is required and must contain only alphabets.");
   }
 

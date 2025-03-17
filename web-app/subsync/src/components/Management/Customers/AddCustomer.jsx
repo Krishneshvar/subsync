@@ -34,6 +34,7 @@ const AddCustomer = () => {
     companyName: "",
     displayName: "",
     email: "",
+    country_code: "+91",
     phoneNumber: "",
     gstin: "",
     gst_treatment: "",
@@ -59,6 +60,7 @@ const AddCustomer = () => {
       companyName: "",
       displayName: "",
       email: "",
+      country_code: "+91",
       phoneNumber: "",
       gstin: "",
       gst_treatment: "",
@@ -114,6 +116,7 @@ const AddCustomer = () => {
           companyName: data.company_name,
           displayName: data.display_name,
           email: data.primary_email,
+          country_code: data.country_code,
           phoneNumber: data.primary_phone_number,
           gstin: data.gst_in,
           gst_treatment: data.gst_treatment,
@@ -189,10 +192,12 @@ const AddCustomer = () => {
         ...customerData,
         contactPersons: contactPersons.map((person) => ({
           salutation: person.salutation,
+          designation: person.designation, 
           first_name: person.first_name,
           last_name: person.last_name,
           email: person.email,
           phone_number: person.phone_number,
+          country_code: person.country_code,
         })),
       };
 
