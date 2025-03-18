@@ -6,6 +6,7 @@ import Table from "react-bootstrap/Table";
 import { Button } from "react-bootstrap";
 import Subscriptions from "./Subscriptions";
 import SubscriptionExpenses from "./SubscriptionExpenses";
+import {format} from "date-fns";
 
 export default function DisplayCustomer({ customerDetails, subscriptions, chartData }) {
   const navigate = useNavigate();
@@ -18,6 +19,16 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
       </p>
     </div>
   );  
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "N/A";
+    try {
+      return format(new Date(timestamp), "MMMM dd, yyyy hh:mm a"); // Example: March 18, 2025 07:27 AM
+    } catch (error) {
+      console.error("Error formatting timestamp:", error);
+      return "Invalid Date";
+    }
+  };
 
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
@@ -42,7 +53,7 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
                 {renderDetails("First Name", customerDetails.first_name)}
                 {renderDetails("Last Name", customerDetails.last_name)}
                 {renderDetails("Email", customerDetails.primary_email)}
-                {renderDetails("Phone Number", customerDetails.primary_phone_number)}
+                {renderDetails("Phone Number", `${customerDetails.phone_with_country_code}`)}
               </div>
 
               {/* Address */}
@@ -107,8 +118,8 @@ export default function DisplayCustomer({ customerDetails, subscriptions, chartD
 
               {/* Timestamps */}
               <div className="flex gap-4 pt-4">
-                {renderDetails("Created At", customerDetails.created_at)}
-                {renderDetails("Updated At", customerDetails.updated_at)}
+                {renderDetails("Created At", formatTimestamp(customerDetails.created_at))}
+                {renderDetails("Updated At",formatTimestamp (customerDetails.updated_at))}
               </div>
 
               {/* Edit Button */}

@@ -59,7 +59,7 @@ export default function CustomerDetails() {
                 }
                 return acc;
               }, {})
-            : {}; // Fallback for empty subscriptions
+            : {}; 
 
         const labels = Object.keys(spendingOverTime).sort();
         const dataPoints = labels.map((label) => spendingOverTime[label]);
@@ -93,7 +93,10 @@ export default function CustomerDetails() {
   return (
     <div className="container mx-auto py-4 px-2 sm:px-2 lg:px-6">
       <DisplayCustomer
-        customerDetails={customerDetails}
+        customerDetails={{
+          ...customerDetails,
+          phone_with_country_code: `${customerDetails.country_code}${customerDetails.primary_phone_number}`,
+        }}
         subscriptions={subscriptions}
         chartData={chartData}
       />

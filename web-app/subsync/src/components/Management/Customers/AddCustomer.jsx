@@ -22,9 +22,7 @@ const AddCustomer = () => {
   const [states, setStates] = useState([]);
   const [contactPersons, setContactPersons] = useState([]);
   const [activeTab, setActiveTab] = useState("otherDetails");
-  const [isEditing, setIsEditing] = useState(!!editableCustomerId);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(!!editableCustomerId)
   const [loading, setLoading] = useState(false);
 
   const [customerData, setCustomerData] = useState({
@@ -201,6 +199,8 @@ const AddCustomer = () => {
         })),
       };
 
+      console.log("Payload: ", payload);
+
       const url = isEditing
         ? `${import.meta.env.VITE_API_URL}/update-customer/${editableCustomerId}`
         : `${import.meta.env.VITE_API_URL}/create-customer`;
@@ -217,6 +217,7 @@ const AddCustomer = () => {
 
       toast.success(isEditing ? "Customer Updated Successfully." : "Customer Created Successfully.");
       if (!isEditing) resetCustomerData();
+      
       const userSegment = location.pathname.split("/")[1];
       setTimeout(() => navigate(`/${userSegment}/dashboard/customers`), 2000);
     } catch (error) {
