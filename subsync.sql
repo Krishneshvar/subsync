@@ -29,6 +29,24 @@ CREATE TABLE customers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Create the Domains Table Associated with Customers
+CREATE TABLE IF NOT EXISTS domains (
+    domain_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id VARCHAR(15) NOT NULL,
+    customer_name VARCHAR(255) NOT NULL,
+    domain_name VARCHAR(255) UNIQUE NOT NULL,
+    registration_date DATE NOT NULL,
+    expiry_date DATE NOT NULL,
+    registered_with ENUM('OCS', 'Direct Customer', 'Winds', 'Others') NOT NULL,
+    other_provider VARCHAR(255) DEFAULT NULL,
+    name_server VARCHAR(255),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
+);
+
+
 -- Create the Users table
 CREATE TABLE users (
     username VARCHAR(32) PRIMARY KEY,
