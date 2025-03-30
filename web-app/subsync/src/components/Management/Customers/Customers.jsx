@@ -18,7 +18,7 @@ const headers = [
   { key: "first_name", label: "Name" },
   { key: "display_name", label: "Display Name" },
   { key: "company_name", label: "Company Name" },
-  { key: "primary_phone_number", label: "Phone Number" },
+  { key: "phone_with_country_code", label: "Phone Number" },
   { key: "primary_email", label: "Email" },
   { key: "customer_status", label: "Status" },
   { key: "actions", label: "View/Edit" },
@@ -77,6 +77,7 @@ export default function Customers() {
 
   const modifiedData = (filteredData || []).map((customer) => ({
     ...customer,
+    phone_with_country_code: `${customer.country_code || ""}${customer.primary_phone_number}`,
     actions: renderActions(customer.customer_id),
   }));
 

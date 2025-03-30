@@ -13,7 +13,7 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
   const addContactPerson = () => {
     setContactPersons([
       ...contactPersons,
-      { salutation: "", first_name: "", last_name: "", email: "", phone_number: "" },
+      { salutation: "",designation:"", first_name: "", last_name: "", email: "", phone_number: "" },
     ]);
   };
 
@@ -28,6 +28,7 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
         <thead>
           <tr>
             <th>Salutation</th>
+            <th>Designation</th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email Address</th>
@@ -50,6 +51,13 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
                   <option>Mrs.</option>
                   <option>Dr.</option>
                 </Form.Control>
+              </td>
+              <td>
+                <Form.Control
+                  type="text"
+                  value={person.designation}
+                  onChange={(e) => handleInputChange(index, "designation", e.target.value)}
+                />
               </td>
               <td>
                 <Form.Control

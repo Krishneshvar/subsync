@@ -40,12 +40,12 @@ async function addCustomer(customer) {
 
         // Execute SQL query
         const [result] = await appDB.query(
-            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email, primary_phone_number, customer_address, " +
+            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email,country_code, primary_phone_number, customer_address, " +
             "other_contacts, company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference, exemption_reason, " +
             "notes, customer_status, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             [
-                cid, customer.salutation, customer.firstName, customer.lastName, customer.email, customer.phoneNumber,
+                cid, customer.salutation, customer.firstName, customer.lastName, customer.email,customer.country_code, customer.phoneNumber,
                 customerAddress, otherContacts, customer.companyName, customer.displayName, customer.gstin,
                 currencyCode, customer.gst_treatment, customer.tax_preference, customer.exemption_reason || "",
                 customer.notes || "", customer.customerStatus, currentTime, currentTime,
@@ -79,7 +79,7 @@ async function addCustomer(customer) {
  */
 async function updateCustomer(customerId, updatedData) {
     const {
-        salutation, first_name, last_name, primary_email, primary_phone_number, customer_address,
+        salutation, first_name, last_name, primary_email,country_code, primary_phone_number, customer_address,
         company_name, display_name, gst_in, currency_code, gst_treatment, other_contacts,
         tax_preference, exemption_reason, notes, customer_status
     } = updatedData;
@@ -106,13 +106,14 @@ async function updateCustomer(customerId, updatedData) {
         const currentTime = getCurrentTime();
         const [result] = await appDB.query(
             `UPDATE customers 
-             SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, primary_phone_number = ?, 
+             SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, country_code = ?, primary_phone_number = ?, 
                  customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, 
                  gst_treatment = ?, other_contacts = ?, tax_preference = ?, exemption_reason = ?, notes = ?,
                  customer_status = ?, updated_at = ? 
              WHERE customer_id = ?;`,
             [
-                salutation, first_name, last_name, primary_email, primary_phone_number,
+                salutation, first_name, last_name, primary_email,
+                country_code, primary_phone_number,
                 JSON.stringify(customer_address), // Ensure proper serialization
                 company_name, display_name, gst_in, currency_code, gst_treatment,
                 JSON.stringify(other_contacts), // Ensure consistent reference
