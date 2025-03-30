@@ -6,6 +6,8 @@ import { createDomain, updateDomainDetails, fetchAllDomains, domainDetailsByID, 
 import { getProductsController, createProduct, getProductDetailsController } from '../controllers/productController.js';
 import { getSubscriptionsController, createSubscription } from '../controllers/subscriptionController.js';
 
+import { getAllTaxes, createTax } from '../controllers/taxController.js';
+
 const router = express.Router();
 
 // Login
@@ -34,5 +36,9 @@ router.get('/product/:id', getProductDetailsController);
 // Subscriptions
 router.get('/all-subscriptions', getSubscriptionsController);
 router.post('/add-subscription', createSubscription);
+
+// Taxes
+router.get('/all-taxes', getAllTaxes);
+router.post('/add-tax', createTax);
 
 export default router;

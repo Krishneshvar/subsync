@@ -1,4 +1,3 @@
-import React from 'react'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import Reminders from './Reminders'
 import Warnings from './Warnings'

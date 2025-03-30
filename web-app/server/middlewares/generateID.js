@@ -2,7 +2,7 @@
  * Function to create a customer's ID in "CIDYYMMDDHHMMSS" format and export it
  * @returns {string} The customer ID in "CIDYYMMDDHHMMSS" format
  */
-export const generateID = () => {
+export const generateID = (text) => {
   const now = new Date();
 
   const year = now.getFullYear().toString().slice(-2); // Last two digits of the year
@@ -12,5 +12,5 @@ export const generateID = () => {
   const minute = String(now.getMinutes()).padStart(2, '0');
   const second = String(now.getSeconds()).padStart(2, '0');
 
-  return `CID${year}${month}${day}${hour}${minute}${second}`;
+  return `${text}${year}${month}${day}${hour}${minute}${second}`;
 };

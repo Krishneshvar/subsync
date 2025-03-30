@@ -46,6 +46,17 @@ CREATE TABLE IF NOT EXISTS domains (
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
 );
 
+-- Create the Tax details table
+CREATE TABLE taxes (
+	tax_id VARCHAR(15) PRIMARY KEY,
+    tax_name TEXT NOT NULL,
+    tax_type ENUM('CGST', 'SGST', 'iGST') NOT NULL,
+    tax_rate FLOAT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Create the Users table
 CREATE TABLE users (
     username VARCHAR(32) PRIMARY KEY,

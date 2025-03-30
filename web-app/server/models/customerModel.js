@@ -1,6 +1,6 @@
 import appDB from "../db/subsyncDB.js";
 import { getCurrentTime } from "../middlewares/time.js";
-import { generateID } from "../middlewares/customerIDGen.js";
+import { generateID } from "../middlewares/generateID.js";
 import { isValidGSTIN, isValidEmail, isValidPhoneNumber } from "../middlewares/validations.js";
 
 /**
@@ -29,7 +29,7 @@ async function addCustomer(customer) {
         }
 
         const currentTime = getCurrentTime();
-        const cid = generateID();
+        const cid = generateID("CID");
 
         // Extract only the `value` from currencyCode
         const currencyCode = customer.currencyCode.value || customer.currencyCode;

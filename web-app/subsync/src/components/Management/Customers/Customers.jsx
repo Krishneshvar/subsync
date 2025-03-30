@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"; 
+import { useState, useEffect, useRef } from "react"; 
 import { Link, useParams } from "react-router-dom"; 
 import { Button, Dropdown } from "react-bootstrap"; 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; 
@@ -9,8 +9,7 @@ import Pagination from "../../Common/Pagination";
 import useFetchData from "../../Common/useFetchData"; 
 import SearchFilterForm from "../../Common/SearchFilterForm"; 
 import { saveAs } from "file-saver"; 
-import * as Papa from "papaparse"; 
-import { jsPDF } from "jspdf"; 
+import * as Papa from "papaparse";
 import "jspdf-autotable"; 
 import { toast } from "react-toastify"; 
 

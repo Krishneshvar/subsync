@@ -12,6 +12,9 @@ import AddSubscription from './components/Management/Subscriptions/AddSubscripti
 import CustomerDetails from './components/Management/Customers/CustomerDetails';
 import ProductDetails from './components/Management/Products/ProductDetails';
 import SubscriptionDetails from './components/Management/Subscriptions/SubscriptionDetails';
+import Settings from './components/Settings/Settings';
+import Taxes from './components/Settings/Taxes';
+import AddTax from './components/Settings/AddTax';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
@@ -37,7 +40,15 @@ const router = createBrowserRouter([
       { path: "domains", element: <Domains /> },
       { path: "domains/:id", element: <CreateDomain /> },
 
-      { path: "settings", element: <CreateDomain /> },
+      { path: "settings",
+        element: <Settings />,
+        children: [
+          { path: "profile", element: <Settings /> },
+
+          { path: "taxes", element: <Taxes /> },
+          { path: "taxes/add", element: <AddTax /> },
+        ]
+      },
     ],
   },
 ]);
