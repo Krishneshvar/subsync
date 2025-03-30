@@ -44,7 +44,7 @@ function Products() {
   useEffect(() => {
     console.log("Order changed:", order); // Debugging line
     setCurrentPage(1); // Reset to first page whenever filter, sort, or order changes
-  }, [filterBy, sortBy, order]);
+  }, [sortBy, order]);
 
   console.log("Products Data:", dataArray);
 

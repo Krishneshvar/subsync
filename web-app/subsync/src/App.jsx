@@ -2,6 +2,8 @@ import Login from './components/AuthForm/Login';
 import Dashboard from './components/Dashboard/Dashboard';
 import Home from './components/Home/Home';
 import Customers from './components/Management/Customers/Customers';
+import Domains from './components/Management/Customers/Domains';
+import CreateDomain from './components/Management/Customers/CreateDomain';
 import Products from './components/Management/Products/Products';
 import Subscriptions from './components/Management/Subscriptions/Subscriptions';
 import AddCustomer from './components/Management/Customers/AddCustomer';
@@ -29,6 +31,8 @@ const router = createBrowserRouter([
       { path: "subscriptions", element: <Subscriptions /> },
       { path: "subscriptions/:id", element: <SubscriptionDetails /> },
       { path: "subscriptions/add", element: <AddSubscription /> },
+      {path: "domains", element: <Domains />},
+      {path: "domains/:id", element: <CreateDomain />},
     ],
   },
 ]);

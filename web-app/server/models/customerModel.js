@@ -204,4 +204,40 @@ const getCustomerById = async (customerId) => {
     }
 };
 
-export { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails };
+/**
+ * Import multiple customers in bulk
+ * @param {Array} customers - Array of customer objects to be inserted
+ */
+ const importCustomerData = async (customers) => {
+    const query = `
+        INSERT INTO customers (salutation, first_name, last_name, primary_email, country_code, primary_phone_number, 
+                               customer_address, company_name, display_name, gst_in, currency_code, gst_treatment, 
+                               tax_preference, exemption_reason, notes, other_contacts, customer_status) 
+        VALUES ?
+    `;
+
+    const values = customers.map(customer => [
+        customer.salutation,
+        customer.first_name,
+        customer.last_name,
+        customer.primary_email,
+        customer.country_code,
+        customer.primary_phone_number,
+        JSON.stringify(customer.customer_address),
+        customer.company_name,
+        customer.display_name,
+        customer.gst_in,
+        customer.currency_code,
+        customer.gst_treatment,
+        customer.tax_preference,
+        customer.exemption_reason,
+        customer.notes,
+        JSON.stringify(customer.other_contacts),
+        customer.customer_status,
+    ]);
+
+    await db.query(query, [values]);
+};
+
+
+export { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails, importCustomerData };

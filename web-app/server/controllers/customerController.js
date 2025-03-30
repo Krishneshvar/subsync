@@ -1,4 +1,4 @@
-import { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails } from "../models/customerModel.js";
+import { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails, importCustomerData } from "../models/customerModel.js";
 
 /**
  * Controller function for addCustomer() to be executed at /create-customer
@@ -140,4 +140,22 @@ const customerDetailsByID = async (req, res) => {
   }
 };
 
-export { createCustomer, updateCustomerDetails, fetchAllCustomers, fetchAllCustomerDetails, customerDetailsByID };
+/**
+ * Controller function for importCustomerData() to be executed at /import-customers
+ */
+const importCustomers = async (req, res) => {
+    try {
+        const { customers } = req.body;
+        if (!customers || customers.length === 0) {
+            return res.status(400).json({ error: "No customer data provided" });
+        }
+
+        await importCustomerData(customers);
+        res.status(200).json({ message: "Customers imported successfully!" });
+    } catch (error) {
+        console.error("Error importing customers:", error);
+        res.status(500).json({ error: "Failed to import customers." });
+    }
+};
+
+export { createCustomer, updateCustomerDetails, fetchAllCustomers, fetchAllCustomerDetails, customerDetailsByID, importCustomers };

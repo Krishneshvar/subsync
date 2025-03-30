@@ -3,6 +3,7 @@ import { Alert, Form, Tabs, Tab, Button } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import countryList from "react-select-country-list";
+import * as Papa from "papaparse";
 import axios from "axios";
 
 import validateCustomerData from "./FormComponents/Validators";
@@ -24,6 +25,7 @@ const AddCustomer = () => {
   const [activeTab, setActiveTab] = useState("otherDetails");
   const [isEditing, setIsEditing] = useState(!!editableCustomerId)
   const [loading, setLoading] = useState(false);
+
 
   const [customerData, setCustomerData] = useState({
     salutation: "",
@@ -49,6 +51,8 @@ const AddCustomer = () => {
     notes: "",
     customerStatus: "Active",
   });
+
+
 
   const resetCustomerData = () => {
     setCustomerData({
