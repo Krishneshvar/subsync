@@ -25,14 +25,19 @@ const router = createBrowserRouter([
       { path: "customers/:id", element: <CustomerDetails /> },
       { path: "customers/add", element: <AddCustomer /> },
       { path: "customers/:id/edit", element: <AddCustomer /> },
+
       { path: "products", element: <Products /> },
       { path: "products/:id", element: <ProductDetails /> },
       { path: "products/add", element: <AddProduct /> },
+
       { path: "subscriptions", element: <Subscriptions /> },
       { path: "subscriptions/:id", element: <SubscriptionDetails /> },
       { path: "subscriptions/add", element: <AddSubscription /> },
-      {path: "domains", element: <Domains />},
-      {path: "domains/:id", element: <CreateDomain />},
+
+      { path: "domains", element: <Domains /> },
+      { path: "domains/:id", element: <CreateDomain /> },
+
+      { path: "settings", element: <CreateDomain /> },
     ],
   },
 ]);

@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS domains (
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
 );
 
-
 -- Create the Users table
 CREATE TABLE users (
     username VARCHAR(32) PRIMARY KEY,
@@ -56,4 +55,4 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-select * from customers;
+SELECT * FROM customers;
