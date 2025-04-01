@@ -16,6 +16,7 @@ import Settings from './components/Settings/Settings';
 import Taxes from './components/Settings/Taxes';
 import AddTax from './components/Settings/AddTax';
 import DefaultTaxPreference from './components/Settings/DefaultTaxPreference';
+import GSTSettings from './components/Settings/GSTSettings';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import AllTaxes from './components/Settings/AllTaxes';
 
@@ -54,7 +55,8 @@ const router = createBrowserRouter([
               { path: "tax-rates", element: <AllTaxes /> },
               { path: "tax-rates/add", element: <AddTax /> },
               { path: "tax-rates/edit/:id", element: <AddTax /> },
-              { path: "default-tax-pref", element: <DefaultTaxPreference /> }
+              { path: "default-tax-pref", element: <DefaultTaxPreference /> },
+              { path: "gst-settings", element: <GSTSettings /> },
             ]
           }
         ]

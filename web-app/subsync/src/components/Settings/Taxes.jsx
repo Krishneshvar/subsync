@@ -19,7 +19,7 @@ export default function Taxes() {
     return (
         <div className="flex flex-col h-full w-full">
             {/* Header (Shows dropdown on small screens) */}
-            <div className="border-b border-gray-300 p-4 flex justify-between items-center">
+            <div className="border-b border-gray-300 p-2 flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Taxes</h1>
 
                 {/* Dropdown for small screens */}
@@ -59,7 +59,7 @@ export default function Taxes() {
                                 <li key={category.path}>
                                     <Link
                                         to={category.path} // Relative path
-                                        className={`block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 ${
+                                        className={`block px-3 py-2 rounded-md text-gray-700 hover:bg-blue-400 ${
                                             isActive ? "bg-blue-500 text-white" : ""
                                         }`}
                                     >
@@ -72,7 +72,7 @@ export default function Taxes() {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex flex-col flex-grow p-4">
+                <div className="flex flex-col flex-grow items-center p-4">
                     <Outlet />
                 </div>
             </div>

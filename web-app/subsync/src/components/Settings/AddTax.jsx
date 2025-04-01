@@ -47,7 +47,7 @@ export default function AddTax() {
     };
 
     return (
-        <div className="max-w-lg mx-auto">
+        <div className="w-[250px]">
             <h1 className="text-2xl font-bold mb-4">Add New Tax</h1>
             
             {error && (
@@ -57,7 +57,7 @@ export default function AddTax() {
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
-            
+
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {/* Tax Name */}
                 <div>

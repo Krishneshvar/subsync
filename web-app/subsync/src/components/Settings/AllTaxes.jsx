@@ -31,13 +31,13 @@ export default function AllTaxes() {
 
     return (
         <>
-            <div className="flex flex-row justify-between items-center">
+            <div className="w-full flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-bold mb-4">All Taxes</h1>
                 <Link to="add" className="bg-blue-500 rounded-lg px-4 py-1 text-white">
                     Add Tax
                 </Link>
             </div>
-            <div>
+            <div className="w-full">
                 <Table>
                     <TableHeader className="bg-blue-500">
                         <TableRow>
