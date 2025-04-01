@@ -33,4 +33,39 @@ async function addTax(tax) {
     }
 }
 
-export { getTaxes, addTax };
+async function updateTax(tax) {
+    const { taxId, taxName, taxType, taxRate } = tax;
+
+    // Validate required fields
+    if (!taxId || !taxName || !taxType || !taxRate) {
+        throw new Error("Tax ID, Tax Name, Tax Type, and Tax Rate are required fields.");
+    }
+
+    try {
+        const query = `UPDATE taxes SET tax_name = ?, tax_type = ?, tax_rate = ? WHERE tax_id = ?`;
+        const params = [taxName, taxType, taxRate, taxId];
+        const [result] = await appDB.query(query, params);
+        return result;
+    } catch (error) {
+        console.error("Error updating tax in database:", error.message);
+        throw new Error("Database query failed");
+    }
+}
+
+async function removeTax(taxId) {
+    if (!taxId) {
+        throw new Error("Tax ID is required.");
+    }
+
+    try {
+        const query = `DELETE FROM taxes WHERE tax_id = ?`;
+        const params = [taxId];
+        const [result] = await appDB.query(query, params);
+        return result;
+    } catch (error) {
+        console.error("Error deleting tax from database:", error.message);
+        throw new Error("Database query failed");
+    }
+}
+
+export { getTaxes, addTax, updateTax, removeTax };

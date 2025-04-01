@@ -1,4 +1,4 @@
-import { getTaxes, addTax } from "../models/taxModel.js";
+import { getTaxes, addTax, updateTax, removeTax } from "../models/taxModel.js";
 
 const getAllTaxes = async (req, res) => {
     try {
@@ -21,4 +21,26 @@ const createTax = async (req, res) => {
     }
 };
 
-export { getAllTaxes, createTax };
+const editTax = async (req, res) => {
+    try {
+        const tax = req.body;
+        const result = await updateTax(tax);
+        res.status(200).json({ message: "Tax updated successfully", result });
+    } catch (error) {
+        console.error("Error updating tax:", error.message);
+        res.status(500).json({ error: "Failed to update tax" });
+    }
+};
+
+const deleteTax = async (req, res) => {
+    try {
+        const { taxId } = req.params;
+        await removeTax(taxId);
+        res.status(200).json({ message: "Tax deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting tax:", error.message);
+        res.status(500).json({ error: "Failed to delete tax" });
+    }
+};
+
+export { getAllTaxes, createTax, editTax, deleteTax };

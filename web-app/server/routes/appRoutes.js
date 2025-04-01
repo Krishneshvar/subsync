@@ -6,7 +6,7 @@ import { createDomain, updateDomainDetails, fetchAllDomains, domainDetailsByID, 
 import { getProductsController, createProduct, getProductDetailsController } from '../controllers/productController.js';
 import { getSubscriptionsController, createSubscription } from '../controllers/subscriptionController.js';
 
-import { getAllTaxes, createTax } from '../controllers/taxController.js';
+import { getAllTaxes, createTax, editTax, deleteTax } from '../controllers/taxController.js';
 
 const router = express.Router();
 
@@ -40,5 +40,7 @@ router.post('/add-subscription', createSubscription);
 // Taxes
 router.get('/all-taxes', getAllTaxes);
 router.post('/add-tax', createTax);
+router.post('/update-tax', editTax);
+router.post('/delete-tax/:taxId', deleteTax);
 
 export default router;
