@@ -35,7 +35,17 @@ const editTax = async (req, res) => {
 const deleteTax = async (req, res) => {
     try {
         const { taxId } = req.params;
-        await removeTax(taxId);
+
+        if (!taxId) {
+            return res.status(400).json({ error: "Tax ID is required" });
+        }
+
+        const deleted = await removeTax(taxId);
+
+        if (!deleted) {
+            return res.status(404).json({ error: "Tax not found" });
+        }
+
         res.status(200).json({ message: "Tax deleted successfully" });
     } catch (error) {
         console.error("Error deleting tax:", error.message);

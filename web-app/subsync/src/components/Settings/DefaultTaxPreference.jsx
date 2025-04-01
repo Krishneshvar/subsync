@@ -100,7 +100,7 @@ export default function DefaultTaxPreference() {
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full">Add Tax</Button>
+                <Button type="submit" className="w-full">Save Preference</Button>
             </form>
         </div>
     );

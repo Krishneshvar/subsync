@@ -29,6 +29,31 @@ export default function AllTaxes() {
         fetchTaxes();
     }, []);
 
+    const onDelete = async (tax_id) => {
+        if (!window.confirm("Are you sure you want to delete this tax?")) return;
+    
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/delete-tax/${tax_id}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                credentials: "include",
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to delete tax (Status: ${response.status})`);
+            }
+    
+            // Update UI by filtering out the deleted tax
+            setData((prevData) => prevData.filter((item) => item.tax_id !== tax_id));
+    
+        } catch (error) {
+            console.error("Error deleting tax:", error);
+        }
+    };    
+
     return (
         <>
             <div className="w-full flex flex-row justify-between items-center">
@@ -60,7 +85,12 @@ export default function AllTaxes() {
                                             <Pencil className="h-4 w-4" />
                                         </Button>
                                     </Link>
-                                    <Button variant="ghost" size="icon" aria-label={`Delete ${item.taxName || "tax"}`}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        aria-label={`Delete ${item.tax_name || "tax"}`} 
+                                        onClick={() => onDelete(item.tax_id)}
+                                    >
                                         <Trash2 className="h-4 w-4 text-red-500" />
                                     </Button>
                                 </TableCell>

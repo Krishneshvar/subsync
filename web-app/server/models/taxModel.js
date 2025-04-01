@@ -59,9 +59,13 @@ async function removeTax(taxId) {
 
     try {
         const query = `DELETE FROM taxes WHERE tax_id = ?`;
-        const params = [taxId];
-        const [result] = await appDB.query(query, params);
-        return result;
+        const [result] = await appDB.query(query, [taxId]);
+
+        if (result.affectedRows === 0) {
+            return false; // No record was deleted
+        }
+
+        return true; // Tax deleted successfully
     } catch (error) {
         console.error("Error deleting tax from database:", error.message);
         throw new Error("Database query failed");
