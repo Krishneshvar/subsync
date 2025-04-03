@@ -48,10 +48,17 @@ CREATE TABLE IF NOT EXISTS domains (
 
 -- Create the Tax details table
 CREATE TABLE taxes (
-	tax_id VARCHAR(15) PRIMARY KEY,
-    tax_name TEXT NOT NULL,
-    tax_type ENUM('CGST', 'SGST', 'iGST') NOT NULL,
-    tax_rate FLOAT NOT NULL,
+    tax_rates JSON,
+    default_tax_preference JSON,
+    gst_settings JSON
+);
+
+CREATE TABLE gst_settings (
+	tax_reg_num_label VARCHAR(10) NOT NULL,
+    gst_in VARCHAR(15) NOT NULL,
+    business_legal_name VARCHAR(20) NOT NULL,
+    business_trade_name VARCHAR(20) NOT NULL,
+    gst_reg_date DATE NOT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

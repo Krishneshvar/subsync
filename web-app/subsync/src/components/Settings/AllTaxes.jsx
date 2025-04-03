@@ -46,9 +46,7 @@ export default function AllTaxes() {
                 throw new Error(`Failed to delete tax (Status: ${response.status})`);
             }
     
-            // Update UI by filtering out the deleted tax
             setData((prevData) => prevData.filter((item) => item.tax_id !== tax_id));
-    
         } catch (error) {
             console.error("Error deleting tax:", error);
         }

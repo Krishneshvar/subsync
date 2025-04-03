@@ -47,7 +47,7 @@ export default function DefaultTaxPreference() {
     };
 
     return(
-        <div>
+        <div className="md:w-[50%] w-full">
             {error && (
                 <Alert variant="destructive" className="mb-4">
                     <AlertCircle className="h-5 w-5" />
@@ -59,7 +59,7 @@ export default function DefaultTaxPreference() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <h1 className="text-2xl font-bold">Default Tax Preference</h1>
                 {/* Tax Name */}
-                <div>
+                <div className="flex gap-2 items-center justify-between">
                     <Label htmlFor="taxName">Intra State Tax Rate (%)</Label>
                     <Input
                         id="taxName"
@@ -67,6 +67,7 @@ export default function DefaultTaxPreference() {
                         onChange={(e) => setTaxName(e.target.value)}
                         required
                         placeholder="Enter tax name"
+                        className="max-w-60"
                     />
                 </div>
 
@@ -86,7 +87,7 @@ export default function DefaultTaxPreference() {
                 </div> */}
 
                 {/* Tax Rate */}
-                <div>
+                <div className="flex gap-2 items-center justify-between">
                     <Label htmlFor="taxRate">Inter State Tax Rate (%)</Label>
                     <Input
                         id="taxRate"
@@ -96,11 +97,14 @@ export default function DefaultTaxPreference() {
                         required
                         placeholder="Enter tax rate"
                         min="0"
+                        className="max-w-60"
                     />
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full">Save Preference</Button>
+                <div className="flex w-full justify-end">
+                    <Button type="submit" className="max-w-60">Save Preference</Button>
+                </div>
             </form>
         </div>
     );

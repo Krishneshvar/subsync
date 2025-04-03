@@ -72,7 +72,7 @@ export default function Taxes() {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex flex-col flex-grow items-center p-4">
+                <div className="flex flex-col flex-grow p-4">
                     <Outlet />
                 </div>
             </div>

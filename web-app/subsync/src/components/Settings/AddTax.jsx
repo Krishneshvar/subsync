@@ -20,31 +20,42 @@ export default function AddTax() {
             setError("Tax rate must be a non-negative number.");
             return;
         }
-        
+    
         try {
+            const requestData = {
+                taxName: taxName.trim(),
+                taxType: taxType,
+                taxRate: parseFloat(taxRate)
+            };
+    
+            console.log("Sending request:", JSON.stringify(requestData));
+    
             const response = await fetch(`${import.meta.env.VITE_API_URL}/add-tax`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
-                body: JSON.stringify({ taxName, taxType, taxRate: parseFloat(taxRate) }),
+                body: JSON.stringify(requestData),
             });
-
+    
+            const responseData = await response.json();
+            console.log("Response:", responseData);
+    
             if (!response.ok) {
-                throw new Error("Failed to add tax. Please try again.");
+                throw new Error(responseData.error || "Failed to add tax. Please try again.");
             }
-
+    
             // Reset form on success
             setTaxName("");
             setTaxType("CGST");
             setTaxRate("");
             setError(null);
-
+    
         } catch (error) {
             setError(error.message);
         }
-    };
+    };    
 
     return (
         <div className="w-[250px]">
