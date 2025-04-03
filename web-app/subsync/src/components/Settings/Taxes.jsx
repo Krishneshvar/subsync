@@ -1,8 +1,8 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react"; // Icon for dropdown
+import { ChevronDown } from "lucide-react";
 
 const categories = [
     { name: "Tax Rates", path: "tax-rates" },
@@ -15,16 +15,22 @@ export default function Taxes() {
     const [selectedCategory, setSelectedCategory] = useState(
         categories.find(cat => location.pathname.endsWith(cat.path)) || categories[0]
     );
+    const [isOpen, setIsOpen] = useState(false); // Controls dropdown visibility
+
+    useEffect(() => {
+        const currentCategory = categories.find(cat => location.pathname.endsWith(cat.path));
+        if (currentCategory) setSelectedCategory(currentCategory);
+    }, [location.pathname]);
 
     return (
         <div className="flex flex-col h-full w-full">
-            {/* Header (Shows dropdown on small screens) */}
+            {/* Header with dropdown for small screens */}
             <div className="border-b border-gray-300 p-2 flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Taxes</h1>
 
-                {/* Dropdown for small screens */}
+                {/* Dropdown for mobile view */}
                 <div className="lg:hidden">
-                    <Popover>
+                    <Popover open={isOpen} onOpenChange={setIsOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline" className="flex items-center gap-2">
                                 {selectedCategory.name} <ChevronDown className="w-4 h-4" />
@@ -35,9 +41,12 @@ export default function Taxes() {
                                 {categories.map((category) => (
                                     <li key={category.path}>
                                         <Link
-                                            to={category.path} // Relative path
-                                            onClick={() => setSelectedCategory(category)}
-                                            className={`block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100`}
+                                            to={category.path}
+                                            onClick={() => {
+                                                setSelectedCategory(category);
+                                                setIsOpen(false); // Close dropdown after selection
+                                            }}
+                                            className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
                                         >
                                             {category.name}
                                         </Link>
@@ -50,7 +59,7 @@ export default function Taxes() {
             </div>
 
             <div className="flex flex-row flex-grow">
-                {/* Sidebar (Hidden on small screens) */}
+                {/* Sidebar navigation */}
                 <div className="hidden lg:block w-[15%] border-r border-gray-300 p-4">
                     <ul className="mt-3 space-y-2">
                         {categories.map((category) => {
@@ -58,7 +67,7 @@ export default function Taxes() {
                             return (
                                 <li key={category.path}>
                                     <Link
-                                        to={category.path} // Relative path
+                                        to={category.path}
                                         className={`block px-3 py-2 rounded-md text-gray-700 hover:bg-blue-400 ${
                                             isActive ? "bg-blue-500 text-white" : ""
                                         }`}

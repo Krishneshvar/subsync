@@ -46,9 +46,24 @@ async function addTax(tax) {
         let taxRates = [];
 
         if (rows.length) {
-            if (rows[0].tax_rates) {
+            let taxRatesRaw = rows[0].tax_rates;
+        
+            if (taxRatesRaw) {
                 try {
-                    taxRates = JSON.parse(rows[0].tax_rates);
+                    if (Buffer.isBuffer(taxRatesRaw)) {  // If it's a buffer, convert it to string
+                        taxRatesRaw = taxRatesRaw.toString("utf8");
+                    }
+
+                    if (typeof taxRatesRaw === "object") {  // If it's already an object, use it directly
+                        taxRates = Array.isArray(taxRatesRaw) ? taxRatesRaw : [];
+                    } else if (typeof taxRatesRaw === "string" && taxRatesRaw.trim() !== "") {
+                        taxRates = JSON.parse(taxRatesRaw);
+                    }
+
+                    if (!Array.isArray(taxRates)) {
+                        console.error("Invalid tax_rates format, resetting to empty array.");
+                        taxRates = [];
+                    }
                 } catch (error) {
                     console.error("Error parsing tax_rates:", error.message);
                     throw new Error("Invalid tax_rates format in database.");

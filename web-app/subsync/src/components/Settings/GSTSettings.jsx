@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,33 @@ export default function GSTSettings() {
         gstRegisteredOn: "",
     });
 
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch GST settings when component mounts
+    useEffect(() => {
+        const fetchGSTSettings = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/get-gst-settings");
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || "GST settings retrieval failed.");
+                }                
+
+                // Populate form with existing GST settings
+                setFormDetails(data.settings || {});
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching GST settings:", error.message);
+                setError("Failed to load GST settings.");
+                setLoading(false);
+            }
+        };
+
+        fetchGSTSettings();
+    }, []);
+
     // Handle input changes
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -19,11 +46,35 @@ export default function GSTSettings() {
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form Data:", formDetails);
-        // You can send `formDetails` to an API here
+    
+        try {
+            console.log("Form Data:", formDetails);
+    
+            const response = await fetch("http://localhost:3000/update-gst-settings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formDetails)
+            });
+    
+            const data = await response.json();
+    
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to update GST settings.");
+            }
+    
+            alert("GST Settings updated successfully!");
+        } catch (error) {
+            console.error("Error updating GST settings:", error.message);
+            alert("Error updating GST settings.");
+        }
     };
+
+    if (loading) return <p>Loading GST settings...</p>;
+    if (error) return <p className="text-red-500">{error}</p>;
 
     return (
         <div className="md:w-[50%] w-full">
