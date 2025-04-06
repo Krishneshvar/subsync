@@ -15,7 +15,10 @@ import SubscriptionDetails from './components/Management/Subscriptions/Subscript
 import Settings from './components/Settings/Settings';
 import Taxes from './components/Settings/Taxes';
 import AddTax from './components/Settings/AddTax';
+import DefaultTaxPreference from './components/Settings/DefaultTaxPreference';
+import GSTSettings from './components/Settings/GSTSettings';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import AllTaxes from './components/Settings/AllTaxes';
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -41,17 +44,26 @@ const router = createBrowserRouter([
       { path: "domains/:id", element: <CreateDomain /> },
       {path: "domains/edit/:domainId", element: <CreateDomain />},
 
-      { path: "settings",
+      {
+        path: "settings",
         element: <Settings />,
         children: [
           { path: "profile", element: <Settings /> },
-
-          { path: "taxes", element: <Taxes /> },
-          { path: "taxes/add", element: <AddTax /> },
+          {
+            path: "taxes",
+            element: <Taxes />, // Taxes component now handles its children
+            children: [
+              { path: "tax-rates", element: <AllTaxes /> },
+              { path: "tax-rates/add", element: <AddTax /> },
+              { path: "tax-rates/edit/:id", element: <AddTax /> },
+              { path: "default-tax-pref", element: <DefaultTaxPreference /> },
+              { path: "gst-settings", element: <GSTSettings /> },
+            ]
+          }
         ]
-      },
-    ],
-  },
+      }
+    ]
+  }
 ]);
 
 function App() {

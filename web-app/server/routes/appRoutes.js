@@ -6,7 +6,8 @@ import { createDomain, updateDomainDetails, fetchAllDomains, domainDetailsByID, 
 import { getProductsController, createProduct, getProductDetailsController } from '../controllers/productController.js';
 import { getSubscriptionsController, createSubscription } from '../controllers/subscriptionController.js';
 
-import { getAllTaxes, createTax } from '../controllers/taxController.js';
+import { getAllTaxes, createTax, editTax, deleteTax } from '../controllers/taxController.js';
+import { getGSTSettingsController, updateGSTSettingsController } from '../controllers/gstSettingsController.js';
 
 const router = express.Router();
 
@@ -37,8 +38,14 @@ router.get('/product/:id', getProductDetailsController);
 router.get('/all-subscriptions', getSubscriptionsController);
 router.post('/add-subscription', createSubscription);
 
-// Taxes
+// Taxes Rates
 router.get('/all-taxes', getAllTaxes);
 router.post('/add-tax', createTax);
+router.post('/update-tax', editTax);
+router.post('/delete-tax/:taxId', deleteTax);
+
+// GST Settings
+router.get("/get-gst-settings", getGSTSettingsController);
+router.post("/update-gst-settings", updateGSTSettingsController);
 
 export default router;
