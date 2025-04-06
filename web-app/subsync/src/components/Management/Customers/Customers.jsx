@@ -49,10 +49,8 @@ export default function Customers() {
   }, [search]);
 
   const handleSearch = (e) => {
-    if (e.key === "Enter") {
-      setSearch(e.target.value);
-      setCurrentPage(1);
-    }
+    setSearch(e.target.value); // Update search state on every input change
+    setCurrentPage(1); // Reset to the first page
   };
 
   const fetchCustomersAndExport = async () => {
@@ -223,13 +221,15 @@ export default function Customers() {
   const filteredData = data.filter((customer) => {
     const searchTerm = search.toLowerCase();
     return (
-      customer.customer_id.toString().includes(searchTerm) ||
+      customer.customer_id.toString().toLowerCase().includes(searchTerm) ||
       customer.salutation.toLowerCase().includes(searchTerm) ||
       customer.first_name.toLowerCase().includes(searchTerm) ||
+      customer.last_name?.toLowerCase().includes(searchTerm) ||
       customer.display_name.toLowerCase().includes(searchTerm) ||
       customer.company_name.toLowerCase().includes(searchTerm) ||
       customer.primary_phone_number.toString().toLowerCase().includes(searchTerm) ||
       customer.primary_email.toLowerCase().includes(searchTerm) ||
+      customer.gst_in?.toLowerCase().includes(searchTerm) ||
       customer.customer_status.toLowerCase().includes(searchTerm)
     );
   });

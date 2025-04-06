@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import Select from "react-select";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function AddDomain() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { username } = useParams();
 
   const [formData, setFormData] = useState({
@@ -25,6 +26,8 @@ export default function AddDomain() {
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [domainId, setDomainId] = useState(null);
 
   const registeredWithOptions = [
     { value: "OCS", label: "OCS" },
@@ -32,6 +35,11 @@ export default function AddDomain() {
     { value: "Winds", label: "Winds" },
     { value: "Others", label: "Others" },
   ];
+
+  const formatDateToISO = (dateString) => {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+  };
 
   useEffect(() => {
     const fetchAllCustomers = async () => {
@@ -69,9 +77,32 @@ export default function AddDomain() {
     }
   }, [searchTerm, allCustomers]);
 
+  useEffect(() => {
+    const state = location.state;
+    if (state && state.domain) {
+      const domain = state.domain;
+      setIsEditing(true);
+      setDomainId(domain.domain_id);
+      setFormData({
+        domainName: domain.domain_name,
+        description: domain.description || "",
+        customerId: domain.customer_id,
+        registrationDate: formatDateToISO(domain.registration_date),
+        expiryDate: formatDateToISO(domain.expiry_date),
+        registeredWith: domain.registered_with,
+        otherProvider: domain.other_provider || "",
+        nameServer: domain.name_server || "",
+      });
+      setSelectedCustomer({
+        value: domain.customer_id,
+        label: domain.customer_name,
+      });
+    }
+  }, [location.state]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.customerId) {
       toast.error("Please select a customer.");
       return;
@@ -80,10 +111,9 @@ export default function AddDomain() {
       toast.error("Please fill in all required fields.");
       return;
     }
-  
-    // Convert keys to match backend expectations
+
     const submissionData = {
-      customer_id: formData.customerId,  
+      customer_id: formData.customerId,
       customer_name: selectedCustomer?.label || "",
       domain_name: formData.domainName,
       registration_date: formData.registrationDate,
@@ -94,157 +124,147 @@ export default function AddDomain() {
       description: formData.description || "",
     };
 
-    console.log("Submission Data:", submissionData); // Debugging line
-  
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/create-domain`, submissionData);
-      toast.success("Domain successfully created!", { autoClose: 3000 });
-      
+      if (isEditing) {
+        await axios.put(`${import.meta.env.VITE_API_URL}/update-domain/${domainId}`, submissionData);
+        toast.success("Domain successfully updated!", { autoClose: 3000 });
+      } else {
+        await axios.post(`${import.meta.env.VITE_API_URL}/create-domain`, submissionData);
+        toast.success("Domain successfully created!", { autoClose: 3000 });
+      }
+
       setTimeout(() => {
         const userSegment = location.pathname.split("/")[1];
         navigate(`/${userSegment}/dashboard/domains`);
       }, 3000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "An error occurred while creating the domain.");
+      toast.error(err.response?.data?.message || "An error occurred while processing the domain.");
     }
   };
-  
 
   return (
     <>
-   
-    <div className="container mt-4">
-      <h1 className="mb-4">Add Domain</h1>
-      <Form onSubmit={handleSubmit}>
-        <Row className="g-3">
-          {/* Customer Selection */}
-          <Col xs={12} sm={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Customer Name</Form.Label>
-              <Select
-                options={filteredCustomers}
-                onInputChange={(value) => setSearchTerm(value)}
-                onChange={(selected) => {
-                  setFormData({ ...formData, customerId: selected?.value || "" });
-                  setSelectedCustomer(selected);
-                }}
-                placeholder="Search and select a customer"
-                isClearable
-              />
-              {selectedCustomer && (
-                <small className="text-muted">Customer ID: {selectedCustomer.value}</small>
-              )}
-            </Form.Group>
-          </Col>
-
-          {/* Domain Name */}
-          <Col xs={12} sm={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Domain Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={formData.domainName}
-                onChange={(e) => setFormData({ ...formData, domainName: e.target.value })}
-                required
-              />
-            </Form.Group>
-          </Col>
-
-          {/* Registration Date */}
-          <Col xs={12} sm={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Registration Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={formData.registrationDate}
-                onChange={(e) => setFormData({ ...formData, registrationDate: e.target.value })}
-                required
-              />
-            </Form.Group>
-          </Col>
-
-          {/* Expiry Date */}
-          <Col xs={12} sm={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Expiry Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={formData.expiryDate}
-                onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                required
-              />
-            </Form.Group>
-          </Col>
-
-          {/* Registered With */}
-          <Col xs={12} sm={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Registered With</Form.Label>
-              <Select
-                options={registeredWithOptions}
-                value={registeredWithOptions.find((opt) => opt.value === formData.registeredWith)}
-                onChange={(selected) =>
-                  setFormData({
-                    ...formData,
-                    registeredWith: selected.value,
-                    otherProvider: selected.value === "Others" ? formData.otherProvider : "",
-                  })
-                }
-                placeholder="Select Registrar"
-                isClearable
-              />
-            </Form.Group>
-          </Col>
-
-          {/* Other Registrar (only if "Others" is selected) */}
-          {formData.registeredWith === "Others" && (
+      <div className="container mt-4">
+        <ToastContainer position="top-center" autoClose={2000} theme="dark" transition={Bounce} pauseOnHover />
+        <h1 className="mb-4 text-3xl font-bold ">{isEditing ? "Edit Domain" : "Add Domain"}</h1>
+        <hr className="mb-4 border-blue-500 border-3 size-auto" />
+        <Form onSubmit={handleSubmit}>
+          <Row className="g-3">
             <Col xs={12} sm={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Specify Other Registrar</Form.Label>
+                <Form.Label>Customer Name</Form.Label>
+                <Select
+                  options={filteredCustomers}
+                  onInputChange={(value, { action }) => {
+                    if (action === "input-change") {
+                      setSearchTerm(value);
+                    }
+                  }}
+                  onChange={(selected) => {
+                    setFormData({ ...formData, customerId: selected?.value || "" });
+                    setSelectedCustomer(selected);
+                  }}
+                  value={selectedCustomer}
+                  placeholder="Search and select a customer"
+                  isClearable
+                />
+                {selectedCustomer && (
+                  <small className="text-muted">Customer ID: {selectedCustomer.value}</small>
+                )}
+              </Form.Group>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Domain Name</Form.Label>
                 <Form.Control
                   type="text"
-                  value={formData.otherProvider}
-                  onChange={(e) => setFormData({ ...formData, otherProvider: e.target.value })}
-                  placeholder="Enter registrar name"
+                  value={formData.domainName}
+                  onChange={(e) => setFormData({ ...formData, domainName: e.target.value })}
+                  required
                 />
               </Form.Group>
             </Col>
-          )}
-
-          {/* Name Server */}
-          <Col xs={12} sm={6}>
-            <Form.Group className="mb-3">
-              <Form.Label>Name Server (Optional)</Form.Label>
-              <Form.Control
-                type="text"
-                value={formData.nameServer}
-                onChange={(e) => setFormData({ ...formData, nameServer: e.target.value })}
-                placeholder="Enter name server"
-              />
-            </Form.Group>
-          </Col>
-
-          {/* Description */}
-          <Col xs={12}>
-            <Form.Group className="mb-3">
-              <Form.Label>Description (Optional)</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        {/* Submit Button */}
-        <Button variant="primary" type="submit" className="mt-3">
-          Submit
-        </Button>
-      </Form>
-    </div>
+            <Col xs={12} sm={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Registration Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={formData.registrationDate}
+                  onChange={(e) => setFormData({ ...formData, registrationDate: e.target.value })}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Expiry Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={formData.expiryDate}
+                  onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col xs={12} sm={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Registered With</Form.Label>
+                <Select
+                  options={registeredWithOptions}
+                  value={registeredWithOptions.find((opt) => opt.value === formData.registeredWith)}
+                  onChange={(selected) =>
+                    setFormData({
+                      ...formData,
+                      registeredWith: selected.value,
+                      otherProvider: selected.value === "Others" ? formData.otherProvider : "",
+                    })
+                  }
+                  placeholder="Select Registrar"
+                  isClearable
+                />
+              </Form.Group>
+            </Col>
+            {formData.registeredWith === "Others" && (
+              <Col xs={12} sm={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Specify Other Registrar</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.otherProvider}
+                    onChange={(e) => setFormData({ ...formData, otherProvider: e.target.value })}
+                    placeholder="Enter registrar name"
+                  />
+                </Form.Group>
+              </Col>
+            )}
+            <Col xs={12} sm={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Name Server (Optional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={formData.nameServer}
+                  onChange={(e) => setFormData({ ...formData, nameServer: e.target.value })}
+                  placeholder="Enter name server"
+                />
+              </Form.Group>
+            </Col>
+            <Col xs={12}>
+              <Form.Group className="mb-3">
+                <Form.Label>Description (Optional)</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Button variant="primary" type="submit" className="mt-3">
+            {isEditing ? "Update" : "Submit"}
+          </Button>
+        </Form>
+      </div>
     </>
   );
-  
 }

@@ -39,6 +39,7 @@ const router = createBrowserRouter([
 
       { path: "domains", element: <Domains /> },
       { path: "domains/:id", element: <CreateDomain /> },
+      {path: "domains/edit/:domainId", element: <CreateDomain />},
 
       { path: "settings",
         element: <Settings />,
