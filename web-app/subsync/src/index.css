@@ -89,3 +89,37 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Full border for the phone input */
+.phone-input-custom-style {
+  border: 1px solid #e2e8f0;      
+  border-radius: 0.5rem;       
+  padding: 0.25rem 0.75rem;        
+  display: flex;
+  align-items: center;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.phone-input-custom-style:focus-within {
+  border-color: #6366f1;             /* Tailwind's ring color (indigo-500) */
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
+/* Vertical separator between country code and input */
+.phone-input-custom-style .PhoneInputCountry {
+  border-right: 2px solid #e2e8f0;
+  margin-right: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Remove default PhoneInput input border for seamless look */
+.phone-input-custom-style .PhoneInputInput {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  padding-left: 0;
+}
+
