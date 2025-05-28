@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-// Replace react-bootstrap Alert with Shadcn's Alert components
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EyeIcon, EyeOffIcon, Terminal } from "lucide-react";
 

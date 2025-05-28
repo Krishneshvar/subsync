@@ -1,4 +1,3 @@
-import React from "react";
 import { Command, CommandInput } from "@/components/ui/command";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -23,10 +22,10 @@ export default function SearchFilterForm({ search, setSearch, handleSearch, sort
   return (
     <div className="w-full flex flex-col sm:flex-row items-center gap-2 mb-2">
       <div className="relative w-full sm:w-auto">
-        <Command>
+        <Command className="border-b-0 border-gray-300">
           <CommandInput
             value={search}
-            onValueChange={setSearch} 
+            onValueChange={setSearch}
             placeholder="Search"
             onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
           />

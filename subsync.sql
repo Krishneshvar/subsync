@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS customers (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     primary_email TEXT NOT NULL,
+    country_code CHAR(3) NOT NULL,
     primary_phone_number BIGINT NOT NULL,
     customer_address JSON NOT NULL, 
     other_contacts JSON,
@@ -68,6 +69,7 @@ CREATE TABLE gst_settings (
 CREATE TABLE users (
     username VARCHAR(32) PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
+    role VARCHAR(32) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

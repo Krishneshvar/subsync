@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button.jsx";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.jsx";
 import { HelpCircle, User, Settings, LogOut, X } from "lucide-react";
 
 const navItems = [
@@ -14,7 +14,7 @@ export default function NavBar({ toggleSidebar }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-lg rounded-b-lg border-b-2 border-gray-300">
+    <nav className="bg-white shadow-md rounded-b-lg border-b-2 border-gray-300">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex">
           <Button variant="ghost" size="icon" className="mr-2 lg:hidden" onClick={toggleSidebar}>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button.jsx';
-import GenericTable from "../../components/layouts/GenericTable.jsx";
-import Pagination from "../../components/layouts/Pagination.jsx";
-import SearchFilterForm from "../../components/layouts/SearchFilterForm.jsx";
+import GenericTable from "../../../components/layouts/GenericTable.jsx";
+import Pagination from "../../../components/layouts/Pagination.jsx";
+import SearchFilterForm from "../../../components/layouts/SearchFilterForm.jsx";
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert.jsx';
 import { OverlayTrigger, Spinner, Tooltip } from 'react-bootstrap';
 import axios from 'axios';

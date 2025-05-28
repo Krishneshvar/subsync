@@ -11,7 +11,7 @@ const initialState = {
 };
 
 export const loginUser = createAsyncThunk(
-  'auth/loginUser', // This is the action type prefix
+  'auth/loginUser',
   async ({ username, password }, thunkAPI) => {
     try {
       const userData = await apiLoginUser(username, password);
@@ -41,18 +41,15 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Case when loginUser thunk is pending
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      // Case when loginUser thunk is fulfilled (successful)
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
       })
-      // Case when loginUser thunk is rejected (failed)
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;

@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import countryList from "react-select-country-list";
-import axios from "axios";
-
 import validateCustomerData from "@/features/Customers/services/inputValidator.js";
 import OtherDetails from "@/features/Customers/components/OtherDetails.jsx";
 import PersonalDetails from "@/features/Customers/components/PersonalDetails.jsx";
@@ -11,12 +9,16 @@ import CompanyDetails from "@/features/Customers/components/CompanyDetails.jsx";
 import AddressSection from "@/features/Customers/components/AddressSection.jsx";
 import ContactPersonsSection from "@/features/Customers/components/ContactPersonsSection.jsx";
 import RemarksSection from "@/features/Customers/components/RemarksSection.jsx";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createCustomer, updateCustomer, fetchCustomerById, clearCustomerState } from "@/features/Customers/customerSlice.js";
+import { Button } from "@/components/ui/button.jsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
+import { useDispatch, useSelector } from "react-redux";
 
 const AddCustomer = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { currentCustomer, loading, error } = useSelector((state) => state.customers);
   const editableCustomerId = location.state?.editableCustomerId || null;
 
   const countries = countryList().getData();
@@ -24,7 +26,6 @@ const AddCustomer = () => {
   const [contactPersons, setContactPersons] = useState([]);
   const [activeTab, setActiveTab] = useState("otherDetails");
   const [isEditing, setIsEditing] = useState(!!editableCustomerId);
-  const [loading, setLoading] = useState(false);
 
   const [customerData, setCustomerData] = useState({
     salutation: "",
@@ -39,7 +40,7 @@ const AddCustomer = () => {
     gst_treatment: "",
     tax_preference: "",
     exemption_reason: "",
-    currencyCode: "INR",
+    currencyCode: { label: "INR", value: "INR" },
     address: {
       country: { label: "India", value: "IN" },
       addressLine: "",
@@ -77,6 +78,7 @@ const AddCustomer = () => {
       customerStatus: "Active",
     });
     setContactPersons([]);
+    dispatch(clearCustomerState());
   };
 
   const handleCancel = () => {
@@ -93,55 +95,43 @@ const AddCustomer = () => {
   };
 
   useEffect(() => {
-    if (!editableCustomerId) return;
-
-    const fetchCustomerData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/customer/${editableCustomerId}`
-        );
-
-        if (response.status !== 200) {
-          throw new Error("Failed to fetch customer data.");
-        }
-
-        const data = response.data.customer;
-        setCustomerData({
-          salutation: data.salutation,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          companyName: data.company_name,
-          displayName: data.display_name,
-          email: data.primary_email,
-          country_code: data.country_code,
-          phoneNumber: data.primary_phone_number,
-          gstin: data.gst_in,
-          gst_treatment: data.gst_treatment,
-          tax_preference: data.tax_preference,
-          exemption_reason: data.exemption_reason,
-          currencyCode: { label: data.currency_code, value: data.currency_code },
-          address: {
-            country: data.customer_address.country || "",
-            addressLine: data.customer_address.addressLine || "",
-            state: data.customer_address.state || "",
-            city: data.customer_address.city || "",
-            zipCode: data.customer_address.zipCode || "",
-          },
-          notes: data.notes,
-          customerStatus: data.customer_status,
-        });
-
-        setContactPersons(data.other_contacts || []);
-        setLoading(false);
-      } catch (error) {
-        toast.error(error.message || "Failed to fetch customer data.");
-        setLoading(false);
-      }
+    if (editableCustomerId) {
+      dispatch(fetchCustomerById(editableCustomerId));
+    }
+    return () => {
+        dispatch(clearCustomerState()); // Clear current customer data when component unmounts
     };
+  }, [editableCustomerId, dispatch]);
 
-    fetchCustomerData();
-  }, [editableCustomerId]);
+  useEffect(() => {
+    if (currentCustomer && isEditing) {
+      setCustomerData({
+        salutation: currentCustomer.salutation,
+        firstName: currentCustomer.first_name,
+        lastName: currentCustomer.last_name,
+        companyName: currentCustomer.company_name,
+        displayName: currentCustomer.display_name,
+        email: currentCustomer.primary_email,
+        country_code: currentCustomer.country_code,
+        phoneNumber: currentCustomer.primary_phone_number,
+        gstin: currentCustomer.gst_in,
+        gst_treatment: currentCustomer.gst_treatment,
+        tax_preference: currentCustomer.tax_preference,
+        exemption_reason: currentCustomer.exemption_reason,
+        currencyCode: currentCustomer.currency_code?.value || currentCustomer.currency_code || "",
+        address: {
+          country: currentCustomer.customer_address.country?.value || currentCustomer.customer_address.country || "",
+          addressLine: currentCustomer.customer_address?.addressLine || "",
+          state: currentCustomer.customer_address.state?.value || currentCustomer.customer_address.state || "",
+          city: currentCustomer.customer_address?.city || "",
+          zipCode: currentCustomer.customer_address?.zipCode || "",
+        },
+        notes: currentCustomer.notes,
+        customerStatus: currentCustomer.customer_status,
+      });
+      setContactPersons(currentCustomer.other_contacts || []);
+    }
+  }, [currentCustomer, isEditing]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -188,6 +178,12 @@ const AddCustomer = () => {
 
       const payload = {
         ...customerData,
+        currencyCode: customerData.currencyCode?.value || "INR",
+        address: {
+            ...customerData.address,
+            country: customerData.address.country?.value || "IN",
+            state: customerData.address.state?.value || "",
+        },
         contactPersons: contactPersons.map((person) => ({
           salutation: person.salutation,
           designation: person.designation,
@@ -199,18 +195,15 @@ const AddCustomer = () => {
         })),
       };
 
-      const url = isEditing
-        ? `${import.meta.env.VITE_API_URL}/update-customer/${editableCustomerId}`
-        : `${import.meta.env.VITE_API_URL}/create-customer`;
+      let actionResult;
+      if (isEditing) {
+        actionResult = await dispatch(updateCustomer({ id: editableCustomerId, payload }));
+      } else {
+        actionResult = await dispatch(createCustomer(payload));
+      }
 
-      const response = await axios({
-        url,
-        method: isEditing ? "PUT" : "POST",
-        data: payload,
-      });
-
-      if (![200, 201].includes(response.status)) {
-        throw new Error("Error saving customer details.");
+      if (actionResult.meta.requestStatus === "rejected") {
+        throw new Error(actionResult.payload || "Error saving customer details.");
       }
 
       toast.success(isEditing ? "Customer Updated Successfully." : "Customer Created Successfully.");
@@ -218,12 +211,13 @@ const AddCustomer = () => {
 
       const userSegment = location.pathname.split("/")[1];
       setTimeout(() => navigate(`/${userSegment}/dashboard/customers`), 2000);
-    } catch (error) {
-      toast.error(error.message || "Error saving customer details.");
+    } catch (err) {
+      toast.error(err.message || "Error saving customer details.");
     }
   };
 
   if (loading) return <p>Loading customer details...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div className="container mt-4">
@@ -244,12 +238,30 @@ const AddCustomer = () => {
           handleSelectChange={handleSelectChange}
         />
 
+        <hr className="mb-4 border-gray-500 border-1 size-auto" />
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-2">
-          <TabsList>
-            <TabsTrigger value="otherDetails" className="tabs-trigger-transition">Other Details</TabsTrigger>
-            <TabsTrigger value="address" className="tabs-trigger-transition">Address</TabsTrigger>
-            <TabsTrigger value="contactPersons" className="tabs-trigger-transition">Contact Persons</TabsTrigger>
-            <TabsTrigger value="remarks" className="tabs-trigger-transition">Remarks</TabsTrigger>
+          <TabsList className="flex flex-wrap justify-start w-fit border-1 border-gray-300 bg-gray-200 mb-4 gap-2">
+            <TabsTrigger
+              value="otherDetails"
+              className="tabs-trigger-transition transition-colors duration-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                Other Details
+            </TabsTrigger>
+            <TabsTrigger
+              value="address"
+              className="tabs-trigger-transition transition-colors duration-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+              Address
+            </TabsTrigger>
+            <TabsTrigger
+              value="contactPersons"
+              className="tabs-trigger-transition transition-colors duration-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+              Contact Persons
+            </TabsTrigger>
+            <TabsTrigger
+              value="remarks"
+              className="tabs-trigger-transition transition-colors duration-300 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+              Remarks
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="otherDetails" className="tabs-content-transition">
@@ -287,9 +299,9 @@ const AddCustomer = () => {
         </Tabs>
 
         <div className="flex justify-end gap-3 mt-4">
-          <Button type="submit">{isEditing ? "Update Customer" : "Save Customer"}</Button>
-          <Button type="button" variant="secondary" onClick={resetCustomerData}>Reset</Button>
-          <Button type="button" variant="destructive" onClick={handleCancel}>Cancel</Button>
+          <Button type="submit" disabled={loading}>{isEditing ? "Update" : "Save"}</Button>
+          <Button type="button" className="bg-yellow-500 text-black hover:bg-yellow-600" onClick={resetCustomerData} disabled={loading}>Reset</Button>
+          <Button type="button" variant="destructive" onClick={handleCancel} disabled={loading}>Cancel</Button>
         </div>
       </form>
     </div>

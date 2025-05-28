@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.jsx';
 
 const sidebarItems = [
   { path: 'dashboard', title: 'Home', icon: 'home' },
@@ -11,10 +11,6 @@ const sidebarItems = [
 
 export default function SideBar({ isOpen, toggleSidebar }) {
   const { username } = useParams();
-
-  // const handleItemClick = () => {
-  //   toggleSidebar();// Close sidebar when a menu item is clicked
-  // };
 
   return (
     <aside

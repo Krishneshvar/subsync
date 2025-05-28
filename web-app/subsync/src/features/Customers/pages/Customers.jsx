@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Eye } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import GenericTable from "../../components/layouts/GenericTable.jsx";
-import Pagination from "../../components/layouts/Pagination.jsx";
+import { Link } from "react-router-dom";
+import { Eye, FileDown, FileUp, UserPlus } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.jsx";
+import { Button } from "@/components/ui/button.jsx";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu.jsx";
+import GenericTable from "../../../components/layouts/GenericTable.jsx";
+import Pagination from "../../../components/layouts/Pagination.jsx";
 import useFetchData from "@/Common/useFetchData.js";
-import SearchFilterForm from "../../components/layouts/SearchFilterForm.jsx";
+import SearchFilterForm from "../../../components/layouts/SearchFilterForm.jsx";
 import { saveAs } from "file-saver";
 import * as Papa from "papaparse";
 import "jspdf-autotable";
@@ -26,7 +26,7 @@ const headers = [
   { key: "actions", label: "View/Edit" },
 ];
 
-export default function Customers() {
+function Customers() {
   const [sortBy, setSortBy] = useState("customer_id");
   const [order, setOrder] = useState("asc");
   const [search, setSearch] = useState("");
@@ -69,11 +69,11 @@ export default function Customers() {
         "GST Treatment": c.gst_treatment || "",
         "Tax Preference": c.tax_preference || "",
         "Exemption Reason": c.exemption_reason || "",
-        "Currency Code": c.currency_code || "INR",
+        "Currency Code": c.currency_code || "",
         "Address Line": c.customer_address?.addressLine || "",
         "City": c.customer_address?.city || "",
         "State": c.customer_address?.state || "",
-        "Country": c.customer_address?.country || "IN",
+        "Country": c.customer_address?.country || "",
         "Zip Code": c.customer_address?.zipCode || "",
         "Notes": c.notes || "",
         "Customer Status": c.customer_status || "Active",
@@ -182,7 +182,9 @@ export default function Customers() {
   }));
 
   return (
-    <div className="container mx-auto p-6 rounded-lg shadow-lg">
+    <div className="container p-6 rounded-lg shadow-lg">
+      <h1 className="w-full text-3xl font-bold mb-2">Customers</h1>
+      <hr className="mb-4 border-blue-500 border-3 size-auto" />
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 w-full">
         <div className="flex flex-col sm:flex-row w-full items-center gap-3">
           <SearchFilterForm
@@ -197,26 +199,32 @@ export default function Customers() {
           />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-2 w-full sm:w-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="w-full sm:w-auto">Export</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => console.log("Export PDF")}>Export as PDF</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Link to={`add`}>
+            <Button className="w-full sm:w-auto"> 
+              <UserPlus/> Add
+            </Button>
+          </Link>
 
-          <Button className="w-full sm:w-auto" onClick={handleImportButtonClick}>
-            Import Customers
+          <Button className="sm:w-auto" onClick={handleImportButtonClick}>
+            <FileDown /> Import
           </Button>
 
-          <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} style={{ display: "none" }} />
+          <div className="flex flex-col md:flex-row gap-2 sm:w-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="w-full sm:w-auto">
+                  <FileUp /> Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => console.log("Export PDF")}>Export as PDF</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          <Link to={`add`}>
-            <Button className="w-full sm:w-auto">Add Customer</Button>
-          </Link>
+            <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} style={{ display: "none" }} />
+          </div>
         </div>
       </div>
 
@@ -245,3 +253,5 @@ export default function Customers() {
     </div>
   );
 }
+
+export default Customers;

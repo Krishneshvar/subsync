@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import SideBar from '../Navigations/Sidebar'
-import NavBar from '../Navigations/NavBar'
-import Footer from '../Navigations/Footer.jsx'
+import SideBar from '@/components/layouts/Navigations/SideBar.jsx'
+import NavBar from '@/components/layouts/Navigations/NavBar.jsx'
 
-export default function Dashboard() {
+function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const toggleSidebar = () => {
@@ -19,8 +18,9 @@ export default function Dashboard() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-2">
           <Outlet />
         </main>
-        <Footer />
       </div>
     </div>
   )
 }
+
+export default Dashboard

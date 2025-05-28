@@ -31,23 +31,22 @@ async function addCustomer(customer) {
         const currentTime = getCurrentTime();
         const cid = generateID("CID");
 
-        // Extract only the `value` from currencyCode
-        const currencyCode = customer.currencyCode.value || customer.currencyCode;
-
         // Serialize JSON fields
         const customerAddress = JSON.stringify(customer.address);
-        const otherContacts = JSON.stringify(customer.contactPersons);
+        const otherContacts = JSON.stringify(customer.contactPersons) || JSON.stringify([]);
 
         // Execute SQL query
         const [result] = await appDB.query(
-            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email,country_code, primary_phone_number, customer_address, " +
+            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email, country_code, primary_phone_number, customer_address, " + // <--- ADD 'country_code' here
             "other_contacts, company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference, exemption_reason, " +
             "notes, customer_status, created_at, updated_at) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             [
-                cid, customer.salutation, customer.firstName, customer.lastName, customer.email,customer.country_code, customer.phoneNumber,
+                cid, customer.salutation, customer.firstName, customer.lastName, customer.email,
+                customer.country_code,
+                Number(customer.phoneNumber),
                 customerAddress, otherContacts, customer.companyName, customer.displayName, customer.gstin,
-                currencyCode, customer.gst_treatment, customer.tax_preference, customer.exemption_reason || "",
+                customer.currencyCode, customer.gst_treatment, customer.tax_preference, customer.exemption_reason || "",
                 customer.notes || "", customer.customerStatus, currentTime, currentTime,
             ]
         );

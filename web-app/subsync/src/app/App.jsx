@@ -1,15 +1,15 @@
 import LoginPage from '@/features/Auth/pages/LoginPage';
-import Dashboard from '@/features/Dashboard/Dashboard.jsx';
-import Home from '@/features/Dashboard/Home.jsx';
-import Customers from '@/features/Customers/Customers.jsx';
-import Domains from '@/features/Domains/Domains.jsx';
-import CreateDomain from '@/features/Domains/CreateDomain.jsx';
+import Dashboard from '@/features/Dashboard/pages/Dashboard.jsx';
+import Home from '@/features/Dashboard/components/Home.jsx';
+import Customers from '@/features/Customers/pages/Customers.jsx';
+import Domains from '@/features/Domains/pages/Domains.jsx';
+import CreateDomain from '@/features/Domains/pages/CreateDomain.jsx';
 import Products from '@/features/Products/Products.jsx';
 import Subscriptions from '@/features/Subscriptions/Subscriptions.jsx';
-import AddCustomer from '@/features/Customers/AddCustomer.jsx';
+import AddCustomer from '@/features/Customers/pages/AddCustomer.jsx';
 import AddProduct from '@/features/Products/AddProduct.jsx';
 import AddSubscription from '@/features/Subscriptions/AddSubscription.jsx';
-import CustomerDetails from '@/features/Customers/CustomerDetails.jsx';
+import CustomerDetails from '@/features/Customers/pages/CustomerDetails.jsx';
 import ProductDetails from '@/features/Products/ProductDetails.jsx';
 import SubscriptionDetails from '@/features/Subscriptions/SubscriptionDetails.jsx';
 import Settings from '@/features/Settings/Settings.jsx';
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
 
       { path: "domains", element: <Domains /> },
       { path: "domains/:id", element: <CreateDomain /> },
-      {path: "domains/edit/:domainId", element: <CreateDomain />},
+      { path: "domains/edit/:domainId", element: <CreateDomain /> },
 
       {
         path: "settings",

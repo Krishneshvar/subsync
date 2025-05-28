@@ -29,9 +29,9 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
           <thead className="bg-gray-100 text-gray-700">
             <tr>
               <th className="px-4 py-2 border-r">Salutation</th>
-              <th className="px-4 py-2 border-r">Designation</th>
               <th className="px-4 py-2 border-r">First Name</th>
               <th className="px-4 py-2 border-r">Last Name</th>
+              <th className="px-4 py-2 border-r">Designation</th>
               <th className="px-4 py-2 border-r">Email Address</th>
               <th className="px-4 py-2 border-r">Phone</th>
               <th className="px-4 py-2">Actions</th>
@@ -58,12 +58,6 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
                 </td>
                 <td className="px-4 py-2 border-r">
                   <Input
-                    value={person.designation}
-                    onChange={(e) => handleInputChange(index, "designation", e.target.value)}
-                  />
-                </td>
-                <td className="px-4 py-2 border-r">
-                  <Input
                     value={person.first_name}
                     onChange={(e) => handleInputChange(index, "first_name", e.target.value)}
                   />
@@ -72,6 +66,12 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
                   <Input
                     value={person.last_name}
                     onChange={(e) => handleInputChange(index, "last_name", e.target.value)}
+                  />
+                </td>
+                <td className="px-4 py-2 border-r">
+                  <Input
+                    value={person.designation}
+                    onChange={(e) => handleInputChange(index, "designation", e.target.value)}
                   />
                 </td>
                 <td className="px-4 py-2 border-r">
@@ -102,7 +102,7 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
         </table>
       </div>
 
-      <Button onClick={addContactPerson}>
+      <Button onClick={addContactPerson} type="button">
         <UserPlus className="mr-2 h-4 w-4" /> Add Contact
       </Button>
     </div>
