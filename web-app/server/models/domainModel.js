@@ -9,7 +9,7 @@ import { getCurrentTime } from "../middlewares/time.js";
 async function addDomain(domain) {
     try {
         // Validate required fields
-        if (!domain.customer_id || !domain.domain_name || !domain.registration_date || !domain.expiry_date || !domain.registered_with) {
+        if (!domain.customer_id || !domain.domain_name || !domain.registration_date || !domain.registered_with) {
             throw new Error("All required fields must be provided.");
         }
 
@@ -17,14 +17,23 @@ async function addDomain(domain) {
         
         // Execute SQL query
         const [result] = await appDB.query(
-            "INSERT INTO domains (customer_id,customer_name, domain_name, registration_date, expiry_date, registered_with, other_provider, name_server, description, created_at, updated_at) " +
+            "INSERT INTO domains (customer_id, customer_name, domain_name, registration_date, registered_with, other_provider, description, mail_service_provider, other_mail_service_details, created_at, updated_at) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             [
-                domain.customer_id, domain.customer_name,domain.domain_name, domain.registration_date, domain.expiry_date, 
-                domain.registered_with, domain.other_provider || "", domain.name_server || "", 
-                domain.description || "", currentTime, currentTime
+                domain.customer_id, domain.customer_name, domain.domain_name, domain.registration_date,
+                domain.registered_with, domain.other_provider || "", domain.description || "", 
+                domain.mail_service_provider || "", domain.other_mail_service_details || "", currentTime, currentTime
             ]
         );
+
+        // Add name servers if provided
+        if (domain.name_servers && domain.name_servers.length > 0) {
+            const nameServerValues = domain.name_servers.map(ns => [result.insertId, ns]);
+            await appDB.query(
+                "INSERT INTO domain_name_servers (domain_id, name_server) VALUES ?",
+                [nameServerValues]
+            );
+        }
 
         // Check result
         if (result.affectedRows > 0) {
@@ -45,12 +54,12 @@ async function addDomain(domain) {
  * @returns {Promise<*>}
  */
 async function updateDomain(domainId, updatedData) {
-    const { domain_name, registration_date, expiry_date, registered_with, other_provider, name_server, description } = updatedData;
+    const { domain_name, registration_date, registered_with, other_provider, description, mail_service_provider, other_mail_service_details, name_servers } = updatedData;
     
     console.log("Updated data received:", updatedData);
     
     // Validation
-    if (!domain_name || !registration_date || !expiry_date || !registered_with) {
+    if (!domain_name || !registration_date || !registered_with) {
         throw new Error("All required fields must be provided.");
     }
 
@@ -58,15 +67,30 @@ async function updateDomain(domainId, updatedData) {
         const currentTime = getCurrentTime();
         const [result] = await appDB.query(
             `UPDATE domains 
-             SET domain_name = ?, registration_date = ?, expiry_date = ?, registered_with = ?, 
-                 other_provider = ?, name_server = ?, description = ?, updated_at = ? 
+             SET domain_name = ?, registration_date = ?, registered_with = ?, 
+                 other_provider = ?, description = ?, mail_service_provider = ?, other_mail_service_details = ?, updated_at = ? 
              WHERE domain_id = ?;`,
             [
-                domain_name, registration_date, expiry_date, registered_with, 
-                other_provider || "", name_server || "", description || "", 
-                currentTime, domainId
+                domain_name, registration_date, registered_with, 
+                other_provider || "", description || "", 
+                mail_service_provider || "", other_mail_service_details || "", currentTime, domainId
             ]
         );
+
+        // Update name servers
+        if (name_servers) {
+            // Delete existing name servers
+            await appDB.query("DELETE FROM domain_name_servers WHERE domain_id = ?", [domainId]);
+            
+            // Add new name servers
+            if (name_servers.length > 0) {
+                const nameServerValues = name_servers.map(ns => [domainId, ns]);
+                await appDB.query(
+                    "INSERT INTO domain_name_servers (domain_id, name_server) VALUES ?",
+                    [nameServerValues]
+                );
+            }
+        }
 
         if (result.affectedRows > 0) {
             return domainId;
@@ -101,14 +125,25 @@ const getAllDomains = async ({ search = "", sort = "domain_name", order = "asc",
 
     try {
         const [domains] = await appDB.query(
-            `SELECT * FROM domains WHERE domain_name LIKE ? 
+            `SELECT d.*, GROUP_CONCAT(dns.name_server) as name_servers
+             FROM domains d
+             LEFT JOIN domain_name_servers dns ON d.domain_id = dns.domain_id
+             WHERE d.domain_name LIKE ?
+             GROUP BY d.domain_id
              ORDER BY ${sort} ${order.toUpperCase()} 
              LIMIT ? OFFSET ?`,
             [searchQuery, parseInt(limit), parseInt(offset)]
         );
 
+        // Convert name_servers string to array
+        domains.forEach(domain => {
+            domain.name_servers = domain.name_servers ? domain.name_servers.split(',') : [];
+        });
+
         const [[{ total }]] = await appDB.query(
-            `SELECT COUNT(*) as total FROM domains WHERE domain_name LIKE ?`,
+            `SELECT COUNT(DISTINCT d.domain_id) as total 
+             FROM domains d 
+             WHERE d.domain_name LIKE ?`,
             [searchQuery]
         );
 
@@ -120,7 +155,6 @@ const getAllDomains = async ({ search = "", sort = "domain_name", order = "asc",
     }
 };
 
-
 /**
  * Fetch a single domain by given ID
  * @param   {number} domainId The ID of the domain to be fetched
@@ -128,12 +162,20 @@ const getAllDomains = async ({ search = "", sort = "domain_name", order = "asc",
  */
 const getDomainById = async (domainId) => {
     try {
-        const [result] = await appDB.query(
-            `SELECT * FROM domains WHERE domain_id = ?`,
+        const [domain] = await appDB.query(
+            `SELECT d.*, GROUP_CONCAT(dns.name_server) as name_servers
+             FROM domains d
+             LEFT JOIN domain_name_servers dns ON d.domain_id = dns.domain_id
+             WHERE d.domain_id = ?
+             GROUP BY d.domain_id`,
             [domainId]
         );
-        console.log(result);
-        return result[0];
+        
+        if (domain[0]) {
+            domain[0].name_servers = domain[0].name_servers ? domain[0].name_servers.split(',') : [];
+        }
+        
+        return domain[0];
     } catch (error) {
         console.error("Error fetching domain by ID:", error);
         throw error;
@@ -146,7 +188,7 @@ const getDomainById = async (domainId) => {
  */
 const importDomainData = async (domains) => {
     const query = `
-        INSERT INTO domains (customer_id, domain_name, registration_date, expiry_date, registered_with, other_provider, name_server, description) 
+        INSERT INTO domains (customer_id, domain_name, registration_date, registered_with, other_provider, name_server, description) 
         VALUES ?
     `;
 
@@ -155,7 +197,6 @@ const importDomainData = async (domains) => {
         domain.customer_name || "",
         domain.domain_name,
         domain.registration_date,
-        domain.expiry_date,
         domain.registered_with,
         domain.other_provider || "",
         domain.name_server || "",

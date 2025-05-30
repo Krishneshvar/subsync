@@ -6,7 +6,7 @@ import Pagination from "../../../components/layouts/Pagination.jsx";
 import SearchFilterForm from "../../../components/layouts/SearchFilterForm.jsx";
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert.jsx';
 import { OverlayTrigger, Spinner, Tooltip } from 'react-bootstrap';
-import axios from 'axios';
+import api from '@/api/axiosInstance.js';
 import { FaEdit } from "react-icons/fa";
 
 export default function Domains() {
@@ -24,10 +24,11 @@ export default function Domains() {
     { key: 'domain_name', label: 'Domain Name' },
     { key: 'customer_name', label: 'Customer Name' },
     { key: 'registered_with', label: 'Registered With' },
-    { key: 'name_server', label: 'Name Server' },
+    { key: 'name_servers', label: 'Name Servers' },
+    { key: 'mail_service_provider', label: 'Mail Services' },
     { key: 'description', label: 'Description' },
     { key: 'registration_date', label: 'Registration Date' },
-    { key: 'expiry_date', label: 'Expiry Date' },
+    // { key: 'expiry_date', label: 'Expiry Date' },
     { key: 'actions', label: 'Actions' }
   ];
 
@@ -35,6 +36,16 @@ export default function Domains() {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB');
+  };
+
+  const formatNameServers = (nameServers) => {
+    if (!nameServers || nameServers.length === 0) return '-';
+    return nameServers.join(', ');
+  };
+
+  const formatMailServices = (provider, details) => {
+    if (!provider) return '-';
+    return provider === 'Others' ? `${provider} (${details || ''})` : provider;
   };
 
  const handleSearch = (e) => {
@@ -48,7 +59,7 @@ export default function Domains() {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/all-domains`, {
+        const response = await api.get(`/all-domains`, {
           params: { search, sort: sortBy, order },
         });
 
@@ -57,6 +68,8 @@ export default function Domains() {
             ...domain,
             registration_date: formatDate(domain.registration_date),
             expiry_date: formatDate(domain.expiry_date),
+            name_servers: formatNameServers(domain.name_servers),
+            mail_service_provider: formatMailServices(domain.mail_service_provider, domain.other_mail_service_details)
           }))
           .filter((domain) => {
             const searchTerm = search.toLowerCase();
@@ -64,7 +77,7 @@ export default function Domains() {
               domain.domain_name.toLowerCase().includes(searchTerm) ||
               domain.customer_name.toLowerCase().includes(searchTerm) ||
               domain.registered_with?.toLowerCase().includes(searchTerm) ||
-              domain.name_server?.toLowerCase().includes(searchTerm) ||
+              domain.name_servers?.toLowerCase().includes(searchTerm) ||
               domain.description?.toLowerCase().includes(searchTerm) ||
               domain.registration_date.includes(searchTerm) ||
               domain.expiry_date.includes(searchTerm)

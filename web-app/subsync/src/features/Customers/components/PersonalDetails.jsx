@@ -8,20 +8,18 @@ import { Button } from "@/components/ui/button";
 
 const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, handleStatusChange }) => {
 
-  const getCurrentPhoneNumber = () => {
-    if (customerData.country_code && customerData.phoneNumber) {
-      // libphonenumber-js expects full E.164 format for parsing if country code is present
-      // PhoneInput's value prop expects E.164 format
+  const getCurrentPhoneNumber = (type = 'primary') => {
+    const phoneNumber = type === 'primary' ? customerData.phoneNumber : customerData.secondaryPhoneNumber;
+    if (customerData.country_code && phoneNumber) {
       if (customerData.country_code.startsWith('+')) {
-        return `${customerData.country_code}${customerData.phoneNumber}`;
+        return `${customerData.country_code}${phoneNumber}`;
       }
-      return `+${customerData.country_code}${customerData.phoneNumber}`;
+      return `+${customerData.country_code}${phoneNumber}`;
     }
     return "";
   };
 
-  const handlePhoneNumberChange = (value) => {
-    // 'value' from react-phone-number-input is the full E.164 number (e.g., "+12025550100")
+  const handlePhoneNumberChange = (value, type = 'primary') => {
     if (value) {
       const phoneNumberObj = parsePhoneNumberFromString(value);
       if (phoneNumberObj && phoneNumberObj.isValid()) {
@@ -29,23 +27,23 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
           target: { name: "country_code", value: phoneNumberObj.countryCallingCode ? `+${phoneNumberObj.countryCallingCode}` : "" }
         });
         handleInputChange({
-          target: { name: "phoneNumber", value: phoneNumberObj.nationalNumber || "" }
+          target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: phoneNumberObj.nationalNumber || "" }
         });
       } else {
         handleInputChange({ target: { name: "country_code", value: "" } });
-        handleInputChange({ target: { name: "phoneNumber", value: "" } });
+        handleInputChange({ target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: "" } });
       }
     } else {
       handleInputChange({ target: { name: "country_code", value: "" } });
-      handleInputChange({ target: { name: "phoneNumber", value: "" } });
+      handleInputChange({ target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: "" } });
     }
   };
 
   const salutationOptions = [
-    { label: "Mr.", value: "Mr." },
-    { label: "Ms.", value: "Ms." },
-    { label: "Mrs.", value: "Mrs." },
-    { label: "Dr.", value: "Dr." },
+    { value: "Mr.", label: "Mr." },
+    { value: "Ms.", label: "Ms." },
+    { value: "Mrs.", label: "Mrs." },
+    { value: "Dr.", label: "Dr." },
   ];
 
   return (
@@ -162,15 +160,29 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-x-4 mb-4">
         <div className="flex flex-col mb-4 md:col-span-6">
-          <Label htmlFor="phoneNumber" className="mb-2"> Phone Number </Label>
+          <Label htmlFor="primaryPhoneNumber" className="mb-2"> Primary Phone Number </Label>
           <div className="relative">
             <PhoneInput
               international
               defaultCountry="IN"
-              value={getCurrentPhoneNumber()}
-              onChange={handlePhoneNumberChange}
+              value={getCurrentPhoneNumber('primary')}
+              onChange={(value) => handlePhoneNumberChange(value, 'primary')}
               className="phone-input-custom-style min-h-[2.25rem] shadow-sm"
-              placeholder="Enter phone number"
+              placeholder="Enter primary phone number"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col mb-4 md:col-span-6">
+          <Label htmlFor="secondaryPhoneNumber" className="mb-2"> Secondary Phone Number </Label>
+          <div className="relative">
+            <PhoneInput
+              international
+              defaultCountry="IN"
+              value={getCurrentPhoneNumber('secondary')}
+              onChange={(value) => handlePhoneNumberChange(value, 'secondary')}
+              className="phone-input-custom-style min-h-[2.25rem] shadow-sm"
+              placeholder="Enter secondary phone number (optional)"
             />
           </div>
         </div>

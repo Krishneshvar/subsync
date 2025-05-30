@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import countryList from "react-select-country-list";
-import validateCustomerData from "@/features/Customers/services/inputValidator.js";
+import { validateCustomerData } from "@/features/Customers/services/inputValidator.js";
 import OtherDetails from "@/features/Customers/components/OtherDetails.jsx";
 import PersonalDetails from "@/features/Customers/components/PersonalDetails.jsx";
 import CompanyDetails from "@/features/Customers/components/CompanyDetails.jsx";
@@ -13,6 +13,8 @@ import { createCustomer, updateCustomer, fetchCustomerById, clearCustomerState }
 import { Button } from "@/components/ui/button.jsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
 import { useDispatch, useSelector } from "react-redux";
+import PaymentTermsSection from '../components/PaymentTermsSection';
+import { indianStates } from "@/features/Customers/data/statesOfIndia.js";
 
 const AddCustomer = () => {
   const navigate = useNavigate();
@@ -36,9 +38,10 @@ const AddCustomer = () => {
     email: "",
     country_code: "+91",
     phoneNumber: "",
+    secondaryPhoneNumber: "",
     gstin: "",
     gst_treatment: "",
-    tax_preference: "",
+    tax_preference: "Taxable",
     exemption_reason: "",
     currencyCode: { label: "INR", value: "INR" },
     address: {
@@ -48,6 +51,7 @@ const AddCustomer = () => {
       city: "",
       zipCode: "",
     },
+    payment_terms: null,
     notes: "",
     customerStatus: "Active",
   });
@@ -62,9 +66,10 @@ const AddCustomer = () => {
       email: "",
       country_code: "+91",
       phoneNumber: "",
+      secondaryPhoneNumber: "",
       gstin: "",
       gst_treatment: "",
-      tax_preference: "",
+      tax_preference: "Taxable",
       exemption_reason: "",
       currencyCode: { label: "INR", value: "INR" },
       address: {
@@ -74,6 +79,7 @@ const AddCustomer = () => {
         city: "",
         zipCode: "",
       },
+      payment_terms: null,
       notes: "",
       customerStatus: "Active",
     });
@@ -114,6 +120,7 @@ const AddCustomer = () => {
         email: currentCustomer.primary_email,
         country_code: currentCustomer.country_code,
         phoneNumber: currentCustomer.primary_phone_number,
+        secondaryPhoneNumber: currentCustomer.secondary_phone_number,
         gstin: currentCustomer.gst_in,
         gst_treatment: currentCustomer.gst_treatment,
         tax_preference: currentCustomer.tax_preference,
@@ -126,12 +133,19 @@ const AddCustomer = () => {
           city: currentCustomer.customer_address?.city || "",
           zipCode: currentCustomer.customer_address?.zipCode || "",
         },
+        payment_terms: currentCustomer.payment_terms,
         notes: currentCustomer.notes,
         customerStatus: currentCustomer.customer_status,
       });
       setContactPersons(currentCustomer.other_contacts || []);
     }
   }, [currentCustomer, isEditing]);
+
+  useEffect(() => {
+    if (!customerData.address.state) {
+      setStates(indianStates);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -171,29 +185,57 @@ const AddCustomer = () => {
     }
   };
 
+  const handlePaymentTermChange = (term) => {
+    setCustomerData(prev => ({
+      ...prev,
+      payment_terms: term
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       validateCustomerData(customerData);
 
+      // Ensure all required fields are present and properly formatted
       const payload = {
-        ...customerData,
-        currencyCode: customerData.currencyCode?.value || "INR",
+        salutation: customerData.salutation,
+        firstName: customerData.firstName,
+        lastName: customerData.lastName,
+        email: customerData.email,
+        country_code: customerData.country_code,
+        phoneNumber: customerData.phoneNumber,
+        secondaryPhoneNumber: customerData.secondaryPhoneNumber,
+        companyName: customerData.companyName,
+        displayName: customerData.displayName,
+        gstin: customerData.gstin,
+        currencyCode: customerData.currencyCode?.value || customerData.currencyCode || "INR",
+        gst_treatment: customerData.gst_treatment,
+        tax_preference: customerData.tax_preference,
+        exemption_reason: customerData.exemption_reason || "",
         address: {
-            ...customerData.address,
-            country: customerData.address.country?.value || "IN",
-            state: customerData.address.state?.value || "",
+          ...customerData.address,
+          country: customerData.address.country?.value || customerData.address.country || "IN",
+          state: customerData.address.state?.value || customerData.address.state || "",
+          addressLine: customerData.address.addressLine || "",
+          city: customerData.address.city || "",
+          zipCode: customerData.address.zipCode || ""
         },
         contactPersons: contactPersons.map((person) => ({
-          salutation: person.salutation,
-          designation: person.designation,
-          first_name: person.first_name,
-          last_name: person.last_name,
-          email: person.email,
-          phone_number: person.phone_number,
-          country_code: person.country_code,
+          salutation: person.salutation || "",
+          designation: person.designation || "",
+          first_name: person.first_name || "",
+          last_name: person.last_name || "",
+          email: person.email || "",
+          phone_number: person.phone_number || "",
+          country_code: person.country_code || "+91"
         })),
+        payment_terms: customerData.payment_terms || { term_name: "Due on Receipt", days: 0, is_default: true },
+        notes: customerData.notes || "",
+        customerStatus: customerData.customerStatus || "Active"
       };
+
+      console.log("Submitting payload:", payload);
 
       let actionResult;
       if (isEditing) {
@@ -212,12 +254,13 @@ const AddCustomer = () => {
       const userSegment = location.pathname.split("/")[1];
       setTimeout(() => navigate(`/${userSegment}/dashboard/customers`), 2000);
     } catch (err) {
-      toast.error(err.message || "Error saving customer details.");
+      const errorMessage = typeof err === 'string' ? err : err.message || 'An error occurred';
+      toast.error(errorMessage);
     }
   };
 
   if (loading) return <p>Loading customer details...</p>;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  if (error) return <p className="text-red-500">Error: {typeof error === 'string' ? error : error.message || 'An error occurred'}</p>;
 
   return (
     <div className="container mt-4">
@@ -269,6 +312,10 @@ const AddCustomer = () => {
               customerData={customerData}
               handleInputChange={handleInputChange}
               handleSelectChange={handleSelectChange}
+            />
+            <PaymentTermsSection
+              selectedTerm={customerData.payment_terms}
+              onTermChange={handlePaymentTermChange}
             />
           </TabsContent>
 

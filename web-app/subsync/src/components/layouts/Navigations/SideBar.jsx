@@ -1,5 +1,7 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button.jsx';
+import { useDispatch } from 'react-redux';
+import { logout } from '@/features/Auth/authSlice';
 
 const sidebarItems = [
   { path: 'dashboard', title: 'Home', icon: 'home' },
@@ -11,6 +13,13 @@ const sidebarItems = [
 
 export default function SideBar({ isOpen, toggleSidebar }) {
   const { username } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
 
   return (
     <aside
@@ -46,6 +55,17 @@ export default function SideBar({ isOpen, toggleSidebar }) {
           ))}
         </ul>
       </nav>
+      
+      <div className="mt-auto p-2">
+        <Button
+          variant="destructive"
+          className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-700 text-white font-bold"
+          onClick={handleLogout}
+        >
+          <span className="material-symbols-outlined">logout</span>
+          {isOpen && <span>Logout</span>}
+        </Button>
+      </div>
     </aside>
   );
 }

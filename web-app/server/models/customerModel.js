@@ -12,7 +12,7 @@ async function addCustomer(customer) {
     try {
         // Validate required fields
         if (!customer.salutation || !customer.firstName || !customer.lastName || !customer.email || !customer.phoneNumber || !customer.address ||
-            !customer.companyName || !customer.displayName || !customer.gstin || !customer.currencyCode || !customer.gst_treatment || !customer.tax_preference) {
+            !customer.address.state || !customer.companyName || !customer.displayName || !customer.gstin || !customer.currencyCode || !customer.gst_treatment || !customer.tax_preference) {
             throw new Error("All required fields must be provided.");
         }
 
@@ -25,7 +25,16 @@ async function addCustomer(customer) {
         }
 
         if (!isValidPhoneNumber(customer.phoneNumber)) {
-            throw new Error("Invalid phone number. It must be a 13-digit number.");
+            throw new Error("Invalid primary phone number format.");
+        }
+
+        if (customer.secondaryPhoneNumber && !isValidPhoneNumber(customer.secondaryPhoneNumber)) {
+            throw new Error("Invalid secondary phone number format.");
+        }
+
+        // Additional address validation
+        if (!customer.address.state.trim()) {
+            throw new Error("State cannot be empty in the address.");
         }
 
         const currentTime = getCurrentTime();
@@ -34,20 +43,22 @@ async function addCustomer(customer) {
         // Serialize JSON fields
         const customerAddress = JSON.stringify(customer.address);
         const otherContacts = JSON.stringify(customer.contactPersons) || JSON.stringify([]);
+        const paymentTerms = JSON.stringify(customer.payment_terms) || JSON.stringify({ term_name: "Due on Receipt", days: 0, is_default: true });
 
         // Execute SQL query
         const [result] = await appDB.query(
-            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email, country_code, primary_phone_number, customer_address, " + // <--- ADD 'country_code' here
-            "other_contacts, company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference, exemption_reason, " +
-            "notes, customer_status, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email, country_code, primary_phone_number, secondary_phone_number, " +
+            "customer_address, other_contacts, company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference, exemption_reason, " +
+            "payment_terms, notes, customer_status, created_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             [
                 cid, customer.salutation, customer.firstName, customer.lastName, customer.email,
                 customer.country_code,
                 Number(customer.phoneNumber),
+                customer.secondaryPhoneNumber ? Number(customer.secondaryPhoneNumber) : null,
                 customerAddress, otherContacts, customer.companyName, customer.displayName, customer.gstin,
                 customer.currencyCode, customer.gst_treatment, customer.tax_preference, customer.exemption_reason || "",
-                customer.notes || "", customer.customerStatus, currentTime, currentTime,
+                paymentTerms, customer.notes || "", customer.customerStatus, currentTime, currentTime,
             ]
         );
 
@@ -78,9 +89,9 @@ async function addCustomer(customer) {
  */
 async function updateCustomer(customerId, updatedData) {
     const {
-        salutation, first_name, last_name, primary_email,country_code, primary_phone_number, customer_address,
-        company_name, display_name, gst_in, currency_code, gst_treatment, other_contacts,
-        tax_preference, exemption_reason, notes, customer_status
+        salutation, first_name, last_name, primary_email, country_code, primary_phone_number, secondary_phone_number,
+        customer_address, company_name, display_name, gst_in, currency_code, gst_treatment, other_contacts,
+        tax_preference, exemption_reason, payment_terms, notes, customer_status
     } = updatedData;
 
     console.log("Updated data received:", updatedData);
@@ -98,36 +109,49 @@ async function updateCustomer(customerId, updatedData) {
         throw new Error("Invalid email address format.");
     }
     if (!isValidPhoneNumber(primary_phone_number)) {
-        throw new Error("Invalid phone number. It must be a 10-digit number.");
+        throw new Error("Invalid primary phone number format.");
+    }
+    if (secondary_phone_number && !isValidPhoneNumber(secondary_phone_number)) {
+        throw new Error("Invalid secondary phone number format.");
     }
 
     try {
         const currentTime = getCurrentTime();
+
+        // Serialize JSON fields
+        const serializedAddress = JSON.stringify(customer_address);
+        const serializedContacts = JSON.stringify(other_contacts);
+        const serializedPaymentTerms = JSON.stringify(payment_terms) || JSON.stringify({ term_name: "Due on Receipt", days: 0, is_default: true });
+
+        // Convert phone numbers to proper format
+        const formattedPrimaryPhone = Number(primary_phone_number);
+        const formattedSecondaryPhone = secondary_phone_number ? Number(secondary_phone_number) : null;
+
         const [result] = await appDB.query(
-            `UPDATE customers 
-             SET salutation = ?, first_name = ?, last_name = ?, primary_email = ?, country_code = ?, primary_phone_number = ?, 
-                 customer_address = ?, company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, 
-                 gst_treatment = ?, other_contacts = ?, tax_preference = ?, exemption_reason = ?, notes = ?,
-                 customer_status = ?, updated_at = ? 
-             WHERE customer_id = ?;`,
+            `UPDATE customers SET 
+                salutation = ?, first_name = ?, last_name = ?, primary_email = ?, country_code = ?,
+                primary_phone_number = ?, secondary_phone_number = ?, customer_address = ?, other_contacts = ?,
+                company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, gst_treatment = ?,
+                tax_preference = ?, exemption_reason = ?, payment_terms = ?, notes = ?, customer_status = ?,
+                updated_at = ?
+            WHERE customer_id = ?`,
             [
-                salutation, first_name, last_name, primary_email,
-                country_code, primary_phone_number,
-                JSON.stringify(customer_address), // Ensure proper serialization
+                salutation, first_name, last_name, primary_email, country_code,
+                formattedPrimaryPhone, formattedSecondaryPhone, serializedAddress, serializedContacts,
                 company_name, display_name, gst_in, currency_code, gst_treatment,
-                JSON.stringify(other_contacts), // Ensure consistent reference
-                tax_preference, exemption_reason, notes, customer_status, currentTime, customerId
+                tax_preference, exemption_reason, serializedPaymentTerms, notes, customer_status,
+                currentTime, customerId
             ]
         );
 
-        if (result.affectedRows > 0) {
-            return customerId; // Return the customer ID if the update was successful
-        } else {
-            throw new Error("Failed to update customer. No rows affected.");
+        if (result.affectedRows === 0) {
+            throw new Error("Customer not found or no changes made.");
         }
+
+        return result;
     } catch (error) {
-        console.error("Database error:", error);
-        throw new Error("An unexpected error occurred while updating the customer.");
+        console.error("Error updating customer:", error);
+        throw new Error("Failed to update customer details.");
     }
 }
 

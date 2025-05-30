@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import router from './routes/appRoutes.js';
 
+
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -33,6 +34,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 app.use("/", router);
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

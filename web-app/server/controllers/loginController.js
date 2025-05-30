@@ -1,4 +1,5 @@
 import { checkLogin } from '../models/loginModel.js';
+import jwt from 'jsonwebtoken';
 
 /**
  * Function to be executed when user login details are sent for validation
@@ -13,13 +14,13 @@ const validateLogin = async (req, res) => {
         const valid = await checkLogin(username, password);
 
         if (valid) {
-            return res.status(200).json({ success: true, message: "Validation successful." });
+            const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1d' });
+            return res.status(200).json({ success: true, message: "Validation successful.", token: token, username });
         }
         else {
             return res.status(401).json({ success: false, message: "Invalid username or password." });
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Error during login validation:", error);
         return res.status(500).json({ success: false, message: "Internal server error." });
     }

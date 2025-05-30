@@ -28,7 +28,11 @@ const validateCustomerData = (customerData) => {
   }
 
   if (!isValidPhoneNumber(customerData.phoneNumber)) {
-    throw new Error("Phone number is required and must be a 10-digit number.");
+    throw new Error("Primary phone number is required and must be in a valid format.");
+  }
+
+  if (customerData.secondaryPhoneNumber && !isValidPhoneNumber(customerData.secondaryPhoneNumber)) {
+    throw new Error("Secondary phone number must be in a valid format.");
   }
 
   const { address } = customerData;
@@ -63,6 +67,22 @@ const validateCustomerData = (customerData) => {
   if (customerData.notes && customerData.notes.length > 500) {
     throw new Error("Notes must be within 500 characters.");
   }
+
+  if (customerData.payment_terms) {
+    if (!customerData.payment_terms.term_name) {
+      throw new Error("Payment terms must include a term name.");
+    }
+    
+    // Handle "Due on Receipt" as a special case by creating a new object
+    if (customerData.payment_terms.term_name.toLowerCase() === 'due on receipt') {
+      customerData.payment_terms = {
+        ...customerData.payment_terms,
+        days: 0
+      };
+    } else if (!customerData.payment_terms.days && customerData.payment_terms.days !== 0) {
+      throw new Error("Payment terms must include days unless it's Due on Receipt.");
+    }
+  }
 };
 
-export default validateCustomerData;
+export { validateCustomerData, isValidEmail, isValidPhoneNumber, isValidGSTIN };

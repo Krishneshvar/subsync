@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '@/api/axiosInstance';
 
 const useFetchData = (url, params = {}) => {
   const { searchType = '', search = '', sort = '', order = '', currentPage = 1 } = params;
@@ -14,7 +15,7 @@ const useFetchData = (url, params = {}) => {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get(url, {
+        const response = await api.get(url, {
           params: { searchType, search, sort, order, page: currentPage },
           withCredentials: true,
         });

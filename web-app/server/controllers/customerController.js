@@ -34,8 +34,9 @@ const updateCustomerDetails = async (req, res) => {
           firstName: first_name,
           lastName: last_name,
           email: primary_email,
-          country_code: country_code,
+          country_code,
           phoneNumber: primary_phone_number,
+          secondaryPhoneNumber,
           address: customer_address,
           companyName: company_name,
           displayName: display_name,
@@ -47,15 +48,22 @@ const updateCustomerDetails = async (req, res) => {
           notes,
           contactPersons: other_contacts,
           customerStatus: customer_status,
+          payment_terms
       } = req.body;
+
+      // Validate state is not empty
+      if (!customer_address.state) {
+          return res.status(400).json({ error: "State is required in the address" });
+      }
 
       const updatedData = {
           salutation,
           first_name,
           last_name,
           primary_email,
-          country_code: country_code,
+          country_code,
           primary_phone_number,
+          secondary_phone_number: secondaryPhoneNumber ? secondaryPhoneNumber : null,
           customer_address,
           company_name,
           display_name,
@@ -67,6 +75,7 @@ const updateCustomerDetails = async (req, res) => {
           notes,
           other_contacts,
           customer_status,
+          payment_terms
       };
 
       console.log("Updated data:", updatedData);

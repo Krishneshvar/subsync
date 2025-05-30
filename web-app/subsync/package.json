@@ -48,6 +48,7 @@
     "react-select-country-list": "^2.2.3",
     "react-toastify": "^11.0.3",
     "recharts": "^2.13.3",
+    "require-context": "^1.1.0",
     "subsync": "file:",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",

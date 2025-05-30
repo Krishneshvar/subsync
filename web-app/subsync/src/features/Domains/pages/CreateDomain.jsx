@@ -2,23 +2,24 @@ import { useState, useEffect } from "react";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import Select from "react-select";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { toast, ToastContainer, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "@/api/axiosInstance";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 export default function AddDomain() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [formData, setFormData] = useState({
     domainName: "",
     description: "",
     customerId: "",
     registrationDate: "",
-    expiryDate: "",
     registeredWith: "",
     otherProvider: "",
-    nameServer: "",
+    nameServers: [""],
+    mailServices: "",
+    mailServicesOther: ""
   });
 
   const [allCustomers, setAllCustomers] = useState([]);
@@ -35,6 +36,14 @@ export default function AddDomain() {
     { value: "Others", label: "Others" },
   ];
 
+  const mailServicesOptions = [
+    { value: "ResellerClub", label: "ResellerClub" },
+    { value: "GWS", label: "GWS" },
+    { value: "Business email", label: "Business email" },
+    { value: "Microsoft", label: "Microsoft" },
+    { value: "Others", label: "Others" },
+  ];
+
   const formatDateToISO = (dateString) => {
     const [day, month, year] = dateString.split('/');
     return `${year}-${month}-${day}`;
@@ -43,7 +52,7 @@ export default function AddDomain() {
   useEffect(() => {
     const fetchAllCustomers = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/all-customers`);
+        const res = await api.get(`/all-customers`);
         if (res.data.customers) {
           const options = res.data.customers.map((customer) => ({
             value: customer.customer_id,
@@ -82,15 +91,34 @@ export default function AddDomain() {
       const domain = state.domain;
       setIsEditing(true);
       setDomainId(domain.domain_id);
+
+      // Ensure name_servers is always an array
+      let nameServers = [""];
+      if (domain.name_servers) {
+        // If it's a string (from the table view), split it
+        if (typeof domain.name_servers === 'string') {
+          nameServers = domain.name_servers.split(',').filter(ns => ns.trim() !== '');
+        }
+        // If it's already an array, use it
+        else if (Array.isArray(domain.name_servers)) {
+          nameServers = domain.name_servers;
+        }
+      }
+      // Ensure there's at least one empty field if no name servers
+      if (nameServers.length === 0) {
+        nameServers = [""];
+      }
+
       setFormData({
         domainName: domain.domain_name,
         description: domain.description || "",
         customerId: domain.customer_id,
         registrationDate: formatDateToISO(domain.registration_date),
-        expiryDate: formatDateToISO(domain.expiry_date),
         registeredWith: domain.registered_with,
         otherProvider: domain.other_provider || "",
-        nameServer: domain.name_server || "",
+        nameServers: nameServers,
+        mailServices: domain.mail_service_provider || "",
+        mailServicesOther: domain.other_mail_service_details || ""
       });
       setSelectedCustomer({
         value: domain.customer_id,
@@ -99,6 +127,29 @@ export default function AddDomain() {
     }
   }, [location.state]);
 
+  const handleNameServerChange = (index, value) => {
+    const updatedNameServers = [...formData.nameServers];
+    updatedNameServers[index] = value;
+    setFormData({ ...formData, nameServers: updatedNameServers });
+  };
+
+  const addNameServer = () => {
+    setFormData({
+      ...formData,
+      nameServers: [...formData.nameServers, ""]
+    });
+  };
+
+  const removeNameServer = (index) => {
+    if (formData.nameServers.length > 1) {
+      const updatedNameServers = formData.nameServers.filter((_, i) => i !== index);
+      setFormData({
+        ...formData,
+        nameServers: updatedNameServers
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -106,29 +157,33 @@ export default function AddDomain() {
       toast.error("Please select a customer.");
       return;
     }
-    if (!formData.domainName || !formData.registrationDate || !formData.expiryDate || !formData.registeredWith) {
+    if (!formData.domainName || !formData.registrationDate || !formData.registeredWith) {
       toast.error("Please fill in all required fields.");
       return;
     }
+
+    // Filter out empty name servers
+    const filteredNameServers = formData.nameServers.filter(ns => ns.trim() !== "");
 
     const submissionData = {
       customer_id: formData.customerId,
       customer_name: selectedCustomer?.label || "",
       domain_name: formData.domainName,
       registration_date: formData.registrationDate,
-      expiry_date: formData.expiryDate,
       registered_with: formData.registeredWith,
       other_provider: formData.registeredWith !== "Others" ? "" : formData.otherProvider,
-      name_server: formData.nameServer || "",
+      name_servers: filteredNameServers,
       description: formData.description || "",
+      mail_service_provider: formData.mailServices || "",
+      mail_services_other: formData.mailServices === "Others" ? formData.mailServicesOther : ""
     };
 
     try {
       if (isEditing) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/update-domain/${domainId}`, submissionData);
+        await api.put(`/update-domain/${domainId}`, submissionData);
         toast.success("Domain successfully updated!", { autoClose: 3000 });
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/create-domain`, submissionData);
+        await api.post(`/create-domain`, submissionData);
         toast.success("Domain successfully created!", { autoClose: 3000 });
       }
 
@@ -196,17 +251,6 @@ export default function AddDomain() {
             </Col>
             <Col xs={12} sm={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Expiry Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={formData.expiryDate}
-                  onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={12} sm={6}>
-              <Form.Group className="mb-3">
                 <Form.Label>Registered With</Form.Label>
                 <Select
                   options={registeredWithOptions}
@@ -236,17 +280,61 @@ export default function AddDomain() {
                 </Form.Group>
               </Col>
             )}
+            <Col xs={12}>
+              <Form.Group className="mb-3">
+                <Form.Label>Name Servers</Form.Label>
+                {formData.nameServers.map((nameServer, index) => (
+                  <div key={index} className="d-flex mb-2 align-items-center">
+                    <div className="col-md-6">
+                      <Form.Control
+                        type="text"
+                        value={nameServer}
+                        onChange={(e) => handleNameServerChange(index, e.target.value)}
+                        placeholder="Enter name server"
+                        className="me-2"
+                      />
+                    </div>
+                    <Button
+                      variant="outline-danger"
+                      onClick={() => removeNameServer(index)}
+                      disabled={formData.nameServers.length === 1}
+                      className="me-2"
+                    >
+                      <FaTrash />
+                    </Button>
+                    {index === formData.nameServers.length - 1 && (
+                      <Button variant="outline-primary" onClick={addNameServer}>
+                        <FaPlus />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </Form.Group>
+            </Col>
             <Col xs={12} sm={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Name Server (Optional)</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={formData.nameServer}
-                  onChange={(e) => setFormData({ ...formData, nameServer: e.target.value })}
-                  placeholder="Enter name server"
+                <Form.Label>Mail Services</Form.Label>
+                <Select
+                  options={mailServicesOptions}
+                  value={mailServicesOptions.find(option => option.value === formData.mailServices)}
+                  onChange={(selected) => setFormData({ ...formData, mailServices: selected?.value || "" })}
+                  isClearable
                 />
               </Form.Group>
             </Col>
+            {formData.mailServices === "Others" && (
+              <Col xs={12} sm={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Specify Other Mail Service</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.mailServicesOther}
+                    onChange={(e) => setFormData({ ...formData, mailServicesOther: e.target.value })}
+                    placeholder="Please specify the mail service"
+                  />
+                </Form.Group>
+              </Col>
+            )}
             <Col xs={12}>
               <Form.Group className="mb-3">
                 <Form.Label>Description (Optional)</Form.Label>

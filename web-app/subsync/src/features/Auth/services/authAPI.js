@@ -6,8 +6,19 @@ const api = axios.create({
   // withCredentials: true,
 });
 
-// When you implement JWTs, you'll need to re-add an interceptor here
-// to attach the token to outgoing requests after a user logs in.
+// Add an interceptor to automatically attach the JWT token to all requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('subsync_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Handles user login by sending credentials to the backend.
@@ -18,14 +29,21 @@ const api = axios.create({
  */
 export const apiLoginUser = async (username, password) => {
   try {
-    // Assuming your backend returns user data directly on successful login.
-    // If your backend will eventually return a JWT, the response.data might contain
-    // { user: { ... }, token: '...' }
+    // Send credentials to the backend to authenticate the user
     const response = await api.post('/login/user', {
       username,
       password,
     });
-    return response.data;
+    
+    // The response should contain a token if authentication was successful
+    const data = response.data;
+    
+    // Store the token if it exists (this will be used by the interceptor for future requests)
+    if (data.token) {
+      localStorage.setItem('subsync_token', data.token);
+    }
+    
+    return data;
   } catch (error) {
     // Re-throw the error to be handled by the calling thunk (loginUser in authSlice)
     // Access `error.response?.data?.message` for backend specific error messages

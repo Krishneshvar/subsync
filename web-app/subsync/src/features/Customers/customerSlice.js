@@ -1,14 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import api from '@/api/axiosInstance';
 
 export const fetchCustomerById = createAsyncThunk(
   'customers/fetchCustomerById',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/customer/${id}`);
+      const res = await api.get(`/customer/${id}`);
       return res.data.customer;
     } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message || 'Failed to fetch customer';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -17,10 +19,11 @@ export const createCustomer = createAsyncThunk(
   'customers/createCustomer',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/create-customer`, payload);
+      const res = await api.post(`/create-customer`, payload);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message || 'Failed to create customer';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -29,10 +32,11 @@ export const updateCustomer = createAsyncThunk(
   'customers/updateCustomer',
   async ({ id, payload }, { rejectWithValue }) => {
     try {
-      const res = await axios.put(`${import.meta.env.VITE_API_URL}/update-customer/${id}`, payload);
+      const res = await api.put(`/update-customer/${id}`, payload);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data || err.message);
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message || 'Failed to update customer';
+      return rejectWithValue(errorMessage);
     }
   }
 );
