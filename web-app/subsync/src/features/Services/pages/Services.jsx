@@ -4,10 +4,10 @@ import { Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button.jsx"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.jsx"
 import { Spinner } from "react-bootstrap"
-import GenericTable from '../../components/layouts/GenericTable.jsx'
-import SearchFilterForm from '../../components/layouts/SearchFilterForm.jsx'
-import useFetchData from '@/Common/useFetchData.js'
-import Pagination from '../../components/layouts/Pagination.jsx'
+import GenericTable from '../../../components/layouts/GenericTable.jsx'
+import SearchFilterForm from '../../../components/layouts/SearchFilterForm.jsx'
+import useFetchData from '@/hooks/useFetchData.js'
+import Pagination from '../../../components/layouts/Pagination.jsx'
 
 const headers = [
   { key: 'sid', label: 'ID' },
@@ -19,7 +19,7 @@ const headers = [
   { key: 'updated_at', label: 'Updated At' }
 ]
 
-function Products() {
+function Services() {
   const [sortBy, setSortBy] = useState("sname");
   const [order, setOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +46,7 @@ function Products() {
     setCurrentPage(1); // Reset to first page whenever filter, sort, or order changes
   }, [sortBy, order]);
 
-  console.log("Products Data:", dataArray);
+  console.log("Services Data:", dataArray);
 
   return (
     <div className="container shadow-lg rounded-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -101,4 +101,4 @@ function Products() {
   )
 }
 
-export default Products
+export default Services

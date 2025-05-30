@@ -5,44 +5,44 @@ CREATE DATABASE ocs_srms;
 USE ocs_srms;
 
 -- Create the Customers table
-    CREATE TABLE customers (
-        customer_id VARCHAR(15) PRIMARY KEY,
-        salutation ENUM('Mr.', 'Ms.', 'Mrs.', 'Dr.') NOT NULL,
-        first_name VARCHAR(100) NOT NULL,
-        last_name VARCHAR(100) NOT NULL,
-        primary_email VARCHAR(255) NOT NULL UNIQUE,
-        country_code VARCHAR(5) NOT NULL DEFAULT '+91',
-        primary_phone_number VARCHAR(15) NOT NULL,
-        secondary_phone_number VARCHAR(15),
-        
-        -- Company Information
-        company_name VARCHAR(128) NOT NULL,
-        display_name VARCHAR(128) NOT NULL,
-        gst_in VARCHAR(15) NOT NULL,
-        currency_code CHAR(3) NOT NULL DEFAULT 'INR',
-        gst_treatment ENUM('iGST', 'CGST & SGST', 'No GST', 'Zero Tax', 'SEZ') NOT NULL,
-        tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL DEFAULT 'Taxable',
-        exemption_reason TEXT,
-        
-        -- Address and Contacts
-        customer_address JSON NOT NULL,
-        other_contacts JSON,
-        notes TEXT,
-        
-        -- Payment and Status
-        payment_terms JSON NOT NULL,
-        customer_status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
-        
-        -- Timestamps
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        -- Indexes
-        INDEX idx_company_name (company_name),
-        INDEX idx_display_name (display_name),
-        INDEX idx_primary_phone (primary_phone_number),
-        INDEX idx_customer_status (customer_status)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE customers (
+	customer_id VARCHAR(15) PRIMARY KEY,
+	salutation ENUM('Mr.', 'Ms.', 'Mrs.', 'Dr.') NOT NULL,
+	first_name VARCHAR(100) NOT NULL,
+	last_name VARCHAR(100) NOT NULL,
+	primary_email VARCHAR(255) NOT NULL UNIQUE,
+	country_code VARCHAR(5) NOT NULL DEFAULT '+91',
+	primary_phone_number VARCHAR(15) NOT NULL,
+	secondary_phone_number VARCHAR(15),
+	
+	-- Company Information
+	company_name VARCHAR(128) NOT NULL,
+	display_name VARCHAR(128) NOT NULL,
+	gst_in VARCHAR(15) NOT NULL,
+	currency_code CHAR(3) NOT NULL DEFAULT 'INR',
+	gst_treatment ENUM('iGST', 'CGST & SGST', 'No GST', 'Zero Tax', 'SEZ') NOT NULL,
+	tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL DEFAULT 'Taxable',
+	exemption_reason TEXT,
+	
+	-- Address and Contacts
+	customer_address JSON NOT NULL,
+	other_contacts JSON,
+	notes TEXT,
+	
+	-- Payment and Status
+	payment_terms JSON NOT NULL,
+	customer_status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
+	
+	-- Timestamps
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	
+	-- Indexes
+	INDEX idx_company_name (company_name),
+	INDEX idx_display_name (display_name),
+	INDEX idx_primary_phone (primary_phone_number),
+	INDEX idx_customer_status (customer_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- JSON structures for Customers table fields
 /*
@@ -92,6 +92,38 @@ CREATE TABLE IF NOT EXISTS domains (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS services (
+	service_id VARCHAR(15) PRIMARY KEY,
+    service_name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
+    SKU TEXT NOT NULL,
+    tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL DEFAULT 'Taxable',
+    item_group VARCHAR(255) NOT NULL,
+    sales_information JSON NOT NULL,
+    purchase_information JSON NOT NULL,
+    preferred_vendor VARCHAR(255) NOT NULL,
+    default_tax_rates JSON NOT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS item_groups (
+	item_group_id INT AUTO_INCREMENT PRIMARY KEY,
+    item_group_name VARCHAR(255),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS vendors (
+	vendor_id INT AUTO_INCREMENT PRIMARY KEY,
+    vendor_name VARCHAR(255),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the Tax details table

@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion.jsx";
 
-export default function ProductDetails() {
+export default function ServiceDetails() {
   const { id } = useParams();
   const [productDetails, setProductDetails] = useState(null);
   const [subscriptions, setSubscriptions] = useState([]);

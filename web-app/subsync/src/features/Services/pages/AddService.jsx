@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Bounce } from "react-toastify"; 
 
-export default function AddProduct() {
+export default function AddService() {
   const navigate = useNavigate();
   const { username } = useParams();
   const [formData, setFormData] = useState({

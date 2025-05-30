@@ -31,7 +31,7 @@ router.get('/all-domains',isAuthenticated, fetchAllDomains);
 router.get('/all-domain-details',isAuthenticated, domainDetailsByID);
 router.post('/import-domains',isAuthenticated, importDomains);
 
-// Products
+// Services
 router.get('/all-products', isAuthenticated, getProductsController);
 router.post('/add-product', isAuthenticated, createProduct);
 router.get('/product/:id', isAuthenticated, getProductDetailsController);

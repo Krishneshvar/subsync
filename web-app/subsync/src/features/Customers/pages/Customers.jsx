@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button.jsx";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu.jsx";
 import GenericTable from "../../../components/layouts/GenericTable.jsx";
 import Pagination from "../../../components/layouts/Pagination.jsx";
-import useFetchData from "@/Common/useFetchData.js";
+import useFetchData from "@/hooks/useFetchData.js";
 import SearchFilterForm from "../../../components/layouts/SearchFilterForm.jsx";
 import { saveAs } from "file-saver";
 import * as Papa from "papaparse";

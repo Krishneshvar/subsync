@@ -262,4 +262,4 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   );
 };
 
-export default PaymentTermsSection; 
+export default PaymentTermsSection;

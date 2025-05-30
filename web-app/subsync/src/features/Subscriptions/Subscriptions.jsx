@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.jsx"
 import { Spinner } from "react-bootstrap"
 import GenericTable from '../../components/layouts/GenericTable.jsx'
 import SearchFilterForm from '../../components/layouts/SearchFilterForm.jsx'
-import useFetchData from '@/Common/useFetchData.js'
+import useFetchData from '@/hooks/useFetchData.js'
 import Pagination from '../../components/layouts/Pagination.jsx'
 
 const headers = [

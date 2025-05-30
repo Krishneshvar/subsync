@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion.jsx"
 
-const headers = ['Name', 'Domain', 'Subscriptions', 'Renewal date', 'Client since', 'Products', 'License usage']
+const headers = ['Name', 'Domain', 'Subscriptions', 'Renewal date', 'Client since', 'Services', 'License usage']
 
 const reminders = [
   {

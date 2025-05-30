@@ -4,13 +4,13 @@ import Home from '@/features/Dashboard/components/Home.jsx';
 import Customers from '@/features/Customers/pages/Customers.jsx';
 import Domains from '@/features/Domains/pages/Domains.jsx';
 import CreateDomain from '@/features/Domains/pages/CreateDomain.jsx';
-import Products from '@/features/Products/Products.jsx';
+import Services from '@/features/Services/pages/Services.jsx';
 import Subscriptions from '@/features/Subscriptions/Subscriptions.jsx';
 import AddCustomer from '@/features/Customers/pages/AddCustomer.jsx';
-import AddProduct from '@/features/Products/AddProduct.jsx';
+import AddService from '@/features/Services/pages/AddService.jsx';
 import AddSubscription from '@/features/Subscriptions/AddSubscription.jsx';
 import CustomerDetails from '@/features/Customers/pages/CustomerDetails.jsx';
-import ProductDetails from '@/features/Products/ProductDetails.jsx';
+import ServiceDetails from '@/features/Services/pages/ServiceDetails.jsx';
 import SubscriptionDetails from '@/features/Subscriptions/SubscriptionDetails.jsx';
 import Settings from '@/features/Settings/Settings.jsx';
 import Taxes from '@/features/Settings/Taxes.jsx';
@@ -32,9 +32,9 @@ const router = createBrowserRouter([
       { path: "customers/add", element: <AddCustomer /> },
       { path: "customers/:id/edit", element: <AddCustomer /> },
 
-      { path: "products", element: <Products /> },
-      { path: "products/:id", element: <ProductDetails /> },
-      { path: "products/add", element: <AddProduct /> },
+      { path: "products", element: <Services /> },
+      { path: "products/:id", element: <ServiceDetails /> },
+      { path: "products/add", element: <AddService /> },
 
       { path: "subscriptions", element: <Subscriptions /> },
       { path: "subscriptions/:id", element: <SubscriptionDetails /> },
