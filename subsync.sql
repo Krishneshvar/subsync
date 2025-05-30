@@ -84,9 +84,9 @@ CREATE TABLE IF NOT EXISTS domains (
     domain_name VARCHAR(255) UNIQUE NOT NULL,
     registration_date DATE NOT NULL,
     registered_with ENUM('OCS', 'Direct Customer', 'Winds', 'Others') NOT NULL,
-    mail_service_provider ENUM('ResellerClub', 'GWS', 'Business Email', 'Microsoft', 'Others') NOT NULL DEFAULT 'Others';
+    mail_service_provider ENUM('ResellerClub', 'GWS', 'Business Email', 'Microsoft', 'Others') NOT NULL DEFAULT 'Others',
     other_provider VARCHAR(255) DEFAULT NULL,
-    other_mail_service_details VARCHAR(255) DEFAULT NULL;
+    other_mail_service_details VARCHAR(255) DEFAULT NULL,
     name_server VARCHAR(255),
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
