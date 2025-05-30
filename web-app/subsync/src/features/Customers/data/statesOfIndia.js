@@ -4,6 +4,7 @@ export const indianStates = [
     { label: "Assam", value: "Assam" },
     { label: "Bihar", value: "Bihar" },
     { label: "Chhattisgarh", value: "Chhattisgarh" },
+    { label: "Daman and Diu", value: "Daman and Diu" },
     { label: "Goa", value: "Goa" },
     { label: "Gujarat", value: "Gujarat" },
     { label: "Haryana", value: "Haryana" },

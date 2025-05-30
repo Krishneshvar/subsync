@@ -18,7 +18,7 @@ USE ocs_srms;
         -- Company Information
         company_name VARCHAR(128) NOT NULL,
         display_name VARCHAR(128) NOT NULL,
-        gst_in VARCHAR(15) UNIQUE NOT NULL,
+        gst_in VARCHAR(15) NOT NULL,
         currency_code CHAR(3) NOT NULL DEFAULT 'INR',
         gst_treatment ENUM('iGST', 'CGST & SGST', 'No GST', 'Zero Tax', 'SEZ') NOT NULL,
         tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL DEFAULT 'Taxable',
@@ -44,7 +44,7 @@ USE ocs_srms;
         INDEX idx_customer_status (customer_status)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Add comments to explain JSON structures
+-- JSON structures for Customers table fields
 /*
 customer_address JSON structure:
 {
@@ -93,7 +93,6 @@ CREATE TABLE IF NOT EXISTS domains (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
 );
-
 
 -- Create the Tax details table
 CREATE TABLE taxes (
