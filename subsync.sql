@@ -44,38 +44,6 @@ CREATE TABLE customers (
 	INDEX idx_customer_status (customer_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- JSON structures for Customers table fields
-/*
-customer_address JSON structure:
-{
-    "addressLine": "string",
-    "city": "string",
-    "state": "string",
-    "country": "string",
-    "zipCode": "string"
-}
-
-other_contacts JSON structure:
-[
-    {
-        "salutation": "string",
-        "designation": "string",
-        "first_name": "string",
-        "last_name": "string",
-        "email": "string",
-        "phone_number": "string",
-        "country_code": "string"
-    }
-]
-
-payment_terms JSON structure:
-{
-    "term_name": "string",
-    "days": number,
-    "is_default": boolean
-}
-*/ 
-
 -- Create the Domains Table Associated with Customers
 CREATE TABLE IF NOT EXISTS domains (
     domain_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -89,41 +57,48 @@ CREATE TABLE IF NOT EXISTS domains (
     other_mail_service_details VARCHAR(255) DEFAULT NULL,
     name_server VARCHAR(255),
     description TEXT,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
 );
 
+CREATE TABLE domain_name_servers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    domain_id INT NOT NULL,
+    name_server VARCHAR(255) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (domain_id) REFERENCES domains(domain_id)
+);
+
 CREATE TABLE IF NOT EXISTS services (
-	service_id VARCHAR(15) PRIMARY KEY,
+	service_id INT AUTO_INCREMENT PRIMARY KEY,
     service_name VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT,
-    SKU TEXT NOT NULL,
+    stock_keepers_unit VARCHAR(50) NOT NULL,
     tax_preference ENUM('Taxable', 'Tax Exempt') NOT NULL DEFAULT 'Taxable',
     item_group VARCHAR(255) NOT NULL,
-    sales_information JSON NOT NULL,
-    purchase_information JSON NOT NULL,
+    sales_info JSON NOT NULL,
+    purchase_info JSON NOT NULL,
     preferred_vendor VARCHAR(255) NOT NULL,
     default_tax_rates JSON NOT NULL,
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS item_groups (
 	item_group_id INT AUTO_INCREMENT PRIMARY KEY,
-    item_group_name VARCHAR(255),
+    item_group_name VARCHAR(255) UNIQUE NOT NULL,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS vendors (
 	vendor_id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_name VARCHAR(255),
+    vendor_name VARCHAR(255) UNIQUE NOT NULL,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the Tax details table
@@ -147,9 +122,11 @@ CREATE TABLE gst_settings (
 -- Create the Users table
 CREATE TABLE users (
     username VARCHAR(32) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(32) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -159,16 +136,10 @@ CREATE TABLE payment_terms (
     term_name VARCHAR(50) NOT NULL,
     days INT NOT NULL,
     is_default BOOLEAN DEFAULT false,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unique_term_name (term_name)
 );
-
-INSERT INTO payment_terms (term_name, days, is_default) VALUES
-('Due on Receipt', 0, true),
-('Net 15', 15, false),
-('Net 30', 30, false),
-('Net 45', 45, false),
-('Net 60', 60, false);
 
 SELECT * FROM customers;
