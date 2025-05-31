@@ -14,20 +14,20 @@ export default function AddTax() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validation: Ensure tax rate is a valid number
         if (isNaN(taxRate) || taxRate < 0) {
             setError("Tax rate must be a non-negative number.");
             return;
         }
-    
+
         try {
             const requestData = {
                 taxName: taxName.trim(),
                 taxType: taxType,
                 taxRate: parseFloat(taxRate)
             };
-    
+
             console.log("Sending request:", JSON.stringify(requestData));
     
             const response = await fetch(`${import.meta.env.VITE_API_URL}/add-tax`, {
@@ -38,20 +38,20 @@ export default function AddTax() {
                 },
                 body: JSON.stringify(requestData),
             });
-    
+
             const responseData = await response.json();
             console.log("Response:", responseData);
-    
+
             if (!response.ok) {
                 throw new Error(responseData.error || "Failed to add tax. Please try again.");
             }
-    
+
             // Reset form on success
             setTaxName("");
             setTaxType("CGST");
             setTaxRate("");
             setError(null);
-    
+
         } catch (error) {
             setError(error.message);
         }
@@ -60,7 +60,7 @@ export default function AddTax() {
     return (
         <div className="w-[250px]">
             <h1 className="text-2xl font-bold mb-4">Add New Tax</h1>
-            
+
             {error && (
                 <Alert variant="destructive" className="mb-4">
                     <AlertCircle className="h-5 w-5" />

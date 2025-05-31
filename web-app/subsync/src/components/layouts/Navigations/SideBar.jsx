@@ -6,7 +6,7 @@ const sidebarItems = [
   { path: 'dashboard', title: 'Home', icon: 'home' },
   { path: 'dashboard/customers', title: 'Customers', icon: 'person' },
   { path: 'dashboard/domains', title: 'Domains', icon: 'language' },
-  { path: 'dashboard/products', title: 'Products', icon: 'shop' },
+  { path: 'dashboard/services', title: 'Services', icon: 'shop' },
   { path: 'dashboard/subscriptions', title: 'Subscriptions', icon: 'subscriptions' },
 ];
 
