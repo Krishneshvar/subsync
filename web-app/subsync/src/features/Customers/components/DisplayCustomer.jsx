@@ -31,14 +31,14 @@ function DisplayCustomer({ customerDetails }) {
   };
 
   return (
-    <Accordion type="single" collapsible className="w-full space-y-4">
+    <Accordion type="single" collapsible defaultValue="customer-details" className="w-full space-y-4">
       <AccordionItem value="customer-details">
         <AccordionTrigger className="bg-blue-500 text-white rounded-lg p-4 hover:bg-blue-600 transition-colors">
           <h2 className="text-2xl font-bold">Customer Details</h2>
         </AccordionTrigger>
         <AccordionContent>
           <Card>
-            <CardContent className="pt-4 space-y-6">
+            <CardContent className="pt-4 space-y-6 overflow-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-white max-h-[70vh]">
               <div>
                 <h3 className="text-lg font-bold pb-2 underline">Customer</h3>
                 {customerDetails.customer_status === "Active" &&

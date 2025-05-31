@@ -70,13 +70,19 @@ export default function Domains() {
         });
 
         const formattedDomains = response.data.domains
-          .map((domain) => ({
-            ...domain,
-            registration_date: formatDate(domain.registration_date),
-            expiry_date: formatDate(domain.expiry_date),
-            name_servers: formatNameServers(domain.name_servers),
-            mail_service_provider: formatMailServices(domain.mail_service_provider, domain.other_mail_service_details)
-          }))
+          .map((domain) => {
+            const rawNameServers = Array.isArray(domain.name_servers) ? domain.name_servers : 
+              (domain.name_servers ? domain.name_servers.split(',').map(ns => ns.trim()) : []);
+            
+            return {
+              ...domain,
+              registration_date: formatDate(domain.registration_date),
+              expiry_date: formatDate(domain.expiry_date),
+              displayNameServers: formatNameServers(rawNameServers),
+              name_servers: rawNameServers,
+              mail_service_provider: formatMailServices(domain.mail_service_provider, domain.other_mail_service_details)
+            };
+          })
           .filter((domain) => {
             const searchTerm = search.toLowerCase();
             return (
@@ -138,23 +144,56 @@ export default function Domains() {
         <>
           <GenericTable
             headers={headers}
-            data={domains.map(domain => ({
-              ...domain,
-              actions: (
-                <div className="flex gap-2">
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={<Tooltip id={`tooltip-edit-${domain.domain_id}`}>Edit</Tooltip>}
-                  >
-                    <Link to={`/${username}/dashboard/domains/edit/${domain.domain_id}`} state={{ domain }}>
-                      <Button className="bg-black-500 text-black ml-1 p-2 rounded-md hover:bg-blue-600">
-                        <FaEdit size={10} />
-                      </Button>
-                    </Link>
-                  </OverlayTrigger>
-                </div>
-              )
-            }))}
+            data={domains.map(domain => {
+              // Extract only serializable, unformatted fields for state
+              const {
+                domain_id,
+                domain_name,
+                customer_id,
+                customer_name,
+                registered_with,
+                other_provider,
+                name_servers,
+                mail_service_provider,
+                other_mail_service_details,
+                description,
+                registration_date
+              } = domain;
+              return {
+                ...domain,
+                actions: (
+                  <div className="flex gap-2">
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id={`tooltip-edit-${domain_id}`}>Edit</Tooltip>}
+                    >
+                      <Link
+                        to={`/${username}/dashboard/domains/edit/${domain_id}`}
+                        state={{
+                          domain: {
+                            domain_id,
+                            domain_name,
+                            customer_id,
+                            customer_name,
+                            registered_with,
+                            other_provider,
+                            name_servers: domain.name_servers,
+                            mail_service_provider,
+                            other_mail_service_details,
+                            description,
+                            registration_date
+                          }
+                        }}
+                      >
+                        <Button className="bg-black-500 text-black ml-1 p-2 rounded-md hover:bg-blue-600">
+                          <FaEdit size={10} />
+                        </Button>
+                      </Link>
+                    </OverlayTrigger>
+                  </div>
+                )
+              };
+            })}
             primaryKey="domain_id"
           />
           <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />

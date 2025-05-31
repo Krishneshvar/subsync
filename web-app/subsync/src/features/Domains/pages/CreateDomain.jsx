@@ -56,7 +56,7 @@ export default function AddDomain() {
         if (res.data.customers) {
           const options = res.data.customers.map((customer) => ({
             value: customer.customer_id,
-            label: customer.display_name,
+            label: customer.company_name,
             customerId: customer.customer_id,
           }));
           setAllCustomers(options);
@@ -92,34 +92,46 @@ export default function AddDomain() {
       setIsEditing(true);
       setDomainId(domain.domain_id);
 
-      // Ensure name_servers is always an array
-      let nameServers = [""];
-      if (domain.name_servers) {
-        // If it's a string (from the table view), split it
-        if (typeof domain.name_servers === 'string') {
-          nameServers = domain.name_servers.split(',').filter(ns => ns.trim() !== '');
-        }
-        // If it's already an array, use it
-        else if (Array.isArray(domain.name_servers)) {
-          nameServers = domain.name_servers;
-        }
+      // Ensure nameServers is always an array of strings
+      let nameServers = [];
+      if (Array.isArray(domain.name_servers)) {
+        nameServers = domain.name_servers.filter(ns => ns !== null && ns !== undefined && ns.trim() !== '');
+      } else if (typeof domain.name_servers === 'string') {
+        nameServers = domain.name_servers.split(',').map(ns => ns.trim()).filter(ns => ns !== '');
       }
       // Ensure there's at least one empty field if no name servers
-      if (nameServers.length === 0) {
-        nameServers = [""];
+      nameServers = nameServers.length > 0 ? nameServers : [''];
+
+      // Format the registration date
+      let formattedDate = '';
+      if (domain.registration_date) {
+        try {
+          // Check if the date is already in ISO format
+          if (domain.registration_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            formattedDate = domain.registration_date;
+          } else {
+            formattedDate = formatDateToISO(domain.registration_date);
+          }
+        } catch (error) {
+          console.error('Error formatting date:', error);
+          formattedDate = '';
+        }
       }
 
+      console.log('Setting name servers:', nameServers); // Debug log
+
       setFormData({
-        domainName: domain.domain_name,
-        description: domain.description || "",
-        customerId: domain.customer_id,
-        registrationDate: formatDateToISO(domain.registration_date),
-        registeredWith: domain.registered_with,
-        otherProvider: domain.other_provider || "",
+        domainName: domain.domain_name || '',
+        description: domain.description || '',
+        customerId: domain.customer_id || '',
+        registrationDate: formattedDate,
+        registeredWith: domain.registered_with || '',
+        otherProvider: domain.other_provider || '',
         nameServers: nameServers,
-        mailServices: domain.mail_service_provider || "",
-        mailServicesOther: domain.other_mail_service_details || ""
+        mailServices: domain.mail_service_provider || '',
+        mailServicesOther: domain.other_mail_service_details || ''
       });
+      
       setSelectedCustomer({
         value: domain.customer_id,
         label: domain.customer_name,
@@ -130,7 +142,10 @@ export default function AddDomain() {
   const handleNameServerChange = (index, value) => {
     const updatedNameServers = [...formData.nameServers];
     updatedNameServers[index] = value;
-    setFormData({ ...formData, nameServers: updatedNameServers });
+    setFormData({
+      ...formData,
+      nameServers: updatedNameServers
+    });
   };
 
   const addNameServer = () => {
