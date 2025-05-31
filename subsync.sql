@@ -44,7 +44,7 @@ USE ocs_srms;
         INDEX idx_customer_status (customer_status)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Add comments to explain JSON structures
+
 /*
 customer_address JSON structure:
 {
@@ -92,6 +92,14 @@ CREATE TABLE IF NOT EXISTS domains (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
+);
+
+CREATE TABLE domain_name_servers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    domain_id INT NOT NULL,
+    name_server VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (domain_id) REFERENCES domains(id)
 );
 
 

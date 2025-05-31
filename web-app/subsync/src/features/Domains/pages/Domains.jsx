@@ -40,7 +40,13 @@ export default function Domains() {
 
   const formatNameServers = (nameServers) => {
     if (!nameServers || nameServers.length === 0) return '-';
-    return nameServers.join(', ');
+    return (
+      <>
+        {nameServers.map((ns, idx) => (
+          <div key={idx}>{ns}</div>
+        ))}
+      </>
+    );
   };
 
   const formatMailServices = (provider, details) => {

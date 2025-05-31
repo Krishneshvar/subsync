@@ -13,10 +13,11 @@ import * as Papa from "papaparse";
 import "jspdf-autotable";
 import { toast } from "react-toastify";
 import axios from "axios";
+import api from "@/api/axiosInstance.js";
 
 const headers = [
-  { key: "customer_id", label: "CID" },
-  { key: "salutation", label: "Salutation" },
+  // { key: "customer_id", label: "CID" },
+  // { key: "salutation", label: "Salutation" },
   { key: "first_name", label: "Name" },
   { key: "display_name", label: "Display Name" },
   { key: "company_name", label: "Company Name" },
@@ -48,45 +49,47 @@ function Customers() {
     if (e.key === "Enter") setCurrentPage(1);
   };
 
-  const fetchCustomersAndExport = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/all-customer-details`);
-      if (!response.ok) throw new Error("Failed to fetch customer data");
-      const data = await response.json();
-      if (!data.customers || !Array.isArray(data.customers)) throw new Error("Invalid customer data received!");
-      if (data.customers.length === 0) throw new Error("No customer data available to export!");
+ const fetchCustomersAndExport = async () => {
+  try {
+    const response = await api.get(`/all-customer-details`);
+    const data = response.data;
 
-      const formattedData = data.customers.map((c) => ({
-        "Customer ID": c.customer_id || "",
-        "Salutation": c.salutation || "",
-        "First Name": c.first_name || "",
-        "Last Name": c.last_name || "",
-        "Display Name": c.display_name || "",
-        "Company Name": c.company_name || "",
-        "Phone Number": `${c.country_code || ""}${c.primary_phone_number || ""}`,
-        "Email": c.primary_email || "",
-        "GSTIN": c.gst_in || "",
-        "GST Treatment": c.gst_treatment || "",
-        "Tax Preference": c.tax_preference || "",
-        "Exemption Reason": c.exemption_reason || "",
-        "Currency Code": c.currency_code || "",
-        "Address Line": c.customer_address?.addressLine || "",
-        "City": c.customer_address?.city || "",
-        "State": c.customer_address?.state || "",
-        "Country": c.customer_address?.country || "",
-        "Zip Code": c.customer_address?.zipCode || "",
-        "Notes": c.notes || "",
-        "Customer Status": c.customer_status || "Active",
-      }));
+    if (!data.customers || !Array.isArray(data.customers)) throw new Error("Invalid customer data received!");
+    if (data.customers.length === 0) throw new Error("No customer data available to export!");
 
-      const csv = Papa.unparse(formattedData);
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      saveAs(blob, `customers_export_${new Date().toISOString()}.csv`);
-      toast.success("CSV file downloaded successfully!");
-    } catch (err) {
-      toast.error(err.message || "Failed to generate CSV file.");
-    }
-  };
+    const formattedData = data.customers.map((c) => ({
+      "Customer ID": c.customer_id || "",
+      "Salutation": c.salutation || "",
+      "First Name": c.first_name || "",
+      "Last Name": c.last_name || "",
+      "Display Name": c.display_name || "",
+      "Company Name": c.company_name || "",
+      "Phone Number": `${c.country_code || ""}${c.primary_phone_number || ""}`,
+      "Secondary Phone Number": c.secondary_phone_number || "",
+      "Email": c.primary_email || "",
+      "GSTIN": c.gst_in || "",
+      "GST Treatment": c.gst_treatment || "",
+      "Tax Preference": c.tax_preference || "",
+      "Payment Terms": c.payment_terms?.term_name || "",
+      "Exemption Reason": c.exemption_reason || "",
+      "Currency Code": c.currency_code || "",
+      "Address Line": c.customer_address?.addressLine || "",
+      "City": c.customer_address?.city || "",
+      "State": c.customer_address?.state || "",
+      "Country": c.customer_address?.country || "",
+      "Zip Code": c.customer_address?.zipCode || "",
+      "Notes": c.notes || "",
+      "Customer Status": c.customer_status || "Active",
+    }));
+
+    const csv = Papa.unparse(formattedData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, `customers_export_${new Date().toISOString()}.csv`);
+    toast.success("CSV file downloaded successfully!");
+  } catch (err) {
+    toast.error(err.message || "Failed to generate CSV file.");
+  }
+};
 
   const fileInputRef = useRef(null);
 
@@ -104,14 +107,18 @@ function Customers() {
     Papa.parse(file, {
       complete: (result) => {
         const formatted = result.data.map((row) => ({
+          customer_id: row["Customer ID"] || "",
           salutation: row["Salutation"] || "",
           first_name: row["First Name"] || "",
           last_name: row["Last Name"] || "",
           primary_email: row["Email"] || "",
+          country_code: row["Country Code"] || "",
           primary_phone_number: row["Phone Number"] || "",
+          secondary_phone_number: row["Secondary Phone Number"] || "",
           company_name: row["Company Name"] || "",
           display_name: row["Display Name"] || "",
           gst_in: row["GSTIN"] || "",
+          payment_terms: row["Payment Terms"] || "",
           gst_treatment: row["GST Treatment"] || "",
           tax_preference: row["Tax Preference"] || "",
           exemption_reason: row["Exemption Reason"] || "",
@@ -211,15 +218,15 @@ function Customers() {
           </Button>
 
           <div className="flex flex-col md:flex-row gap-2 sm:w-auto">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" onClick={fetchCustomersAndExport}>
                   <FileUp /> Export
                 </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => console.log("Export PDF")}>Export as PDF</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 

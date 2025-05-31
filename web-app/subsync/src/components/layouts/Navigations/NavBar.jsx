@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.jsx";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.jsx";
 import { HelpCircle, User, Settings, LogOut, X } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { logout } from "@/features/Auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { path: "help", title: "Help", key: "help", icon: HelpCircle },
@@ -12,6 +15,13 @@ const navItems = [
 export default function NavBar({ toggleSidebar }) {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
 
   return (
     <nav className="bg-white shadow-md rounded-b-lg border-b-2 border-gray-300">
@@ -41,15 +51,29 @@ export default function NavBar({ toggleSidebar }) {
             </PopoverTrigger>
             <PopoverContent className="w-48" align="end">
               {navItems.map((item) => (
-                <Link
-                  key={item.key}
-                  to={item.path}
-                  className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                  onClick={() => setOpen(false)} // Close popover on click
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.title}
-                </Link>
+                item.key === "logout" ? (
+                  <button
+                    key={item.key}
+                    className="flex items-center w-full px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    onClick={() => {
+                      setOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.title}
+                  </button>
+                ) : (
+                  <Link
+                    key={item.key}
+                    to={item.path}
+                    className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    onClick={() => setOpen(false)}
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.title}
+                  </Link>
+                )
               ))}
             </PopoverContent>
           </Popover>
