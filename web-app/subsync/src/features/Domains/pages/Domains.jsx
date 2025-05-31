@@ -1,98 +1,88 @@
-import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button.jsx';
-import GenericTable from "../../../components/layouts/GenericTable.jsx";
-import Pagination from "../../../components/layouts/Pagination.jsx";
-import SearchFilterForm from "../../../components/layouts/SearchFilterForm.jsx";
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert.jsx';
-import { OverlayTrigger, Spinner, Tooltip } from 'react-bootstrap';
-import api from '@/api/axiosInstance.js';
+import { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import GenericTable from "@/components/layouts/GenericTable";
+import Pagination from "@/components/layouts/Pagination";
+import SearchFilterForm from "@/components/layouts/SearchFilterForm";
+import api from "@/api/axiosInstance";
 import { FaEdit } from "react-icons/fa";
 
-export default function Domains() {
-  const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [order, setOrder] = useState('asc');
+function Domains() {
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [order, setOrder] = useState("asc");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [domains, setDomains] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5;
-  const { username, domainId } = useParams();
+  const { username } = useParams();
 
   const headers = [
-    { key: 'domain_name', label: 'Domain Name' },
-    { key: 'customer_name', label: 'Customer Name' },
-    { key: 'registered_with', label: 'Registered With' },
-    { key: 'name_servers', label: 'Name Servers' },
-    { key: 'mail_service_provider', label: 'Mail Services' },
-    { key: 'description', label: 'Description' },
-    { key: 'registration_date', label: 'Registration Date' },
-    // { key: 'expiry_date', label: 'Expiry Date' },
-    { key: 'actions', label: 'Actions' }
+    { key: "domain_name", label: "Domain Name" },
+    { key: "customer_name", label: "Customer Name" },
+    { key: "registered_with", label: "Registered With" },
+    { key: "name_servers", label: "Name Servers" },
+    { key: "mail_service_provider", label: "Mail Services" },
+    { key: "description", label: "Description" },
+    { key: "registration_date", label: "Registration Date" },
+    { key: "actions", label: "Actions" }
   ];
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-GB");
   };
 
   const formatNameServers = (nameServers) => {
-    if (!nameServers || nameServers.length === 0) return '-';
-    return (
-      <>
-        {nameServers.map((ns, idx) => (
-          <div key={idx}>{ns}</div>
-        ))}
-      </>
-    );
+    if (!nameServers || nameServers.length === 0) return "-";
+    return nameServers.map((ns, i) => <div key={i}>{ns}</div>);
   };
 
   const formatMailServices = (provider, details) => {
-    if (!provider) return '-';
-    return provider === 'Others' ? `${provider} (${details || ''})` : provider;
+    if (!provider) return "-";
+    return provider === "Others" ? `${provider} (${details || ""})` : provider;
   };
 
- const handleSearch = (e) => {
-  if (e.key === 'Enter') {
-    setCurrentPage(1); // Optional: trigger filtering
-  }
-};
+  const handleSearch = (e) => {
+    if (e.key === "Enter") setCurrentPage(1);
+  };
 
   useEffect(() => {
-    const fetchDomains = async () => {
+    async function fetchDomains() {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/all-domains`, {
-          params: { search, sort: sortBy, order },
+        const res = await api.get("/all-domains", {
+          params: { search, sort: sortBy, order }
         });
 
-        const formattedDomains = response.data.domains
-          .map((domain) => {
-            const rawNameServers = Array.isArray(domain.name_servers) ? domain.name_servers : 
-              (domain.name_servers ? domain.name_servers.split(',').map(ns => ns.trim()) : []);
-            
+        const formattedDomains = res.data.domains
+          .map((d) => {
+            const rawNameServers = Array.isArray(d.name_servers)
+              ? d.name_servers
+              : (d.name_servers ? d.name_servers.split(",").map(ns => ns.trim()) : []);
             return {
-              ...domain,
-              registration_date: formatDate(domain.registration_date),
-              expiry_date: formatDate(domain.expiry_date),
+              ...d,
+              registration_date: formatDate(d.registration_date),
+              expiry_date: formatDate(d.expiry_date),
               displayNameServers: formatNameServers(rawNameServers),
               name_servers: rawNameServers,
-              mail_service_provider: formatMailServices(domain.mail_service_provider, domain.other_mail_service_details)
+              mail_service_provider: formatMailServices(d.mail_service_provider, d.other_mail_service_details)
             };
           })
-          .filter((domain) => {
-            const searchTerm = search.toLowerCase();
+          .filter((d) => {
+            const term = search.toLowerCase();
             return (
-              domain.domain_name.toLowerCase().includes(searchTerm) ||
-              domain.customer_name.toLowerCase().includes(searchTerm) ||
-              domain.registered_with?.toLowerCase().includes(searchTerm) ||
-              domain.name_servers?.toLowerCase().includes(searchTerm) ||
-              domain.description?.toLowerCase().includes(searchTerm) ||
-              domain.registration_date.includes(searchTerm) ||
-              domain.expiry_date.includes(searchTerm)
+              d.domain_name.toLowerCase().includes(term) ||
+              d.customer_name.toLowerCase().includes(term) ||
+              d.registered_with?.toLowerCase().includes(term) ||
+              d.name_servers?.toString().toLowerCase().includes(term) ||
+              d.description?.toLowerCase().includes(term) ||
+              d.registration_date.includes(term) ||
+              d.expiry_date.includes(term)
             );
           });
 
@@ -102,14 +92,14 @@ export default function Domains() {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchDomains();
   }, [search, sortBy, order, currentPage]);
 
   return (
-    <div className="container shadow-lg rounded-lg mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 w-full">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 shadow-lg rounded-lg">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <SearchFilterForm
           search={search}
           setSearch={setSearch}
@@ -120,8 +110,8 @@ export default function Domains() {
           setOrder={setOrder}
           headers={headers.map(({ key, label }) => ({ key, label }))}
         />
-        <Link to={`add`}>
-          <Button className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 w-full sm:w-auto">
+        <Link to="add">
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto">
             New Domain
           </Button>
         </Link>
@@ -135,17 +125,14 @@ export default function Domains() {
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center my-8">
-          <Spinner animation="border" role="status" variant="primary">
-            <span className="sr-only">Loading...</span>
-          </Spinner>
+        <div className="flex justify-center items-center my-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
         </div>
       ) : domains.length > 0 ? (
         <>
           <GenericTable
             headers={headers}
-            data={domains.map(domain => {
-              // Extract only serializable, unformatted fields for state
+            data={domains.map((domain) => {
               const {
                 domain_id,
                 domain_name,
@@ -159,38 +146,41 @@ export default function Domains() {
                 description,
                 registration_date
               } = domain;
+
               return {
                 ...domain,
                 actions: (
-                  <div className="flex gap-2">
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id={`tooltip-edit-${domain_id}`}>Edit</Tooltip>}
-                    >
-                      <Link
-                        to={`/${username}/dashboard/domains/edit/${domain_id}`}
-                        state={{
-                          domain: {
-                            domain_id,
-                            domain_name,
-                            customer_id,
-                            customer_name,
-                            registered_with,
-                            other_provider,
-                            name_servers: domain.name_servers,
-                            mail_service_provider,
-                            other_mail_service_details,
-                            description,
-                            registration_date
-                          }
-                        }}
-                      >
-                        <Button className="bg-black-500 text-black ml-1 p-2 rounded-md hover:bg-blue-600">
-                          <FaEdit size={10} />
-                        </Button>
-                      </Link>
-                    </OverlayTrigger>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          to={`/${username}/dashboard/domains/edit/${domain_id}`}
+                          state={{
+                            domain: {
+                              domain_id,
+                              domain_name,
+                              customer_id,
+                              customer_name,
+                              registered_with,
+                              other_provider,
+                              name_servers,
+                              mail_service_provider,
+                              other_mail_service_details,
+                              description,
+                              registration_date
+                            }
+                          }}
+                        >
+                          <Button size="icon" variant="outline" className="ml-1">
+                            <FaEdit size={12} />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Edit</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )
               };
             })}
@@ -207,3 +197,5 @@ export default function Domains() {
     </div>
   );
 }
+
+export default Domains;

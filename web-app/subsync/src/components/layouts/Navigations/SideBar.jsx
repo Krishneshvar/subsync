@@ -1,4 +1,5 @@
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button.jsx';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 
@@ -10,12 +11,12 @@ const sidebarItems = [
   { path: 'dashboard/subscriptions', title: 'Subscriptions', icon: 'subscriptions' },
 ];
 
-export default function SideBar({ isOpen, toggleSidebar }) {
+function SideBar({ isOpen, toggleSidebar }) {
   const { username } = useParams();
 
   return (
     <aside
-      className={`lg:flex lg:flex-col fixed top-0 left-0 z-40 h-screen bg-blue-500 text-primary-foreground
+      className={`lg:flex lg:flex-col fixed top-0 left-0 z-40 min-h-screen bg-blue-500 text-primary-foreground
         transition-all duration-300 ease-in-out
         ${isOpen ? 'w-64' : 'w-16'}
         lg:relative lg:translate-x-0
@@ -63,3 +64,5 @@ export default function SideBar({ isOpen, toggleSidebar }) {
     </aside>
   );
 }
+
+export default SideBar;

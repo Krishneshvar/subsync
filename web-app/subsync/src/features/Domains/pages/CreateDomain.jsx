@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
-import Select from "react-select";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer, Bounce } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import api from "@/api/axiosInstance";
+import Select from "react-select";
 import { FaPlus, FaTrash } from "react-icons/fa";
+import api from "@/api/axiosInstance";
 
-export default function AddDomain() {
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+
+function AddDomain() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [formData, setFormData] = useState({
     domainName: "",
     description: "",
@@ -50,323 +54,212 @@ export default function AddDomain() {
   };
 
   useEffect(() => {
-    const fetchAllCustomers = async () => {
+    async function fetchAllCustomers() {
       try {
-        const res = await api.get(`/all-customers`);
-        if (res.data.customers) {
-          const options = res.data.customers.map((customer) => ({
-            value: customer.customer_id,
-            label: customer.company_name,
-            customerId: customer.customer_id,
-          }));
-          setAllCustomers(options);
-          setFilteredCustomers(options);
-        } else {
-          setAllCustomers([]);
-          setFilteredCustomers([]);
-        }
+        const res = await api.get("/all-customers");
+        const options = res.data.customers?.map(c => ({
+          value: c.customer_id,
+          label: c.company_name,
+        })) || [];
+        setAllCustomers(options);
+        setFilteredCustomers(options);
       } catch (err) {
-        toast.error("Failed to fetch customers. Please try again.");
-        console.error("Error fetching customers:", err);
+        toast.error("Failed to fetch customers.");
       }
-    };
-
+    }
     fetchAllCustomers();
   }, []);
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredCustomers(allCustomers);
-    } else {
-      const filtered = allCustomers.filter((customer) =>
-        customer.label.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredCustomers(filtered);
-    }
+    if (searchTerm.trim() === "") return setFilteredCustomers(allCustomers);
+    setFilteredCustomers(allCustomers.filter(c =>
+      c.label.toLowerCase().includes(searchTerm.toLowerCase())
+    ));
   }, [searchTerm, allCustomers]);
 
   useEffect(() => {
     const state = location.state;
-    if (state && state.domain) {
-      const domain = state.domain;
+    if (state?.domain) {
+      const d = state.domain;
       setIsEditing(true);
-      setDomainId(domain.domain_id);
-
-      // Ensure nameServers is always an array of strings
-      let nameServers = [];
-      if (Array.isArray(domain.name_servers)) {
-        nameServers = domain.name_servers.filter(ns => ns !== null && ns !== undefined && ns.trim() !== '');
-      } else if (typeof domain.name_servers === 'string') {
-        nameServers = domain.name_servers.split(',').map(ns => ns.trim()).filter(ns => ns !== '');
-      }
-      // Ensure there's at least one empty field if no name servers
-      nameServers = nameServers.length > 0 ? nameServers : [''];
-
-      // Format the registration date
-      let formattedDate = '';
-      if (domain.registration_date) {
-        try {
-          // Check if the date is already in ISO format
-          if (domain.registration_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            formattedDate = domain.registration_date;
-          } else {
-            formattedDate = formatDateToISO(domain.registration_date);
-          }
-        } catch (error) {
-          console.error('Error formatting date:', error);
-          formattedDate = '';
-        }
-      }
-
-      console.log('Setting name servers:', nameServers); // Debug log
-
+      setDomainId(d.domain_id);
       setFormData({
-        domainName: domain.domain_name || '',
-        description: domain.description || '',
-        customerId: domain.customer_id || '',
-        registrationDate: formattedDate,
-        registeredWith: domain.registered_with || '',
-        otherProvider: domain.other_provider || '',
-        nameServers: nameServers,
-        mailServices: domain.mail_service_provider || '',
-        mailServicesOther: domain.other_mail_service_details || ''
+        domainName: d.domain_name || "",
+        description: d.description || "",
+        customerId: d.customer_id || "",
+        registrationDate: /^\d{4}-\d{2}-\d{2}$/.test(d.registration_date)
+          ? d.registration_date
+          : formatDateToISO(d.registration_date),
+        registeredWith: d.registered_with || "",
+        otherProvider: d.other_provider || "",
+        nameServers: Array.isArray(d.name_servers)
+          ? d.name_servers.filter(Boolean)
+          : d.name_servers?.split(",").map(ns => ns.trim()).filter(Boolean) || [""],
+        mailServices: d.mail_service_provider || "",
+        mailServicesOther: d.other_mail_service_details || ""
       });
-      
-      setSelectedCustomer({
-        value: domain.customer_id,
-        label: domain.customer_name,
-      });
+      setSelectedCustomer({ value: d.customer_id, label: d.customer_name });
     }
   }, [location.state]);
 
-  const handleNameServerChange = (index, value) => {
-    const updatedNameServers = [...formData.nameServers];
-    updatedNameServers[index] = value;
-    setFormData({
-      ...formData,
-      nameServers: updatedNameServers
-    });
-  };
-
-  const addNameServer = () => {
-    setFormData({
-      ...formData,
-      nameServers: [...formData.nameServers, ""]
-    });
-  };
-
-  const removeNameServer = (index) => {
-    if (formData.nameServers.length > 1) {
-      const updatedNameServers = formData.nameServers.filter((_, i) => i !== index);
-      setFormData({
-        ...formData,
-        nameServers: updatedNameServers
-      });
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.customerId) {
-      toast.error("Please select a customer.");
-      return;
-    }
-    if (!formData.domainName || !formData.registrationDate || !formData.registeredWith) {
-      toast.error("Please fill in all required fields.");
-      return;
+    if (!formData.customerId || !formData.domainName || !formData.registrationDate || !formData.registeredWith) {
+      return toast.error("Please fill all required fields.");
     }
 
-    // Filter out empty name servers
-    const filteredNameServers = formData.nameServers.filter(ns => ns.trim() !== "");
-
-    const submissionData = {
+    const payload = {
       customer_id: formData.customerId,
-      customer_name: selectedCustomer?.label || "",
+      customer_name: selectedCustomer?.label,
       domain_name: formData.domainName,
       registration_date: formData.registrationDate,
       registered_with: formData.registeredWith,
-      other_provider: formData.registeredWith !== "Others" ? "" : formData.otherProvider,
-      name_servers: filteredNameServers,
-      description: formData.description || "",
-      mail_service_provider: formData.mailServices || "",
+      other_provider: formData.registeredWith === "Others" ? formData.otherProvider : "",
+      name_servers: formData.nameServers.filter(ns => ns.trim() !== ""),
+      description: formData.description,
+      mail_service_provider: formData.mailServices,
       mail_services_other: formData.mailServices === "Others" ? formData.mailServicesOther : ""
     };
 
     try {
       if (isEditing) {
-        await api.put(`/update-domain/${domainId}`, submissionData);
-        toast.success("Domain successfully updated!", { autoClose: 3000 });
+        await api.put(`/update-domain/${domainId}`, payload);
+        toast.success("Domain updated!");
       } else {
-        await api.post(`/create-domain`, submissionData);
-        toast.success("Domain successfully created!", { autoClose: 3000 });
+        await api.post("/create-domain", payload);
+        toast.success("Domain created!");
       }
 
       setTimeout(() => {
         const userSegment = location.pathname.split("/")[1];
         navigate(`/${userSegment}/dashboard/domains`);
-      }, 3000);
+      }, 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "An error occurred while processing the domain.");
+      toast.error(err.response?.data?.message || "Something went wrong.");
     }
   };
 
+  const handleNameServerChange = (index, value) => {
+    const ns = [...formData.nameServers];
+    ns[index] = value;
+    setFormData({ ...formData, nameServers: ns });
+  };
+
+  const addNameServer = () => {
+    setFormData({ ...formData, nameServers: [...formData.nameServers, ""] });
+  };
+
+  const removeNameServer = (index) => {
+    if (formData.nameServers.length === 1) return;
+    setFormData({ ...formData, nameServers: formData.nameServers.filter((_, i) => i !== index) });
+  };
+
   return (
-    <>
-      <div className="container mt-4">
-        <ToastContainer position="top-center" autoClose={2000} theme="dark" transition={Bounce} pauseOnHover />
-        <h1 className="mb-4 text-3xl font-bold ">{isEditing ? "Edit Domain" : "Add Domain"}</h1>
-        <hr className="mb-4 border-blue-500 border-3 size-auto" />
-        <Form onSubmit={handleSubmit}>
-          <Row className="g-3">
-            <Col xs={12} sm={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Customer Name</Form.Label>
-                <Select
-                  options={filteredCustomers}
-                  onInputChange={(value, { action }) => {
-                    if (action === "input-change") {
-                      setSearchTerm(value);
-                    }
-                  }}
-                  onChange={(selected) => {
-                    setFormData({ ...formData, customerId: selected?.value || "" });
-                    setSelectedCustomer(selected);
-                  }}
-                  value={selectedCustomer}
-                  placeholder="Search and select a customer"
-                  isClearable
-                />
-                {selectedCustomer && (
-                  <small className="text-muted">Customer ID: {selectedCustomer.value}</small>
-                )}
-              </Form.Group>
-            </Col>
-            <Col xs={12} sm={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Domain Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={formData.domainName}
-                  onChange={(e) => setFormData({ ...formData, domainName: e.target.value })}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={12} sm={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Registration Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={formData.registrationDate}
-                  onChange={(e) => setFormData({ ...formData, registrationDate: e.target.value })}
-                  required
-                />
-              </Form.Group>
-            </Col>
-            <Col xs={12} sm={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Registered With</Form.Label>
-                <Select
-                  options={registeredWithOptions}
-                  value={registeredWithOptions.find((opt) => opt.value === formData.registeredWith)}
-                  onChange={(selected) =>
-                    setFormData({
-                      ...formData,
-                      registeredWith: selected.value,
-                      otherProvider: selected.value === "Others" ? formData.otherProvider : "",
-                    })
-                  }
-                  placeholder="Select Registrar"
-                  isClearable
-                />
-              </Form.Group>
-            </Col>
-            {formData.registeredWith === "Others" && (
-              <Col xs={12} sm={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Specify Other Registrar</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.otherProvider}
-                    onChange={(e) => setFormData({ ...formData, otherProvider: e.target.value })}
-                    placeholder="Enter registrar name"
-                  />
-                </Form.Group>
-              </Col>
-            )}
-            <Col xs={12}>
-              <Form.Group className="mb-3">
-                <Form.Label>Name Servers</Form.Label>
-                {formData.nameServers.map((nameServer, index) => (
-                  <div key={index} className="d-flex mb-2 align-items-center">
-                    <div className="col-md-6">
-                      <Form.Control
-                        type="text"
-                        value={nameServer}
-                        onChange={(e) => handleNameServerChange(index, e.target.value)}
-                        placeholder="Enter name server"
-                        className="me-2"
-                      />
-                    </div>
-                    <Button
-                      variant="outline-danger"
-                      onClick={() => removeNameServer(index)}
-                      disabled={formData.nameServers.length === 1}
-                      className="me-2"
-                    >
-                      <FaTrash />
-                    </Button>
-                    {index === formData.nameServers.length - 1 && (
-                      <Button variant="outline-primary" onClick={addNameServer}>
-                        <FaPlus />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </Form.Group>
-            </Col>
-            <Col xs={12} sm={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Mail Services</Form.Label>
-                <Select
-                  options={mailServicesOptions}
-                  value={mailServicesOptions.find(option => option.value === formData.mailServices)}
-                  onChange={(selected) => setFormData({ ...formData, mailServices: selected?.value || "" })}
-                  isClearable
-                />
-              </Form.Group>
-            </Col>
-            {formData.mailServices === "Others" && (
-              <Col xs={12} sm={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Specify Other Mail Service</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={formData.mailServicesOther}
-                    onChange={(e) => setFormData({ ...formData, mailServicesOther: e.target.value })}
-                    placeholder="Please specify the mail service"
-                  />
-                </Form.Group>
-              </Col>
-            )}
-            <Col xs={12}>
-              <Form.Group className="mb-3">
-                <Form.Label>Description (Optional)</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Button variant="primary" type="submit" className="mt-3">
-            {isEditing ? "Update" : "Submit"}
-          </Button>
-        </Form>
-      </div>
-    </>
+    <div className="max-w-4xl mx-auto px-4 py-6">
+      <ToastContainer position="top-center" autoClose={2000} transition={Bounce} theme="dark" />
+      <h1 className="text-3xl font-bold mb-4">{isEditing ? "Edit Domain" : "Add Domain"}</h1>
+      <hr className="mb-6 border-blue-500" />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Customer Name */}
+        <div>
+          <Label>Customer Name</Label>
+          <Select
+            options={filteredCustomers}
+            onInputChange={(val, { action }) => action === "input-change" && setSearchTerm(val)}
+            onChange={(s) => {
+              setFormData({ ...formData, customerId: s?.value || "" });
+              setSelectedCustomer(s);
+            }}
+            value={selectedCustomer}
+            placeholder="Search customer"
+            isClearable
+          />
+          {selectedCustomer && (
+            <p className="text-xs text-muted-foreground mt-1">Customer ID: {selectedCustomer.value}</p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <Label>Domain Name</Label>
+            <Input required value={formData.domainName} onChange={(e) => setFormData({ ...formData, domainName: e.target.value })} />
+          </div>
+          <div>
+            <Label>Registration Date</Label>
+            <Input type="date" required value={formData.registrationDate} onChange={(e) => setFormData({ ...formData, registrationDate: e.target.value })} />
+          </div>
+          <div>
+            <Label>Registered With</Label>
+            <Select
+              options={registeredWithOptions}
+              value={registeredWithOptions.find(opt => opt.value === formData.registeredWith)}
+              onChange={(s) =>
+                setFormData({
+                  ...formData,
+                  registeredWith: s?.value || "",
+                  otherProvider: s?.value === "Others" ? formData.otherProvider : ""
+                })
+              }
+              isClearable
+              placeholder="Select registrar"
+            />
+          </div>
+          {formData.registeredWith === "Others" && (
+            <div>
+              <Label>Other Registrar</Label>
+              <Input value={formData.otherProvider} onChange={(e) => setFormData({ ...formData, otherProvider: e.target.value })} />
+            </div>
+          )}
+        </div>
+
+        {/* Name Servers */}
+        <div>
+          <Label>Name Servers</Label>
+          {formData.nameServers.map((ns, index) => (
+            <div key={index} className="flex items-center gap-2 mt-2">
+              <Input value={ns} onChange={(e) => handleNameServerChange(index, e.target.value)} placeholder="Enter name server" />
+              <Button variant="destructive" type="button" size="icon" onClick={() => removeNameServer(index)} disabled={formData.nameServers.length === 1}>
+                <FaTrash className="w-3 h-3" />
+              </Button>
+              {index === formData.nameServers.length - 1 && (
+                <Button type="button" size="icon" onClick={addNameServer}>
+                  <FaPlus className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <Label>Mail Services</Label>
+            <Select
+              options={mailServicesOptions}
+              value={mailServicesOptions.find(opt => opt.value === formData.mailServices)}
+              onChange={(s) => setFormData({ ...formData, mailServices: s?.value || "" })}
+              isClearable
+            />
+          </div>
+          {formData.mailServices === "Others" && (
+            <div>
+              <Label>Other Mail Service</Label>
+              <Input value={formData.mailServicesOther} onChange={(e) => setFormData({ ...formData, mailServicesOther: e.target.value })} />
+            </div>
+          )}
+        </div>
+
+        {/* Description */}
+        <div>
+          <Label>Description (optional)</Label>
+          <Textarea rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+        </div>
+
+        <div className="pt-6">
+          <Button type="submit">{isEditing ? "Update Domain" : "Create Domain"}</Button>
+        </div>
+      </form>
+    </div>
   );
 }
+
+export default AddDomain;

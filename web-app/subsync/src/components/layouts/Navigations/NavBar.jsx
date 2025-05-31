@@ -1,18 +1,19 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button.jsx";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.jsx";
 import { HelpCircle, User, Settings, LogOut, X } from "lucide-react";
 import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button.jsx";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.jsx";
+
 import { logout } from "@/features/Auth/authSlice";
-import { useNavigate } from "react-router-dom";
 
 const navItems = [
   { path: "help", title: "Help", key: "help", icon: HelpCircle },
   { path: "logout", title: "Logout", key: "logout", icon: LogOut },
 ];
 
-export default function NavBar({ toggleSidebar }) {
+function NavBar({ toggleSidebar }) {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ export default function NavBar({ toggleSidebar }) {
           >
             <Settings className="h-6 w-6" />
           </Button>
-          
+
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="ml-3 rounded-full border-1 border-gray-300">
@@ -80,12 +81,11 @@ export default function NavBar({ toggleSidebar }) {
         </div>
       </div>
 
-      {/* Sidebar */}
       {settingsOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSettingsOpen(false)}>
           <div 
             className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg z-50 p-4 flex flex-col"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Settings</h2>
@@ -104,3 +104,5 @@ export default function NavBar({ toggleSidebar }) {
     </nav>
   );
 }
+
+export default NavBar;
