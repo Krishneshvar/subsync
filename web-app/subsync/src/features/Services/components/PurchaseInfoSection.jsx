@@ -7,10 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import ManageVendorsModal from './ManageVendorsModal';
 
 const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendorsError, fetchVendors }) => {
-  // Handle the change event for the select component
+
   const handleVendorChange = (selectedValue) => {
     setData({ ...data, vendor: selectedValue });
   };
@@ -19,7 +20,7 @@ const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendors
     <div className="space-y-2">
       <h2 className="text-lg font-semibold">Purchase Information</h2>
       <div>
-        <Label htmlFor="cost-price">Cost Price*</Label>
+        <Label htmlFor="cost-price">Cost Price</Label>
         <Input
           id="cost-price"
           type="number"
@@ -44,15 +45,14 @@ const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendors
         />
       </div>
 
-      {/* Preferred Vendors Select with Manage Button */}
       <div className="space-y-2">
         <Label htmlFor="preferred-vendor">Preferred Vendor</Label>
-        <div className="flex gap-2"> {/* Flex container for select and button */}
+        <div className="flex gap-2">
           <Select
             value={data.vendor || ""}
             onValueChange={handleVendorChange}
             disabled={isLoadingVendors || vendorsError}
-            className="flex-1" // Allow select to take available space
+            className="flex-1"
           >
             <SelectTrigger className="w-full" id="preferred-vendor">
               <SelectValue placeholder={isLoadingVendors ? "Loading vendors..." : vendorsError ? "Error loading vendors" : "Select a vendor"} />

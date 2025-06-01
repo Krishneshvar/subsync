@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import api from '@/api/axiosInstance';
+
+import api from '@/lib/axiosInstance.js';
 
 const useFetchData = (url, params = {}) => {
   const { searchType = '', search = '', sort = '', order = '', currentPage = 1 } = params;

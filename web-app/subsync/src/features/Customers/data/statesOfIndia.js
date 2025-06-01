@@ -1,4 +1,4 @@
-export const indianStates = [
+const indianStates = [
     { label: "Andhra Pradesh", value: "Andhra Pradesh" },
     { label: "Arunachal Pradesh", value: "Arunachal Pradesh" },
     { label: "Assam", value: "Assam" },
@@ -37,3 +37,5 @@ export const indianStates = [
     { label: "Lakshadweep", value: "Lakshadweep" },
     { label: "Puducherry", value: "Puducherry" },
 ];
+
+export { indianStates };

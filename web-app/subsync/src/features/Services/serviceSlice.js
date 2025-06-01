@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from '@/api/axiosInstance';
 import { toast } from 'react-toastify';
+
+import api from '@/lib/axiosInstance.js';
 
 export const addService = createAsyncThunk("services/addService", async (data, thunkAPI) => {
     try {
@@ -18,8 +19,7 @@ export const fetchServices = createAsyncThunk(
     "services/fetchServices",
     async (_, thunkAPI) => {
         try {
-            const response = await api.get("/all-services"); // Endpoint to get all services
-            // Assuming backend returns { services: [...] }
+            const response = await api.get("/all-services");
             return response.data.services;
         } catch (error) {
             const errorMessage = error.response?.data?.error || error.message || 'Failed to fetch services.';
@@ -47,7 +47,7 @@ export const updateService = createAsyncThunk(
     "services/updateService",
     async ({ id, serviceData }, thunkAPI) => {
         try {
-            const response = await api.put(`/update-service/${id}`, serviceData); // Changed to PUT
+            const response = await api.put(`/update-service/${id}`, serviceData);
             toast.success('Service updated successfully!');
             return response.data;
         } catch (error) {
@@ -62,9 +62,9 @@ export const deleteService = createAsyncThunk(
     "services/deleteService",
     async (serviceId, thunkAPI) => {
         try {
-            await api.delete(`/delete-service/${serviceId}`); // Endpoint to delete a service
+            await api.delete(`/delete-service/${serviceId}`);
             toast.success('Service deleted successfully!');
-            return serviceId; // Return the ID of the deleted service to update state
+            return serviceId;
         } catch (error) {
             const errorMessage = error.response?.data?.error || error.message || 'Failed to delete service.';
             toast.error(errorMessage);
@@ -72,7 +72,6 @@ export const deleteService = createAsyncThunk(
         }
     }
 );
-
 
 const serviceSlice = createSlice({
     name: "services",
@@ -93,7 +92,7 @@ const serviceSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Add Service
+            // add
             .addCase(addService.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -101,13 +100,12 @@ const serviceSlice = createSlice({
             .addCase(addService.fulfilled, (state) => {
                 state.loading = false;
                 state.error = null;
-                // Optionally refetch services or add the new service to the list
             })
             .addCase(addService.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })
-            // Fetch Services
+            // fetch all
             .addCase(fetchServices.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -137,7 +135,7 @@ const serviceSlice = createSlice({
                 state.currentService = null;
                 state.error = action.payload;
             })
-            // Update Service
+            // update
             .addCase(updateService.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -145,13 +143,12 @@ const serviceSlice = createSlice({
             .addCase(updateService.fulfilled, (state) => {
                 state.loading = false;
                 state.error = null;
-                // Optionally refetch services or update the specific service in the list
             })
             .addCase(updateService.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })
-            // Delete Service
+            // delete
             .addCase(deleteService.pending, (state) => {
                 state.loading = true;
                 state.error = null;

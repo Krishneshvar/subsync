@@ -1,13 +1,16 @@
-import { useState, useEffect } from "react";
+import { Pencil } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 import GenericTable from "@/components/layouts/GenericTable";
 import Pagination from "@/components/layouts/Pagination";
 import SearchFilterForm from "@/components/layouts/SearchFilterForm";
-import api from "@/api/axiosInstance";
-import { FaEdit } from "react-icons/fa";
+
+import api from "@/lib/axiosInstance.js";
 
 function Domains() {
   const [search, setSearch] = useState("");
@@ -172,7 +175,7 @@ function Domains() {
                           }}
                         >
                           <Button size="icon" variant="outline" className="ml-1">
-                            <FaEdit size={12} />
+                            <Pencil size={12} />
                           </Button>
                         </Link>
                       </TooltipTrigger>

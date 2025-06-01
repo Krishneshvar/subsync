@@ -1,55 +1,43 @@
-// src/features/Services/components/DisplayService.jsx
 import { Link } from "react-router-dom";
+
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion.jsx";
-import { Card, CardContent } from "@/components/ui/card.jsx";
 import { Button } from "@/components/ui/button.jsx";
+import { Card, CardContent } from "@/components/ui/card.jsx";
+
 import { format } from "date-fns";
 
 function DisplayService({ serviceDetails }) {
-
-  // Helper function to render individual key-value pairs within structured sections
   const renderSubDetail = (label, value) => {
-    // Special handling for vendor ID: if vendors list is available, display name
-    // This assumes vendors are loaded in a parent component and passed down or accessible via Redux.
-    // For simplicity, we'll assume we're showing the raw ID for now,
-    // or you could pass `vendors` list to this component and look up the name.
     let displayValue = value ?? "N/A";
 
-    // If it's a timestamp, format it
     if (label.includes("Created At") || label.includes("Updated At")) {
         displayValue = formatTimestamp(value);
     } else if (label.toLowerCase().includes("price") && value !== "N/A") {
-        displayValue = `$${parseFloat(value).toFixed(2)}`; // Format price
+        displayValue = `$${parseFloat(value).toFixed(2)}`;
     } else if (label.toLowerCase().includes("tax rates") && value !== "N/A") {
-        displayValue = `${value}%`; // Add percentage for tax rates
+        displayValue = `${value}%`;
     }
 
     return (
-      <div className="mb-2"> {/* Smaller margin-bottom for sub-details */}
+      <div className="mb-2">
         <p className="text-sm font-medium text-gray-500">{label}</p>
-        <p className="text-base break-words">{displayValue}</p> {/* Use break-words for long descriptions */}
+        <p className="text-base break-words">{displayValue}</p>
       </div>
     );
   };
 
-  // The main renderDetails function is now simpler for basic fields
-  // For structured objects (Sales Info, Purchase Info, Tax Rates), it will
-  // call renderSubDetail for each property.
   const renderDetails = (label, value, styles = "") => {
-    // Check if the value is an object (excluding null)
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      // If it's Sales Info, Purchase Info, or Tax Rates object:
       return (
         <div className="mb-4">
           <p className="text-sm font-medium text-gray-500">{label}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-1"> {/* Responsive grid for sub-details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-1">
             {Object.entries(value).map(([key, subValue]) => {
-              // Convert snake_case to Title Case for display labels
               const subLabel = key
                 .replace(/_/g, ' ')
                 .replace(/\b\w/g, char => char.toUpperCase());
@@ -63,8 +51,6 @@ function DisplayService({ serviceDetails }) {
         </div>
       );
     } else {
-      // For simple primitive values (like Service ID, Name, SKU, Tax Preference, Created At, Updated At)
-      // and string-based item_group_name/preferred_vendor_name
       const displayValue = value ?? "N/A";
       return (
         <div className="mb-4">
@@ -74,7 +60,6 @@ function DisplayService({ serviceDetails }) {
       );
     }
   };
-
 
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return "N/A";
@@ -102,40 +87,34 @@ function DisplayService({ serviceDetails }) {
                   {renderDetails("Service Name", serviceDetails.service_name)}
                   {renderDetails("SKU", serviceDetails.stock_keepers_unit)}
                   {renderDetails("Tax Preference", serviceDetails.tax_preference)}
-                  {renderDetails("Item Group", serviceDetails.item_group_name)} {/* Display name */}
-                  {renderDetails("Preferred Vendor", serviceDetails.preferred_vendor_name)} {/* Display name */}
+                  {renderDetails("Item Group", serviceDetails.item_group_name)}
+                  {renderDetails("Preferred Vendor", serviceDetails.preferred_vendor_name)}
                 </div>
               </div>
 
-              {/* Sales Information */}
               <div>
                 <h3 className="text-lg font-bold pb-2 underline">Sales Information</h3>
-                {/* sales_info is now passed as an object to renderDetails */}
                 {renderDetails("Sales Details", serviceDetails.sales_info)}
               </div>
 
-              {/* Purchase Information */}
               <div>
                 <h3 className="text-lg font-bold pb-2 underline">Purchase Information</h3>
-                {/* purchase_info is now passed as an object to renderDetails */}
                 {renderDetails("Purchase Details", serviceDetails.purchase_info)}
               </div>
 
-              {/* Tax Rates */}
               <div>
                 <h3 className="text-lg font-bold pb-2 underline">Tax Rates</h3>
-                {/* default_tax_rates is now passed as an object to renderDetails */}
                 {renderDetails("Tax Rate Details", serviceDetails.default_tax_rates)}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 pt-4">
-                {renderDetails("Created At", serviceDetails.created_at)} {/* Pass raw timestamp */}
-                {renderDetails("Updated At", serviceDetails.updated_at)} {/* Pass raw timestamp */}
+                {renderDetails("Created At", serviceDetails.created_at)}
+                {renderDetails("Updated At", serviceDetails.updated_at)}
               </div>
 
               <Link
                 to="edit"
-                state={{ editableServiceId: serviceDetails.service_id }} // Pass ID for editing
+                state={{ editableServiceId: serviceDetails.service_id }}
                 className="block w-full md:w-auto"
               >
                 <Button className="bg-blue-500 text-white hover:bg-blue-600 w-full md:w-auto">

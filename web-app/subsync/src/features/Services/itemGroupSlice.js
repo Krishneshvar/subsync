@@ -1,7 +1,7 @@
-// itemGroupSlice.jsx
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from '@/api/axiosInstance'; // Ensure this path is correct for your axios instance
-import { toast } from 'react-toastify'; // Assuming toast is available for notifications
+import { toast } from 'react-toastify';
+
+import api from '@/lib/axiosInstance.js';
 
 export const fetchItemGroups = createAsyncThunk(
     "itemGroups/fetchItemGroups",
@@ -50,7 +50,7 @@ export const deleteItemGroup = createAsyncThunk(
         try {
             await api.delete(`/delete-item-group/${id}`);
             toast.success('Item Group deleted successfully.');
-            return id; // Return the ID of the deleted item group
+            return id;
         } catch (error) {
             toast.error(error.response?.data?.error || 'Failed to delete item group.');
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -68,7 +68,7 @@ const itemGroupSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            // Fetch Item Groups
+            // fetch all
             .addCase(fetchItemGroups.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -82,12 +82,12 @@ const itemGroupSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            // Create Item Group
+            // add
             .addCase(createItemGroup.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(createItemGroup.fulfilled, (state, action) => {
+            .addCase(createItemGroup.fulfilled, (state) => {
                 state.loading = false;
                 state.error = null;
             })
@@ -95,12 +95,12 @@ const itemGroupSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            // Update Item Group
+            // update
             .addCase(updateItemGroup.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(updateItemGroup.fulfilled, (state, action) => {
+            .addCase(updateItemGroup.fulfilled, (state) => {
                 state.loading = false;
                 state.error = null;
             })
@@ -108,7 +108,7 @@ const itemGroupSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            // Delete Item Group
+            // delete
             .addCase(deleteItemGroup.pending, (state) => {
                 state.loading = true;
                 state.error = null;

@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
 import { apiLoginUser } from './services/authAPI';
 
 const storedUser = localStorage.getItem('subsync_user');
@@ -39,10 +40,6 @@ const authSlice = createSlice({
       localStorage.removeItem('subsync_user');
       localStorage.removeItem('subsync_token');
     },
-    // You could add a reducer here to clear login errors manually if needed:
-    // clearLoginError: (state) => {
-    //   state.error = null;
-    // },
   },
   extraReducers: (builder) => {
     builder

@@ -1,8 +1,9 @@
 import { Card, CardHeader, CardTitle } from '@/components/ui/card.jsx'
+
 import Reminders from './Reminders.jsx'
 import Warnings from './Warnings.jsx'
 
-export default function Home() {
+function Home() {
   return (
     <div className="space-y-6">
       <Card className="bg-blue-500 text-primary-foreground">
@@ -19,3 +20,5 @@ export default function Home() {
     </div>
   )
 }
+
+export default Home;

@@ -1,10 +1,12 @@
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 import ManageItemGroupsModal from './ManageItemGroupsModal';
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchItemGroups } from "@/features/Services/itemGroupSlice";
+import { fetchItemGroups } from "../itemGroupSlice.js";
 
 const BasicDetailsSection = ({ formData, setFormData, serviceError }) => {
   const dispatch = useDispatch();
@@ -17,9 +19,6 @@ const BasicDetailsSection = ({ formData, setFormData, serviceError }) => {
   const handleItemGroupChange = (selectedValue) => {
     setFormData({ ...formData, item_group: selectedValue });
   };
-
-  console.log("BasicDetailsSection: formData.item_group received:", formData.item_group); // Keep this log for verification
-  console.log("BasicDetailsSection: itemGroups available:", itemGroups); // Keep this log for verification
 
   return (
     <div className="space-y-4">

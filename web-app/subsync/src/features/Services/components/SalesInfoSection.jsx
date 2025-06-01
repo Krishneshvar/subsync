@@ -5,7 +5,7 @@ const SalesInfoSection = ({ data, setData }) => (
   <div className="space-y-2">
     <h2 className="text-lg font-semibold">Sales Information</h2>
     <div>
-      <Label>Selling Price*</Label>
+      <Label>Selling Price</Label>
       <Input type="number" value={data.price} onChange={(e) => setData({ ...data, price: e.target.value })} />
     </div>
     <div>

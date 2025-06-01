@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
+
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion.jsx";
-import { Card, CardContent } from "@/components/ui/card.jsx";
 import { Button } from "@/components/ui/button.jsx";
+import { Card, CardContent } from "@/components/ui/card.jsx";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table.jsx";
+
 import { format } from "date-fns";
 
 function DisplayCustomer({ customerDetails }) {

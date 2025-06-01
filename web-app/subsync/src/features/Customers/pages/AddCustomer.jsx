@@ -1,19 +1,22 @@
-import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Bounce, toast, ToastContainer } from "react-toastify";
 import countryList from "react-select-country-list";
-import { validateCustomerData } from "@/features/Customers/services/inputValidator.js";
-import OtherDetails from "@/features/Customers/components/OtherDetails.jsx";
-import PersonalDetails from "@/features/Customers/components/PersonalDetails.jsx";
-import CompanyDetails from "@/features/Customers/components/CompanyDetails.jsx";
-import AddressSection from "@/features/Customers/components/AddressSection.jsx";
-import ContactPersonsSection from "@/features/Customers/components/ContactPersonsSection.jsx";
-import RemarksSection from "@/features/Customers/components/RemarksSection.jsx";
-import { createCustomer, updateCustomer, fetchCustomerById, clearCustomerState } from "@/features/Customers/customerSlice.js";
+import { Bounce, toast, ToastContainer } from "react-toastify";
+import { useState, useEffect } from "react";
+
 import { Button } from "@/components/ui/button.jsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
-import { useDispatch, useSelector } from "react-redux";
+
+import AddressSection from "../components/AddressSection.jsx";
+import CompanyDetails from "../components/CompanyDetails.jsx";
+import ContactPersonsSection from "../components/ContactPersonsSection.jsx";
+import OtherDetails from "../components/OtherDetails.jsx";
 import PaymentTermsSection from '../components/PaymentTermsSection';
+import PersonalDetails from "../components/PersonalDetails.jsx";
+import RemarksSection from "../components/RemarksSection.jsx";
+
+import { createCustomer, updateCustomer, fetchCustomerById, clearCustomerState } from "@/features/Customers/customerSlice.js";
+import { validateCustomerData } from "@/features/Customers/services/inputValidator.js";
 import { indianStates } from "@/features/Customers/data/statesOfIndia.js";
 
 const AddCustomer = () => {
@@ -105,7 +108,7 @@ const AddCustomer = () => {
       dispatch(fetchCustomerById(editableCustomerId));
     }
     return () => {
-        dispatch(clearCustomerState()); // Clear current customer data when component unmounts
+      dispatch(clearCustomerState()); // Clear current customer data when component unmounts
     };
   }, [editableCustomerId, dispatch]);
 
@@ -196,8 +199,6 @@ const AddCustomer = () => {
     e.preventDefault();
     try {
       validateCustomerData(customerData);
-
-      // Ensure all required fields are present and properly formatted
       const payload = {
         salutation: customerData.salutation,
         firstName: customerData.firstName,
@@ -234,8 +235,6 @@ const AddCustomer = () => {
         notes: customerData.notes || "",
         customerStatus: customerData.customerStatus || "Active"
       };
-
-      console.log("Submitting payload:", payload);
 
       let actionResult;
       if (isEditing) {

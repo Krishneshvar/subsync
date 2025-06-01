@@ -35,10 +35,11 @@ function NavBar({ toggleSidebar }) {
             <span className="text-xl font-bold text-primary">SubSync</span>
           </div>
         </div>
+
         <div className="flex items-center">
-          <Button 
-            variant="ghost" 
-            className="h-6 w-6 p-3 rounded-full hover:bg-gray-100" 
+          <Button
+            variant="ghost"
+            className="h-6 w-6 p-3 rounded-full hover:bg-gray-100"
             onClick={() => setSettingsOpen(true)}
           >
             <Settings className="h-6 w-6" />
@@ -83,7 +84,7 @@ function NavBar({ toggleSidebar }) {
 
       {settingsOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSettingsOpen(false)}>
-          <div 
+          <div
             className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg z-50 p-4 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
@@ -95,8 +96,20 @@ function NavBar({ toggleSidebar }) {
             </div>
 
             <ul className="flex flex-col space-y-2">
-              <Link className="text-gray-700 hover:text-blue-500" to="settings/profile" onClick={() => setSettingsOpen(false)}>Profile</Link>
-              <Link className="text-gray-700 hover:text-blue-500" to="settings/taxes/tax-rates" onClick={() => setSettingsOpen(false)}>Taxes</Link>
+              <Link
+                className="text-gray-700 hover:text-blue-500"
+                to="settings/profile"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                className="text-gray-700 hover:text-blue-500"
+                to="settings/taxes/tax-rates"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Taxes
+              </Link>
             </ul>
           </div>
         </div>

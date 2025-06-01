@@ -1,10 +1,12 @@
-import Select from "react-select";
-import PhoneInput from "react-phone-number-input";
-import 'react-phone-number-input/style.css';
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import PhoneInput from "react-phone-number-input";
+import Select from "react-select";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+
+import 'react-phone-number-input/style.css';
 
 const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, handleStatusChange }) => {
 
@@ -74,7 +76,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
         </div>
 
         <div className="flex flex-col mb-2 md:col-span-2">
-          <Label htmlFor="salutation" className="mb-2"> Salutation </Label>
+          <Label htmlFor="salutation" className="mb-2">Salutation</Label>
           <Select
             id="salutation"
             options={salutationOptions}
@@ -132,7 +134,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-5">
-          <Label htmlFor="firstName" className="mb-2"> First Name </Label>
+          <Label htmlFor="firstName" className="mb-2">First Name</Label>
           <Input
             id="firstName"
             type="text"
@@ -145,7 +147,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-5">
-          <Label htmlFor="lastName" className="mb-2"> Last Name </Label>
+          <Label htmlFor="lastName" className="mb-2">Last Name</Label>
           <Input
             id="lastName"
             type="text"
@@ -160,7 +162,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-x-4 mb-4">
         <div className="flex flex-col mb-4 md:col-span-6">
-          <Label htmlFor="primaryPhoneNumber" className="mb-2"> Primary Phone Number </Label>
+          <Label htmlFor="primaryPhoneNumber" className="mb-2">Primary Phone Number</Label>
           <div className="relative">
             <PhoneInput
               international
@@ -174,7 +176,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-6">
-          <Label htmlFor="secondaryPhoneNumber" className="mb-2"> Secondary Phone Number </Label>
+          <Label htmlFor="secondaryPhoneNumber" className="mb-2">Secondary Phone Number</Label>
           <div className="relative">
             <PhoneInput
               international
@@ -188,7 +190,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-6">
-          <Label htmlFor="email" className="mb-2"> Email </Label>
+          <Label htmlFor="email" className="mb-2">Email</Label>
           <Input
             id="email"
             type="email"

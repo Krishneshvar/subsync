@@ -1,25 +1,20 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../authSlice';
-// Shadcn UI imports
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Eye, EyeOff, Terminal } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer, Bounce } from 'react-toastify';
+import { useState, useEffect } from 'react';
+
+import { loginUser } from '../authSlice';
+
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function LoginPage() {
+function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { error, isLoading, isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -56,11 +51,9 @@ export default function LoginPage() {
       <div className={`min-h-screen flex items-center justify-center transition-all duration-700 relative overflow-hidden ${
         showPassword ? 'bg-black' : 'bg-gradient-to-tl from-cyan-500 to-blue-500'
       }`}>
-        
-        {/* Light beam overlay when password is shown */}
+
         {showPassword && (
           <div className="absolute inset-0 pointer-events-none z-10">
-            {/* Radial spotlight effect */}
             <div 
               className="absolute inset-0 opacity-30"
               style={{
@@ -71,8 +64,7 @@ export default function LoginPage() {
                   transparent 70%)`
               }}
             />
-            
-            {/* Animated light rays */}
+
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="relative w-96 h-96">
                 {[...Array(12)].map((_, i) => (
@@ -90,7 +82,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Focused beam toward password field */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div 
                 className="w-2 bg-gradient-to-b from-yellow-300/60 via-yellow-200/40 to-transparent animate-beam-pulse"
@@ -100,24 +91,23 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Dark overlay to make everything else black when showing password */}
         {showPassword && (
-          <div 
+          <div
             className="absolute inset-0 z-5 pointer-events-none transition-opacity duration-700"
             style={{
-              background: `radial-gradient(ellipse 600px 300px at center 50%, 
-                transparent 0%, 
-                transparent 20%, 
-                rgba(0, 0, 0, 0.7) 40%, 
-                rgba(0, 0, 0, 0.95) 70%, 
+              background: `radial-gradient(ellipse 600px 300px at center 50%,
+                transparent 0%,
+                transparent 20%,
+                rgba(0, 0, 0, 0.7) 40%,
+                rgba(0, 0, 0, 0.95) 70%,
                 rgba(0, 0, 0, 1) 100%)`
             }}
           />
         )}
 
         <div className={`w-80 max-w-md p-6 rounded-lg transition-all duration-700 relative z-20 ${
-          showPassword 
-            ? 'bg-gradient-to-b from-gray-900/90 to-black/90 border border-yellow-400/30 shadow-[0_0_60px_rgba(255,255,0,0.3)]' 
+          showPassword
+            ? 'bg-gradient-to-b from-gray-900/90 to-black/90 border border-yellow-400/30 shadow-[0_0_60px_rgba(255,255,0,0.3)]'
             : 'bg-white shadow-lg border border-gray-200'
         }`}>
           <div className="mb-6">
@@ -127,7 +117,7 @@ export default function LoginPage() {
               Sign In
             </h1>
           </div>
-          
+
           <div className="mb-6">
             {error && (
               <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded flex items-center">
@@ -138,7 +128,7 @@ export default function LoginPage() {
                 </div>
               </div>
             )}
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="username" className={`block text-sm font-medium transition-colors duration-700 ${
@@ -151,8 +141,8 @@ export default function LoginPage() {
                   type="text"
                   placeholder="Enter username"
                   className={`w-full px-3 py-2 border-2 rounded-md shadow-sm transition-all duration-700 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
-                    showPassword 
-                      ? 'bg-gray-800/50 text-yellow-100 border-yellow-400/30 focus:border-yellow-400 focus:ring-yellow-400' 
+                    showPassword
+                      ? 'bg-gray-800/50 text-yellow-100 border-yellow-400/30 focus:border-yellow-400 focus:ring-yellow-400'
                       : 'bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500'
                   }`}
                   value={username}
@@ -160,7 +150,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <label htmlFor="password" className={`block text-sm font-medium transition-colors duration-700 ${
                   showPassword ? 'text-yellow-100' : 'text-gray-700'
@@ -173,8 +163,8 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter password"
                     className={`w-full px-3 py-2 pr-10 border-2 rounded-md shadow-sm transition-all duration-700 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
-                      showPassword 
-                        ? 'bg-yellow-50/10 text-yellow-100 border-yellow-400/50 focus:border-yellow-400 focus:ring-yellow-400 shadow-[0_0_20px_rgba(255,255,0,0.2)]' 
+                      showPassword
+                        ? 'bg-yellow-50/10 text-yellow-100 border-yellow-400/50 focus:border-yellow-400 focus:ring-yellow-400 shadow-[0_0_20px_rgba(255,255,0,0.2)]'
                         : 'bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500'
                     }`}
                     value={password}
@@ -191,7 +181,6 @@ export default function LoginPage() {
                     {showPassword ? (
                       <div className="relative">
                         <EyeOff className="h-4 w-4" />
-                        {/* Glowing effect for the eye icon */}
                         <div className="absolute inset-0 bg-yellow-300/30 blur-sm rounded-full animate-pulse"></div>
                         <div className="absolute inset-0 bg-yellow-400/20 blur-md rounded-full animate-pulse"></div>
                       </div>
@@ -199,8 +188,7 @@ export default function LoginPage() {
                       <Eye className="h-4 w-4" />
                     )}
                   </button>
-                  
-                  {/* Enhanced glow effect for password field when visible */}
+
                   {showPassword && (
                     <div className="absolute inset-0 pointer-events-none">
                       <div className="absolute inset-0 bg-gradient-to-r from-yellow-200/10 via-yellow-300/5 to-yellow-200/10 animate-shimmer"></div>
@@ -208,9 +196,9 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 onClick={handleSubmit}
                 className={`w-full py-2 px-4 rounded-md font-medium transition-all duration-700 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
                   showPassword
@@ -223,7 +211,7 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
-          
+
           <div className="text-center">
             <a href="#" className={`text-sm hover:underline transition-colors duration-700 ${
               showPassword ? 'text-yellow-300 hover:text-yellow-200' : 'text-blue-600 hover:text-blue-700'
@@ -233,8 +221,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      
-      <style jsx>{`
+
+      <style>{`
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);
@@ -266,3 +254,5 @@ export default function LoginPage() {
     </>
   );
 }
+
+export default LoginPage;

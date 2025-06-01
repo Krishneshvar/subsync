@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -72,6 +73,7 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%}
 }
+
 @layer base {
   * {
     @apply border-border;
@@ -89,7 +91,6 @@
     @apply bg-background text-foreground;
   }
 }
-
 
 /* Full border for the phone input */
 .phone-input-custom-style {
@@ -122,4 +123,3 @@
   background: transparent;
   padding-left: 0;
 }
-

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function GSTSettings() {
+function GSTSettings() {
     const [formDetails, setFormDetails] = useState({
         taxRegistrationNumberLabel: "",
         gstin: "",
@@ -15,7 +16,6 @@ export default function GSTSettings() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Fetch GST settings when component mounts
     useEffect(() => {
         const fetchGSTSettings = async () => {
             try {
@@ -26,7 +26,6 @@ export default function GSTSettings() {
                     throw new Error(data.error || "GST settings retrieval failed.");
                 }                
 
-                // Populate form with existing GST settings
                 setFormDetails(data.settings || {});
                 setLoading(false);
             } catch (error) {
@@ -39,19 +38,17 @@ export default function GSTSettings() {
         fetchGSTSettings();
     }, []);
 
-    // Handle input changes
     const handleChange = (e) => {
         const { id, value } = e.target;
         setFormDetails((prev) => ({ ...prev, [id]: value }));
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             console.log("Form Data:", formDetails);
-    
+
             const response = await fetch("http://localhost:3000/update-gst-settings", {
                 method: "POST",
                 headers: {
@@ -59,13 +56,13 @@ export default function GSTSettings() {
                 },
                 body: JSON.stringify(formDetails)
             });
-    
+
             const data = await response.json();
-    
+
             if (!response.ok) {
                 throw new Error(data.error || "Failed to update GST settings.");
             }
-    
+
             alert("GST Settings updated successfully!");
         } catch (error) {
             console.error("Error updating GST settings:", error.message);
@@ -145,3 +142,5 @@ export default function GSTSettings() {
         </div>
     );
 }
+
+export default GSTSettings;

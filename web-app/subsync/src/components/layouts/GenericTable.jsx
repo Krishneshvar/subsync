@@ -1,11 +1,10 @@
-import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table.jsx";
-import { Button } from "@/components/ui/button.jsx";
 import { Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
-  console.log("Data passed to GenericTable:", data);
+import { Button } from "@/components/ui/button.jsx";
+import { Table, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table.jsx";
 
+function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -58,3 +57,5 @@ export default function GenericTable({ headers, data, actions, basePath, primary
     </div>
   );
 }
+
+export default GenericTable;

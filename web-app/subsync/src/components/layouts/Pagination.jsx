@@ -1,7 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Pagination({ currentPage, setCurrentPage, totalPages }) {
+import { Button } from "@/components/ui/button";
+
+function Pagination({ currentPage, setCurrentPage, totalPages }) {
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
       <div>
@@ -33,3 +34,5 @@ export default function Pagination({ currentPage, setCurrentPage, totalPages }) 
     </div>
   );
 }
+
+export default Pagination;

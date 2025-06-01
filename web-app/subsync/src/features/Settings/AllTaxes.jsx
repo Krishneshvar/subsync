@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-export default function AllTaxes() {
+import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
+
+function AllTaxes() {
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -41,11 +42,11 @@ export default function AllTaxes() {
                 },
                 credentials: "include",
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Failed to delete tax (Status: ${response.status})`);
             }
-    
+
             setData((prevData) => prevData.filter((item) => item.tax_id !== tax_id));
         } catch (error) {
             console.error("Error deleting tax:", error);
@@ -100,3 +101,5 @@ export default function AllTaxes() {
         </>
     );
 }
+
+export default AllTaxes;

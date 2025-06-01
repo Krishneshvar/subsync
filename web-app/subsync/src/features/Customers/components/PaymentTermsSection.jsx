@@ -1,20 +1,20 @@
+import { Settings2 } from "lucide-react";
+import { toast } from 'react-toastify';
 import { useState, useEffect } from 'react';
-import { Label } from "@/components/ui/label";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Settings2 } from "lucide-react";
-import { toast } from 'react-toastify';
-import api from '@/api/axiosInstance';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import api from '@/lib/axiosInstance.js';
 
 const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   const [paymentTerms, setPaymentTerms] = useState([]);
@@ -51,9 +51,8 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
         return;
       }
 
-      // Set days to 0 for "Due on Receipt"
       const daysValue = newTerm.term_name.toLowerCase() === 'due on receipt' ? 0 : newTerm.days;
-      
+
       if (daysValue === '' && newTerm.term_name.toLowerCase() !== 'due on receipt') {
         toast.error('Please enter the number of days');
         return;
@@ -81,9 +80,8 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
         return;
       }
 
-      // Set days to 0 for "Due on Receipt"
       const daysValue = editingTerm.term_name.toLowerCase() === 'due on receipt' ? 0 : editingTerm.days;
-      
+
       if (daysValue === '' && editingTerm.term_name.toLowerCase() !== 'due on receipt') {
         toast.error('Please enter the number of days');
         return;
@@ -126,7 +124,6 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   const handleTermSelection = (value) => {
     const term = paymentTerms.find(t => t.term_name === value);
     if (term) {
-      // Create a new object for the selected term
       const selectedTermData = {
         term_id: term.term_id,
         term_name: term.term_name,
@@ -143,8 +140,8 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
         <div className="flex-1">
           <Label htmlFor="payment-terms">Payment Terms</Label>
           <div className="flex gap-2 mt-1">
-            <Select 
-              value={selectedTerm?.term_name || ''} 
+            <Select
+              value={selectedTerm?.term_name || ''}
               onValueChange={handleTermSelection}
               className="flex-1"
             >
@@ -174,9 +171,9 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
+                  <Button
+                    variant="outline"
+                    className="w-full bg-blue-500 text-white hover:bg-blue-600"
                     onClick={() => setIsAddingNew(true)}
                   >
                     + Add New Payment Term

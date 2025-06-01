@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { toast, ToastContainer, Bounce } from "react-toastify";
 import Select from "react-select";
-import { FaPlus, FaTrash } from "react-icons/fa";
-import api from "@/api/axiosInstance";
+import { toast, ToastContainer, Bounce } from "react-toastify";
+import { useState, useEffect } from "react";
 
+import api from "@/lib/axiosInstance.js";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 
 function AddDomain() {
   const navigate = useNavigate();
@@ -160,7 +161,6 @@ function AddDomain() {
       <h1 className="text-3xl font-bold mb-4">{isEditing ? "Edit Domain" : "Add Domain"}</h1>
       <hr className="mb-6 border-blue-500" />
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Customer Name */}
         <div>
           <Label>Customer Name</Label>
           <Select
@@ -212,18 +212,17 @@ function AddDomain() {
           )}
         </div>
 
-        {/* Name Servers */}
         <div>
           <Label>Name Servers</Label>
           {formData.nameServers.map((ns, index) => (
             <div key={index} className="flex items-center gap-2 mt-2">
               <Input value={ns} onChange={(e) => handleNameServerChange(index, e.target.value)} placeholder="Enter name server" />
               <Button variant="destructive" type="button" size="icon" onClick={() => removeNameServer(index)} disabled={formData.nameServers.length === 1}>
-                <FaTrash className="w-3 h-3" />
+                <Trash2 className="w-3 h-3" />
               </Button>
               {index === formData.nameServers.length - 1 && (
                 <Button type="button" size="icon" onClick={addNameServer}>
-                  <FaPlus className="w-3 h-3" />
+                  <Plus className="w-3 h-3" />
                 </Button>
               )}
             </div>
@@ -248,7 +247,6 @@ function AddDomain() {
           )}
         </div>
 
-        {/* Description */}
         <div>
           <Label>Description (optional)</Label>
           <Textarea rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />

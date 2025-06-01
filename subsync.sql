@@ -44,37 +44,17 @@ CREATE TABLE customers (
 	INDEX idx_customer_status (customer_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create Payment Terms Table
+CREATE TABLE payment_terms (
+    term_id INT AUTO_INCREMENT PRIMARY KEY,
+    term_name VARCHAR(50) NOT NULL,
+    days INT NOT NULL,
+    is_default BOOLEAN DEFAULT false,
 
-/*
-customer_address JSON structure:
-{
-    "addressLine": "string",
-    "city": "string",
-    "state": "string",
-    "country": "string",
-    "zipCode": "string"
-}
-
-other_contacts JSON structure:
-[
-    {
-        "salutation": "string",
-        "designation": "string",
-        "first_name": "string",
-        "last_name": "string",
-        "email": "string",
-        "phone_number": "string",
-        "country_code": "string"
-    }
-]
-
-payment_terms JSON structure:
-{
-    "term_name": "string",
-    "days": number,
-    "is_default": boolean
-}
-*/ 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_term_name (term_name)
+);
 
 -- Create the Domains Table Associated with Customers
 CREATE TABLE IF NOT EXISTS domains (
@@ -93,14 +73,6 @@ CREATE TABLE IF NOT EXISTS domains (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
-);
-
-CREATE TABLE domain_name_servers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    domain_id INT NOT NULL,
-    name_server VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (domain_id) REFERENCES domains(id)
 );
 
 CREATE TABLE domain_name_servers (
@@ -169,17 +141,6 @@ CREATE TABLE users (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE payment_terms (
-    term_id INT AUTO_INCREMENT PRIMARY KEY,
-    term_name VARCHAR(50) NOT NULL,
-    days INT NOT NULL,
-    is_default BOOLEAN DEFAULT false,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_term_name (term_name)
 );
 
 SELECT * FROM customers;

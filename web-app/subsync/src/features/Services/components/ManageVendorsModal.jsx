@@ -1,7 +1,9 @@
-// src/components/ManageVendorsModal.jsx
+import { Settings2 } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useState, useEffect } from 'react';
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Settings2 } from "lucide-react";
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { Input } from "@/components/ui/input";
+
 import { createVendor, updateVendor, deleteVendor } from '@/features/Services/vendorSlice';
 
 const ManageVendorsModal = ({ onVendorsUpdated }) => {
@@ -25,7 +26,6 @@ const ManageVendorsModal = ({ onVendorsUpdated }) => {
   const [editingVendor, setEditingVendor] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
 
-  // reset states when dialog opens
   useEffect(() => {
     if (!isManageModalOpen) {
       setNewVendor({ vendor_name: '' });

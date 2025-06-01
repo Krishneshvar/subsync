@@ -72,8 +72,7 @@ const validateCustomerData = (customerData) => {
     if (!customerData.payment_terms.term_name) {
       throw new Error("Payment terms must include a term name.");
     }
-    
-    // Handle "Due on Receipt" as a special case by creating a new object
+
     if (customerData.payment_terms.term_name.toLowerCase() === 'due on receipt') {
       customerData.payment_terms = {
         ...customerData.payment_terms,

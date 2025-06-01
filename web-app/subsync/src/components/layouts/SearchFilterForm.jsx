@@ -18,7 +18,7 @@ const SelectInput = ({ value, onChange, options, placeholder }) => (
   </div>
 );
 
-export default function SearchFilterForm({ search, setSearch, handleSearch, sortBy, setSortBy, order, setOrder, headers }) {
+function SearchFilterForm({ search, setSearch, handleSearch, sortBy, setSortBy, order, setOrder, headers }) {
   return (
     <div className="w-full flex flex-col sm:flex-row items-center gap-2 mb-2">
       <div className="relative w-full sm:w-auto">
@@ -44,3 +44,5 @@ export default function SearchFilterForm({ search, setSearch, handleSearch, sort
     </div>
   );
 }
+
+export default SearchFilterForm;

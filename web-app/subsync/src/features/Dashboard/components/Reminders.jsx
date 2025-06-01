@@ -1,15 +1,15 @@
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table.jsx'
-import { Card, CardContent } from '@/components/ui/card.jsx'
 import { Bell } from 'lucide-react'
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion.jsx"
+import { Card, CardContent } from '@/components/ui/card.jsx'
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table.jsx'
 
 const headers = ['Name', 'Domain', 'Subscriptions', 'Renewal date', 'Client since', 'Services', 'License usage']
-
 const reminders = [
   {
     name: 'Someone',

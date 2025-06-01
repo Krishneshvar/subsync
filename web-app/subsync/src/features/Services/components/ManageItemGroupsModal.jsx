@@ -1,7 +1,9 @@
-// src/components/ManageItemGroupsModal.jsx
+import { Settings2 } from "lucide-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useState, useEffect } from 'react';
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +13,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Settings2 } from "lucide-react";
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import { createItemGroup, updateItemGroup, deleteItemGroup } from '@/features/Services/itemGroupSlice'; // Adjust path based on your Redux store setup
+import { Input } from "@/components/ui/input";
+
+import { createItemGroup, updateItemGroup, deleteItemGroup } from '@/features/Services/itemGroupSlice';
 
 const ManageItemGroupsModal = ({ onItemGroupsUpdated }) => {
   const dispatch = useDispatch();

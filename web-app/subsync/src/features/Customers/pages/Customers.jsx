@@ -1,19 +1,22 @@
-import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import axios from "axios";
+import { saveAs } from "file-saver";
 import { Eye, FileDown, FileUp, UserPlus } from "lucide-react";
+import * as Papa from "papaparse";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useState, useEffect, useRef } from "react";
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu.jsx";
-import GenericTable from "../../../components/layouts/GenericTable.jsx";
-import Pagination from "../../../components/layouts/Pagination.jsx";
+
+import api from "@/lib/axiosInstance.js";
+import GenericTable from "@/components/layouts/GenericTable.jsx";
+import Pagination from "@/components/layouts/Pagination.jsx";
+import SearchFilterForm from "@/components/layouts/SearchFilterForm.jsx";
 import useFetchData from "@/hooks/useFetchData.js";
-import SearchFilterForm from "../../../components/layouts/SearchFilterForm.jsx";
-import { saveAs } from "file-saver";
-import * as Papa from "papaparse";
+
 import "jspdf-autotable";
-import { toast } from "react-toastify";
-import axios from "axios";
-import api from "@/api/axiosInstance.js";
 
 const headers = [
   // { key: "customer_id", label: "CID" },
@@ -219,11 +222,10 @@ function Customers() {
 
           <div className="flex flex-col md:flex-row gap-2 sm:w-auto">
             <Button className="w-full sm:w-auto" onClick={fetchCustomersAndExport}>
-                  <FileUp /> Export
-                </Button>
+              <FileUp /> Export
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from '@/api/axiosInstance';
 import { toast } from "react-toastify";
+
+import api from '@/lib/axiosInstance.js';
 
 export const fetchVendors = createAsyncThunk(
     "vendors/fetchVendors",
@@ -105,10 +106,9 @@ const vendorSlice = createSlice({
             })
             .addCase(updateVendor.fulfilled, (state, action) => {
                 state.loading = false;
-                // For optimistic updates, find and replace the updated vendor
                 const index = state.list.findIndex(vendor => vendor.vendor_id === action.meta.arg.id);
                 if (index !== -1) {
-                    state.list[index] = { ...state.list[index], ...action.meta.arg }; // Or use the payload if it's the full updated object
+                    state.list[index] = { ...state.list[index], ...action.meta.arg };
                 }
                 state.error = null;
             })

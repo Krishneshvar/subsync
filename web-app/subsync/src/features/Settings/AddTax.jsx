@@ -1,12 +1,13 @@
+import { AlertCircle } from "lucide-react"; 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { AlertCircle } from "lucide-react"; 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function AddTax() {
+function AddTax() {
     const [taxName, setTaxName] = useState("");
     const [taxType, setTaxType] = useState("CGST");
     const [taxRate, setTaxRate] = useState("");
@@ -15,7 +16,6 @@ export default function AddTax() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation: Ensure tax rate is a valid number
         if (isNaN(taxRate) || taxRate < 0) {
             setError("Tax rate must be a non-negative number.");
             return;
@@ -46,7 +46,6 @@ export default function AddTax() {
                 throw new Error(responseData.error || "Failed to add tax. Please try again.");
             }
 
-            // Reset form on success
             setTaxName("");
             setTaxType("CGST");
             setTaxRate("");
@@ -70,7 +69,6 @@ export default function AddTax() {
             )}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                {/* Tax Name */}
                 <div>
                     <Label htmlFor="taxName">Tax Name</Label>
                     <Input
@@ -82,7 +80,6 @@ export default function AddTax() {
                     />
                 </div>
 
-                {/* Tax Type */}
                 <div>
                     <Label htmlFor="taxType">Tax Type</Label>
                     <Select value={taxType} onValueChange={setTaxType}>
@@ -97,7 +94,6 @@ export default function AddTax() {
                     </Select>
                 </div>
 
-                {/* Tax Rate */}
                 <div>
                     <Label htmlFor="taxRate">Tax Rate (%)</Label>
                     <Input
@@ -111,9 +107,10 @@ export default function AddTax() {
                     />
                 </div>
 
-                {/* Submit Button */}
                 <Button type="submit" className="w-full">Add Tax</Button>
             </form>
         </div>
     );
 }
+
+export default AddTax;

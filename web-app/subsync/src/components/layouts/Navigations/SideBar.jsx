@@ -34,6 +34,7 @@ function SideBar({ isOpen, toggleSidebar }) {
           <span className="material-symbols-outlined">{isOpen ? 'close' : 'menu'}</span>
         </Button>
       </div>
+
       <nav className="h-[calc(100%-4rem)] overflow-y-auto">
         <ul className="py-2">
           <TooltipProvider>
@@ -60,7 +61,6 @@ function SideBar({ isOpen, toggleSidebar }) {
           </TooltipProvider>
         </ul>
       </nav>
-      
     </aside>
   );
 }

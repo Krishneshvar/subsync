@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '@/api/axiosInstance';
+
+import api from '@/lib/axiosInstance.js';
 
 export const fetchCustomerById = createAsyncThunk(
   'customers/fetchCustomerById',

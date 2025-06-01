@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+
 import DisplayCustomer from "../components/DisplayCustomer.jsx";
+
 import { Skeleton } from "@/components/ui/skeleton.jsx";
 
-import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerById, clearCustomerState } from "@/features/Customers/customerSlice.js";
 
 function CustomerDetails() {

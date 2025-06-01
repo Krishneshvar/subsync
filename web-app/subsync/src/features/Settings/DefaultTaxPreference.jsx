@@ -1,12 +1,13 @@
+import { AlertCircle } from "lucide-react";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 // import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/features/ui/select";
-import { AlertCircle } from "lucide-react"; 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function DefaultTaxPreference() {
+function DefaultTaxPreference() {
     const [taxName, setTaxName] = useState("");
     const [taxType, setTaxType] = useState("CGST");
     const [taxRate, setTaxRate] = useState("");
@@ -14,13 +15,12 @@ export default function DefaultTaxPreference() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Validation: Ensure tax rate is a valid number
+
         if (isNaN(taxRate) || taxRate < 0) {
             setError("Tax rate must be a non-negative number.");
             return;
         }
-        
+
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/add-tax`, {
                 method: "POST",
@@ -35,7 +35,6 @@ export default function DefaultTaxPreference() {
                 throw new Error("Failed to add tax. Please try again.");
             }
 
-            // Reset form on success
             setTaxName("");
             setTaxType("CGST");
             setTaxRate("");
@@ -71,7 +70,6 @@ export default function DefaultTaxPreference() {
                     />
                 </div>
 
-                {/* Tax Type */}
                 {/* <div>
                     <Label htmlFor="taxType">Tax Type</Label>
                     <Select value={taxType} onValueChange={setTaxType}>
@@ -86,7 +84,6 @@ export default function DefaultTaxPreference() {
                     </Select>
                 </div> */}
 
-                {/* Tax Rate */}
                 <div className="flex gap-2 items-center justify-between">
                     <Label htmlFor="taxRate">Inter State Tax Rate (%)</Label>
                     <Input
@@ -101,7 +98,6 @@ export default function DefaultTaxPreference() {
                     />
                 </div>
 
-                {/* Submit Button */}
                 <div className="flex w-full justify-end">
                     <Button type="submit" className="max-w-60">Save Preference</Button>
                 </div>
@@ -109,3 +105,5 @@ export default function DefaultTaxPreference() {
         </div>
     );
 }
+
+export default DefaultTaxPreference;
