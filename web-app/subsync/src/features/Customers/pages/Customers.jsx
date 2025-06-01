@@ -16,7 +16,11 @@ import Pagination from "@/components/layouts/Pagination.jsx";
 import SearchFilterForm from "@/components/layouts/SearchFilterForm.jsx";
 import useFetchData from "@/hooks/useFetchData.js";
 
+import "jspdf-autotable";
+
 const headers = [
+  // { key: "customer_id", label: "CID" },
+  // { key: "salutation", label: "Salutation" },
   { key: "first_name", label: "Name" },
   { key: "display_name", label: "Display Name" },
   { key: "company_name", label: "Company Name" },
@@ -48,47 +52,47 @@ function Customers() {
     if (e.key === "Enter") setCurrentPage(1);
   };
 
-  const fetchCustomersAndExport = async () => {
-    try {
-      const response = await api.get(`/all-customer-details`);
-      const data = response.data;
+ const fetchCustomersAndExport = async () => {
+  try {
+    const response = await api.get(`/all-customer-details`);
+    const data = response.data;
 
-      if (!data.customers || !Array.isArray(data.customers)) throw new Error("Invalid customer data received!");
-      if (data.customers.length === 0) throw new Error("No customer data available to export!");
+    if (!data.customers || !Array.isArray(data.customers)) throw new Error("Invalid customer data received!");
+    if (data.customers.length === 0) throw new Error("No customer data available to export!");
 
-      const formattedData = data.customers.map((c) => ({
-        "Customer ID": c.customer_id || "",
-        "Salutation": c.salutation || "",
-        "First Name": c.first_name || "",
-        "Last Name": c.last_name || "",
-        "Display Name": c.display_name || "",
-        "Company Name": c.company_name || "",
-        "Phone Number": `${c.country_code || ""}${c.primary_phone_number || ""}`,
-        "Secondary Phone Number": c.secondary_phone_number || "",
-        "Email": c.primary_email || "",
-        "GSTIN": c.gst_in || "",
-        "GST Treatment": c.gst_treatment || "",
-        "Tax Preference": c.tax_preference || "",
-        "Payment Terms": c.payment_terms?.term_name || "",
-        "Exemption Reason": c.exemption_reason || "",
-        "Currency Code": c.currency_code || "",
-        "Address Line": c.customer_address?.addressLine || "",
-        "City": c.customer_address?.city || "",
-        "State": c.customer_address?.state || "",
-        "Country": c.customer_address?.country || "",
-        "Zip Code": c.customer_address?.zipCode || "",
-        "Notes": c.notes || "",
-        "Customer Status": c.customer_status || "Active",
-      }));
+    const formattedData = data.customers.map((c) => ({
+      "Customer ID": c.customer_id || "",
+      "Salutation": c.salutation || "",
+      "First Name": c.first_name || "",
+      "Last Name": c.last_name || "",
+      "Display Name": c.display_name || "",
+      "Company Name": c.company_name || "",
+      "Phone Number": `${c.country_code || ""}${c.primary_phone_number || ""}`,
+      "Secondary Phone Number": c.secondary_phone_number || "",
+      "Email": c.primary_email || "",
+      "GSTIN": c.gst_in || "",
+      "GST Treatment": c.gst_treatment || "",
+      "Tax Preference": c.tax_preference || "",
+      "Payment Terms": c.payment_terms?.term_name || "",
+      "Exemption Reason": c.exemption_reason || "",
+      "Currency Code": c.currency_code || "",
+      "Address Line": c.customer_address?.addressLine || "",
+      "City": c.customer_address?.city || "",
+      "State": c.customer_address?.state || "",
+      "Country": c.customer_address?.country || "",
+      "Zip Code": c.customer_address?.zipCode || "",
+      "Notes": c.notes || "",
+      "Customer Status": c.customer_status || "Active",
+    }));
 
-      const csv = Papa.unparse(formattedData);
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      saveAs(blob, `customers_export_${new Date().toISOString()}.csv`);
-      toast.success("CSV file downloaded successfully!");
-    } catch (err) {
-      toast.error(err.message || "Failed to generate CSV file.");
-    }
-  };
+    const csv = Papa.unparse(formattedData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, `customers_export_${new Date().toISOString()}.csv`);
+    toast.success("CSV file downloaded successfully!");
+  } catch (err) {
+    toast.error(err.message || "Failed to generate CSV file.");
+  }
+};
 
   const fileInputRef = useRef(null);
 
@@ -222,10 +226,6 @@ function Customers() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                {/* This trigger is empty, it needs a button or similar element */}
-                <Button className="w-full sm:w-auto">
-                  <FileUp /> More Export Options
-                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>
