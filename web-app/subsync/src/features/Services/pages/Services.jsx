@@ -36,11 +36,9 @@ function Services() {
   const [order, setOrder] = useState("desc");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  // const { username } = useParams(); // Only if username is part of base path, otherwise not needed
 
   const fileInputRef = useRef(null);
 
-  // Fetch services on component mount or when sort/order/page changes
   useEffect(() => {
     dispatch(fetchServices());
   }, [dispatch]);
@@ -49,7 +47,6 @@ function Services() {
     setCurrentPage(1);
   }, [search]);
 
-  // Handle search input change (e.g., on Enter key)
   const handleSearch = (e) => {
     // This function is for triggering search on Enter key,
     // the actual filtering happens in filteredServices below.
@@ -182,7 +179,8 @@ function Services() {
     }
     toast.info("Importing services...");
     try {
-      const res = await api.post(`${import.meta.env.VITE_API_URL}/import-services`, { services: dataToImport });
+      // Use the 'api' instance directly with the relative path
+      const res = await api.post("/import-services", { services: dataToImport });
       if (res.status === 200 || res.status === 201) {
         toast.success("Services imported successfully!");
         dispatch(fetchServices());

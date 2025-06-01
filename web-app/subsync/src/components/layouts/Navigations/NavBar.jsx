@@ -1,4 +1,4 @@
-import { HelpCircle, User, Settings, LogOut, X } from "lucide-react";
+import { HelpCircle, LogOut, Menu, Settings, User, X } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -29,7 +29,7 @@ function NavBar({ toggleSidebar }) {
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex">
           <Button variant="ghost" size="icon" className="mr-2 lg:hidden" onClick={toggleSidebar}>
-            <span className="material-symbols-outlined">menu</span>
+            <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-shrink-0 flex items-center">
             <span className="text-xl font-bold text-primary">SubSync</span>

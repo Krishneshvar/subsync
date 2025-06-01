@@ -1,14 +1,15 @@
+import { Globe, Home, MailCheck, Menu, Package, ShoppingBag, Users, X } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button.jsx';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 
 const sidebarItems = [
-  { path: 'dashboard', title: 'Home', icon: 'home' },
-  { path: 'dashboard/customers', title: 'Customers', icon: 'person' },
-  { path: 'dashboard/domains', title: 'Domains', icon: 'language' },
-  { path: 'dashboard/services', title: 'Services', icon: 'shop' },
-  { path: 'dashboard/subscriptions', title: 'Subscriptions', icon: 'subscriptions' },
+  { path: 'dashboard', title: 'Home', icon: <Home /> },
+  { path: 'dashboard/customers', title: 'Customers', icon: <Users /> },
+  { path: 'dashboard/domains', title: 'Domains', icon: <Globe /> },
+  { path: 'dashboard/services', title: 'Services', icon: <Package /> },
+  { path: 'dashboard/subscriptions', title: 'Subscriptions', icon: <MailCheck /> },
 ];
 
 function SideBar({ isOpen, toggleSidebar }) {
@@ -31,7 +32,7 @@ function SideBar({ isOpen, toggleSidebar }) {
           className="text-primary-foreground hover:bg-primary-foreground/10 z-50"
           onClick={toggleSidebar}
         >
-          <span className="material-symbols-outlined">{isOpen ? 'close' : 'menu'}</span>
+          {isOpen ? <X /> : <Menu />}
         </Button>
       </div>
 
