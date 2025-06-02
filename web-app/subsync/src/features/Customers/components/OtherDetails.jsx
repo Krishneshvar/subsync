@@ -7,6 +7,10 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
   const gstTreatmentOptions = ["iGST", "CGST & SGST", "No GST", "Zero Tax", "SEZ"];
   const taxPreferenceOptions = ["Taxable", "Tax Exempt"];
 
+  // Set default values if not set
+  const currencyValue = customerData.currencyCode || "INR";
+  const gstTreatmentValue = customerData.gst_treatment || "CGST & SGST";
+
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-4">
@@ -25,7 +29,7 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
         <div className="space-y-2">
           <Label>Currency Code</Label>
           <Select
-            value={customerData.currencyCode || ""}
+            value={currencyValue}
             onValueChange={(value) => handleSelectChange("currencyCode", value)}
           >
             <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
@@ -44,7 +48,7 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
         <div className="space-y-2">
           <Label>GST Treatment</Label>
           <Select
-            value={customerData.gst_treatment || ""}
+            value={gstTreatmentValue}
             onValueChange={(value) => handleSelectChange("gst_treatment", value)}
           >
             <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">

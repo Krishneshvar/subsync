@@ -1,6 +1,6 @@
 import { Pencil } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -18,6 +18,7 @@ function Domains() {
   const [sortBy, setSortBy] = useState("");
   const [order, setOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const totalPages = 5;
   const { username } = useParams();
   const dispatch = useDispatch();
@@ -36,23 +37,25 @@ function Domains() {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString("en-GB");
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-GB");
   };
 
   const formatDateForInput = (dateString) => {
-    if (!dateString || typeof dateString !== 'string') return "";
-    // Handles ISO strings and yyyy-MM-dd
-    const match = dateString.match(/^(\d{4}-\d{2}-\d{2})/);
-    if (match) return match[1];
-    // Try to parse and format
+    if (!dateString) return "";
+    // If it's already in yyyy-MM-dd format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+    
     const d = new Date(dateString);
-    // Check for invalid date and for cases like 'undefined-undefined-2025-04-27T18:30:00.000Z'
-    if (!isNaN(d.getTime()) && d.toISOString) {
-      // Only return if the original string is a valid date
-      const iso = d.toISOString().slice(0, 10);
-      if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
-    }
-    return "";
+    if (isNaN(d.getTime())) return "";
+    
+    // Get the date in local timezone
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    
+    return `${day}-${month}-${year}`;
   };
 
   const formatNameServers = (nameServers) => {
@@ -69,10 +72,20 @@ function Domains() {
     if (e.key === "Enter") setCurrentPage(1);
   };
 
+  const debounceTimeout = useRef();
+
+  useEffect(() => {
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // 500ms debounce
+    return () => clearTimeout(debounceTimeout.current);
+  }, [search]);
+
   useEffect(() => {
     // Fetch domains whenever search, sort, order, or page changes
-    dispatch(fetchDomains({ search, sortBy, order, page: currentPage }));
-  }, [dispatch, search, sortBy, order, currentPage]);
+    dispatch(fetchDomains({ search: debouncedSearch, sortBy, order, page: currentPage }));
+  }, [dispatch, debouncedSearch, sortBy, order, currentPage]);
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 shadow-lg rounded-lg">

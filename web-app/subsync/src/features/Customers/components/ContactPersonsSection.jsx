@@ -14,7 +14,7 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
   const addContactPerson = () => {
     setContactPersons([
       ...contactPersons,
-      { salutation: "", designation: "", first_name: "", last_name: "", email: "", phone_number: "" },
+      { salutation: "Mr.", designation: "", first_name: "", last_name: "", email: "", phone_number: "" },
     ]);
   };
 
@@ -43,7 +43,7 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
               <tr key={index} className="even:bg-gray-50">
                 <td className="px-4 py-2 border-r">
                   <Select
-                    value={person.salutation}
+                    value={person.salutation || "Mr."}
                     onValueChange={(value) => handleInputChange(index, "salutation", value)}
                   >
                     <SelectTrigger className="w-full">

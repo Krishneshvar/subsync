@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import api from "@/lib/axiosInstance.js"; 
 
 function AddTax() {
     const [taxName, setTaxName] = useState("");
@@ -28,22 +29,11 @@ function AddTax() {
                 taxRate: parseFloat(taxRate)
             };
 
-            console.log("Sending request:", JSON.stringify(requestData));
-    
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/add-tax`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                body: JSON.stringify(requestData),
-            });
+            // Use axios instance instead of fetch
+            const response = await api.post("/add-tax", requestData);
 
-            const responseData = await response.json();
-            console.log("Response:", responseData);
-
-            if (!response.ok) {
-                throw new Error(responseData.error || "Failed to add tax. Please try again.");
+            if (response.status !== 200) {
+                throw new Error(response.data.error || "Failed to add tax. Please try again.");
             }
 
             setTaxName("");
@@ -52,7 +42,7 @@ function AddTax() {
             setError(null);
 
         } catch (error) {
-            setError(error.message);
+            setError(error.response?.data?.error || error.message);
         }
     };    
 

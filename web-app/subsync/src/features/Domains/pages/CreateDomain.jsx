@@ -54,26 +54,21 @@ function AddDomain() {
     { value: "Others", label: "Others" },
   ];
 
-  // Robust date parser: handles ISO, dd/mm/yyyy, mm/dd/yyyy, etc.
+  // Robust date parser: handles ISO dates and ensures yyyy-MM-dd format
   const parseToISODate = (dateString) => {
     if (!dateString) return "";
-    // If already in yyyy-mm-dd
+    // If it's already in yyyy-MM-dd format, return as is
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
-    // Try dd/mm/yyyy or mm/dd/yyyy
-    const parts = dateString.split(/[\/-]/);
-    if (parts.length === 3) {
-      let [a, b, c] = parts.map(Number);
-      // If year is first
-      if (a > 1900) return `${a.toString().padStart(4, "0")}-${b.toString().padStart(2, "0")}-${c.toString().padStart(2, "0")}`;
-      // If year is last
-      if (c > 1900) return `${c.toString().padStart(4, "0")}-${b.toString().padStart(2, "0")}-${a.toString().padStart(2, "0")}`;
-    }
-    // Fallback: try Date.parse
+    
     const d = new Date(dateString);
-    if (!isNaN(d)) {
-      return d.toISOString().slice(0, 10);
-    }
-    return "";
+    if (isNaN(d.getTime())) return "";
+    
+    // Get the date in local timezone
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {

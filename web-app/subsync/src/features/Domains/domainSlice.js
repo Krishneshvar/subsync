@@ -106,9 +106,16 @@ const domainSlice = createSlice({
       .addCase(updateDomain.pending, (state) => {
         state.loading = true;
       })
-      .addCase(updateDomain.fulfilled, (state) => {
-        state.loading = false;
-      })
+      .addCase(updateDomain.fulfilled, (state, action) => {
+      state.loading = false;
+
+      // Update the domain in the list if it exists
+      const updated = action.payload;
+      const index = state.list.findIndex(domain => domain.domain_id === updated.domain_id);
+      if (index !== -1) {
+        state.list[index] = updated;
+      }
+    })
       .addCase(updateDomain.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

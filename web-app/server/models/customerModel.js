@@ -94,7 +94,7 @@ async function updateCustomer(customerId, updatedData) {
         tax_preference, exemption_reason, payment_terms, notes, customer_status
     } = updatedData;
 
-    console.log("Updated data received:", updatedData);
+    // console.log("Updated data received:", updatedData);
 
     // Validation
     if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
@@ -235,7 +235,7 @@ const getCustomerById = async (customerId) => {
             `SELECT * FROM customers WHERE customer_id = ?`,
             [customerId]
         );
-        console.log(result);
+        // console.log(result);
         return result[0];
     } catch (error) {
         console.error("Error fetching customer by ID:", error);

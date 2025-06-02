@@ -28,14 +28,7 @@ const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendors
           onChange={(e) => setData({ ...data, price: e.target.value })}
         />
       </div>
-      <div>
-        <Label htmlFor="account">Account*</Label>
-        <Input
-          id="account"
-          value={data.account}
-          onChange={(e) => setData({ ...data, account: e.target.value })}
-        />
-      </div>
+      
       <div>
         <Label htmlFor="description">Description</Label>
         <Input
@@ -45,7 +38,7 @@ const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendors
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 mt-4 pt-4 border-t border-gray-300">
         <Label htmlFor="preferred-vendor">Preferred Vendor</Label>
         <div className="flex gap-2">
           <Select

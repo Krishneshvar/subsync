@@ -56,7 +56,7 @@ async function addDomain(domain) {
 async function updateDomain(domainId, updatedData) {
     const { domain_name, registration_date, registered_with, other_provider, description, mail_service_provider, other_mail_service_details, name_servers } = updatedData;
     
-    console.log("Updated data received:", updatedData);
+    // console.log("Updated data received:", updatedData);
     
     // Validation
     if (!domain_name || !registration_date || !registered_with) {
@@ -65,6 +65,7 @@ async function updateDomain(domainId, updatedData) {
 
     try {
         const currentTime = getCurrentTime();
+
         const [result] = await appDB.query(
             `UPDATE domains 
              SET domain_name = ?, registration_date = ?, registered_with = ?, 
@@ -77,12 +78,12 @@ async function updateDomain(domainId, updatedData) {
             ]
         );
 
-        // Update name servers
+        // console.log("Update result:", result); // Add this
+
+        // Always proceed to update name servers
         if (name_servers) {
-            // Delete existing name servers
             await appDB.query("DELETE FROM domain_name_servers WHERE domain_id = ?", [domainId]);
-            
-            // Add new name servers
+
             if (name_servers.length > 0) {
                 const nameServerValues = name_servers.map(ns => [domainId, ns]);
                 await appDB.query(
@@ -92,15 +93,12 @@ async function updateDomain(domainId, updatedData) {
             }
         }
 
-        if (result.affectedRows > 0) {
-            return domainId;
-        } else {
-            throw new Error("Failed to update domain. No rows affected.");
-        }
+        return domainId; // Don't rely only on affectedRows
     } catch (error) {
         console.error("Database error:", error);
         throw new Error("An unexpected error occurred while updating the domain.");
     }
+
 }
 
 /**

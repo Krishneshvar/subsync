@@ -9,12 +9,14 @@ function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
     <div className="overflow-x-auto">
       <Table>
         <TableHeader className="bg-blue-500 text-primary-foreground rounded-lg">
-          {headers.map((header) => (
-            <TableCell className="justify-start" key={header.key}>
-              {header.label}
-            </TableCell>
-          ))}
-          {actions && <TableCell>Actions</TableCell>}
+          <TableRow>
+            {headers.map((header) => (
+              <th className="justify-start mr-2px-4 py-2" key={header.key}>
+                {header.label}
+              </th>
+            ))}
+            {actions && <th className="px-4 py-2">Actions</th>}
+          </TableRow>
         </TableHeader>
 
         <TableBody>
@@ -25,12 +27,12 @@ function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
                   key={`${item[primaryKey]}-${header.key}`}
                   className={
                     header.key === "customer_status"
-                    ? item[header.key] === "Active"
-                      ? "text-green-500 font-bold"
+                      ? item[header.key] === "Active"
+                        ? "text-green-500 font-bold"
                         : item[header.key] === "Inactive"
                         ? "text-red-500 font-bold"
+                        : ""
                       : ""
-                    : ""
                   }
                 >
                   {item[header.key] || "N/A"}

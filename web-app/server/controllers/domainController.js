@@ -22,7 +22,8 @@ const updateDomainDetails = async (req, res) => {
         console.log("Request body received:", req.body);
         const { did } = req.params;
         await updateDomain(did, req.body);
-        res.status(200).json({ message: "Domain updated successfully!" });
+        const updatedDomain = await getDomainById(did); // after update
+        res.json(updatedDomain);
     } catch (error) {
         console.error("Domain update error:", error);
         res.status(500).json({ error: error.message });

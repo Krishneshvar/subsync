@@ -29,6 +29,8 @@ const AddressSection = ({
   };
 
   const address = customerData.address || {};
+  // Set default country to India (IN) if not set
+  const countryValue = address.country || "IN";
 
   return (
     <>
@@ -56,7 +58,7 @@ const AddressSection = ({
             options={countries}
             value={(() => {
               const selectedCountryOption = countries.find(
-                (option) => option.value === address.country
+                (option) => option.value === countryValue
               );
               return selectedCountryOption || null;
             })()}

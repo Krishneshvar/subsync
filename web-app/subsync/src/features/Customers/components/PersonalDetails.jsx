@@ -48,6 +48,9 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
     { value: "Dr.", label: "Dr." },
   ];
 
+  // Set default salutation to Mr. if not set
+  const selectedSalutation = salutationOptions.find(option => option.value === customerData.salutation) || salutationOptions[0];
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-x-4 mb-4">
@@ -80,7 +83,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
           <Select
             id="salutation"
             options={salutationOptions}
-            value={salutationOptions.find(option => option.value === customerData.salutation) || null}
+            value={selectedSalutation}
             onChange={(selectedOption) => handleSelectChange("salutation", selectedOption ? selectedOption.value : null)}
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
