@@ -128,11 +128,16 @@ const getAllDomains = async ({ search = "", sort = "domain_name", order = "asc",
             `SELECT d.*, GROUP_CONCAT(dns.name_server) as name_servers
              FROM domains d
              LEFT JOIN domain_name_servers dns ON d.domain_id = dns.domain_id
-             WHERE d.domain_name LIKE ?
+             WHERE (
+                d.domain_name LIKE ? OR
+                d.customer_name LIKE ? OR
+                d.registered_with LIKE ? OR
+                d.description LIKE ?
+             )
              GROUP BY d.domain_id
              ORDER BY ${sort} ${order.toUpperCase()} 
              LIMIT ? OFFSET ?`,
-            [searchQuery, parseInt(limit), parseInt(offset)]
+            [searchQuery, searchQuery, searchQuery, searchQuery, parseInt(limit), parseInt(offset)]
         );
 
         // Convert name_servers string to array
@@ -143,8 +148,13 @@ const getAllDomains = async ({ search = "", sort = "domain_name", order = "asc",
         const [[{ total }]] = await appDB.query(
             `SELECT COUNT(DISTINCT d.domain_id) as total 
              FROM domains d 
-             WHERE d.domain_name LIKE ?`,
-            [searchQuery]
+             WHERE (
+                d.domain_name LIKE ? OR
+                d.customer_name LIKE ? OR
+                d.registered_with LIKE ? OR
+                d.description LIKE ?
+             )`,
+            [searchQuery, searchQuery, searchQuery, searchQuery]
         );
 
         const totalPages = Math.ceil(total / limit);

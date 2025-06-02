@@ -1,6 +1,7 @@
 import { Pencil } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -10,18 +11,17 @@ import GenericTable from "@/components/layouts/GenericTable";
 import Pagination from "@/components/layouts/Pagination";
 import SearchFilterForm from "@/components/layouts/SearchFilterForm";
 
-import api from "@/lib/axiosInstance.js";
+import { fetchDomains } from "../domainSlice";
 
 function Domains() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [order, setOrder] = useState("asc");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [domains, setDomains] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5;
   const { username } = useParams();
+  const dispatch = useDispatch();
+  const { list: domains, loading, error } = useSelector((state) => state.domains);
 
   const headers = [
     { key: "domain_name", label: "Domain Name" },
@@ -39,6 +39,22 @@ function Domains() {
     return new Date(dateString).toLocaleDateString("en-GB");
   };
 
+  const formatDateForInput = (dateString) => {
+    if (!dateString || typeof dateString !== 'string') return "";
+    // Handles ISO strings and yyyy-MM-dd
+    const match = dateString.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (match) return match[1];
+    // Try to parse and format
+    const d = new Date(dateString);
+    // Check for invalid date and for cases like 'undefined-undefined-2025-04-27T18:30:00.000Z'
+    if (!isNaN(d.getTime()) && d.toISOString) {
+      // Only return if the original string is a valid date
+      const iso = d.toISOString().slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+    }
+    return "";
+  };
+
   const formatNameServers = (nameServers) => {
     if (!nameServers || nameServers.length === 0) return "-";
     return nameServers.map((ns, i) => <div key={i}>{ns}</div>);
@@ -54,51 +70,9 @@ function Domains() {
   };
 
   useEffect(() => {
-    async function fetchDomains() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await api.get("/all-domains", {
-          params: { search, sort: sortBy, order }
-        });
-
-        const formattedDomains = res.data.domains
-          .map((d) => {
-            const rawNameServers = Array.isArray(d.name_servers)
-              ? d.name_servers
-              : (d.name_servers ? d.name_servers.split(",").map(ns => ns.trim()) : []);
-            return {
-              ...d,
-              registration_date: formatDate(d.registration_date),
-              expiry_date: formatDate(d.expiry_date),
-              displayNameServers: formatNameServers(rawNameServers),
-              name_servers: rawNameServers,
-              mail_service_provider: formatMailServices(d.mail_service_provider, d.other_mail_service_details)
-            };
-          })
-          .filter((d) => {
-            const term = search.toLowerCase();
-            return (
-              d.domain_name.toLowerCase().includes(term) ||
-              d.customer_name.toLowerCase().includes(term) ||
-              d.registered_with?.toLowerCase().includes(term) ||
-              d.name_servers?.toString().toLowerCase().includes(term) ||
-              d.description?.toLowerCase().includes(term) ||
-              d.registration_date.includes(term) ||
-              d.expiry_date.includes(term)
-            );
-          });
-
-        setDomains(formattedDomains);
-      } catch (err) {
-        setError("Failed to fetch domains. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchDomains();
-  }, [search, sortBy, order, currentPage]);
+    // Fetch domains whenever search, sort, order, or page changes
+    dispatch(fetchDomains({ search, sortBy, order, page: currentPage }));
+  }, [dispatch, search, sortBy, order, currentPage]);
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 shadow-lg rounded-lg">
@@ -152,6 +126,7 @@ function Domains() {
 
               return {
                 ...domain,
+                registration_date: formatDateForInput(domain.registration_date),
                 actions: (
                   <TooltipProvider>
                     <Tooltip>

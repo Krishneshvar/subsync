@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Select from "react-select";
 import { toast, ToastContainer, Bounce } from "react-toastify";
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDomainById, createDomain, updateDomain } from "../domainSlice";
 
 import api from "@/lib/axiosInstance.js";
 
@@ -14,6 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 function AddDomain() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { list: domains, currentDomain, loading, error } = useSelector((state) => state.domains);
+  const { list: customers } = useSelector((state) => state.customers);
 
   const [formData, setFormData] = useState({
     domainName: "",
@@ -49,9 +54,26 @@ function AddDomain() {
     { value: "Others", label: "Others" },
   ];
 
-  const formatDateToISO = (dateString) => {
-    const [day, month, year] = dateString.split('/');
-    return `${year}-${month}-${day}`;
+  // Robust date parser: handles ISO, dd/mm/yyyy, mm/dd/yyyy, etc.
+  const parseToISODate = (dateString) => {
+    if (!dateString) return "";
+    // If already in yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+    // Try dd/mm/yyyy or mm/dd/yyyy
+    const parts = dateString.split(/[\/-]/);
+    if (parts.length === 3) {
+      let [a, b, c] = parts.map(Number);
+      // If year is first
+      if (a > 1900) return `${a.toString().padStart(4, "0")}-${b.toString().padStart(2, "0")}-${c.toString().padStart(2, "0")}`;
+      // If year is last
+      if (c > 1900) return `${c.toString().padStart(4, "0")}-${b.toString().padStart(2, "0")}-${a.toString().padStart(2, "0")}`;
+    }
+    // Fallback: try Date.parse
+    const d = new Date(dateString);
+    if (!isNaN(d)) {
+      return d.toISOString().slice(0, 10);
+    }
+    return "";
   };
 
   useEffect(() => {
@@ -79,6 +101,7 @@ function AddDomain() {
   }, [searchTerm, allCustomers]);
 
   useEffect(() => {
+    // If editing, fetch domain by id from state or URL
     const state = location.state;
     if (state?.domain) {
       const d = state.domain;
@@ -88,9 +111,7 @@ function AddDomain() {
         domainName: d.domain_name || "",
         description: d.description || "",
         customerId: d.customer_id || "",
-        registrationDate: /^\d{4}-\d{2}-\d{2}$/.test(d.registration_date)
-          ? d.registration_date
-          : formatDateToISO(d.registration_date),
+        registrationDate: parseToISODate(d.registration_date),
         registeredWith: d.registered_with || "",
         otherProvider: d.other_provider || "",
         nameServers: Array.isArray(d.name_servers)
@@ -100,15 +121,35 @@ function AddDomain() {
         mailServicesOther: d.other_mail_service_details || ""
       });
       setSelectedCustomer({ value: d.customer_id, label: d.customer_name });
+    } else if (domainId) {
+      dispatch(fetchDomainById(domainId));
     }
-  }, [location.state]);
+  }, [location.state, domainId, dispatch]);
+
+  useEffect(() => {
+    if (currentDomain && isEditing) {
+      setFormData({
+        domainName: currentDomain.domain_name || "",
+        description: currentDomain.description || "",
+        customerId: currentDomain.customer_id || "",
+        registrationDate: parseToISODate(currentDomain.registration_date),
+        registeredWith: currentDomain.registered_with || "",
+        otherProvider: currentDomain.other_provider || "",
+        nameServers: Array.isArray(currentDomain.name_servers)
+          ? currentDomain.name_servers.filter(Boolean)
+          : currentDomain.name_servers?.split(",").map(ns => ns.trim()).filter(Boolean) || [""],
+        mailServices: currentDomain.mail_service_provider || "",
+        mailServicesOther: currentDomain.other_mail_service_details || ""
+      });
+      setSelectedCustomer({ value: currentDomain.customer_id, label: currentDomain.customer_name });
+    }
+  }, [currentDomain, isEditing]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.customerId || !formData.domainName || !formData.registrationDate || !formData.registeredWith) {
       return toast.error("Please fill all required fields.");
     }
-
     const payload = {
       customer_id: formData.customerId,
       customer_name: selectedCustomer?.label,
@@ -121,22 +162,20 @@ function AddDomain() {
       mail_service_provider: formData.mailServices,
       mail_services_other: formData.mailServices === "Others" ? formData.mailServicesOther : ""
     };
-
     try {
       if (isEditing) {
-        await api.put(`/update-domain/${domainId}`, payload);
+        await dispatch(updateDomain({ id: domainId, payload })).unwrap();
         toast.success("Domain updated!");
       } else {
-        await api.post("/create-domain", payload);
+        await dispatch(createDomain(payload)).unwrap();
         toast.success("Domain created!");
       }
-
       setTimeout(() => {
         const userSegment = location.pathname.split("/")[1];
         navigate(`/${userSegment}/dashboard/domains`);
       }, 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong.");
+      toast.error(err || "Something went wrong.");
     }
   };
 

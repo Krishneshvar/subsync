@@ -41,7 +41,7 @@ function Customers() {
 
   const { data = [], error, loading: fetchLoading, totalPages = 0 } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-customers`,
-    { sort: sortBy, order, currentPage }
+    { search, sort: sortBy, order, currentPage }
   );
 
   useEffect(() => {

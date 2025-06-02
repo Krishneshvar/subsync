@@ -63,7 +63,7 @@ const AddService = () => {
     dispatch(fetchVendors());
     dispatch(fetchItemGroups());
 
-    // Cleanup when component unmounts or leaves editing mode
+
     return () => {
       console.log("AddService: Cleanup - Clearing service state.");
       dispatch(clearServiceError());
