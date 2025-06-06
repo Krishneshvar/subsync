@@ -9,28 +9,16 @@ import {
 // CREATE Vendor
 export const createVendorController = async (req, res) => {
     try {
-        const { vendor_name } = req.body;
+        const vendorData = req.body;
 
-        if (!vendor_name) {
-            return res.status(400).json({ error: "Vendor name is required." });
-        }
+        // Pass the full vendor object to the model for validation and creation
+        const result = await createVendor(vendorData);
 
-        // Check if vendor already exists (optional, but good for uniqueness)
-        const existingVendors = await getAllVendors();
-        if (existingVendors.some(v => v.vendor_name.toLowerCase() === vendor_name.toLowerCase())) {
-            return res.status(409).json({ error: "Vendor with this name already exists." });
-        }
-
-        const result = await createVendor({ vendor_name });
-        // result.insertId will contain the newly generated vendor_id
         return res.status(201).json({ message: "Vendor created successfully", vendor_id: result.insertId });
     } catch (error) {
         console.error("Error creating vendor:", error);
-        // Handle specific database errors if needed, e.g., duplicate entry if UNIQUE constraint
-        if (error.code === 'ER_DUP_ENTRY') { // MySQL specific error code for duplicate entry
-            return res.status(409).json({ error: "A vendor with this name already exists." });
-        }
-        return res.status(500).json({ error: "Internal Server Error" });
+        // Return the error message from the model (validation or DB error)
+        return res.status(400).json({ error: error.message || "Internal Server Error" });
     }
 };
 
@@ -66,11 +54,7 @@ export const getVendorByIdController = async (req, res) => {
 export const updateVendorController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { vendor_name } = req.body;
-
-        if (!vendor_name) {
-            return res.status(400).json({ error: "Vendor name is required for update." });
-        }
+        const vendorData = req.body;
 
         const existingVendor = await getVendorById(id);
         if (!existingVendor) {
@@ -79,11 +63,11 @@ export const updateVendorController = async (req, res) => {
 
         // Optional: Check if the new name already exists for a *different* vendor
         const vendorsWithSameName = await getAllVendors();
-        if (vendorsWithSameName.some(v => v.vendor_name.toLowerCase() === vendor_name.toLowerCase() && v.vendor_id !== parseInt(id))) {
+        if (vendorsWithSameName.some(v => v.vendor_name.toLowerCase() === vendorData.vendor_name.toLowerCase() && v.vendor_id !== parseInt(id))) {
             return res.status(409).json({ error: "Another vendor with this name already exists." });
         }
 
-        const result = await updateVendor(id, { vendor_name });
+        const result = await updateVendor(id, vendorData);
 
         if (result.affectedRows === 0) {
             // This might happen if the ID exists but no data was actually changed (e.g., same name provided)
@@ -93,9 +77,6 @@ export const updateVendorController = async (req, res) => {
         return res.status(200).json({ message: "Vendor updated successfully." });
     } catch (error) {
         console.error("Error updating vendor:", error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ error: "A vendor with this name already exists." });
-        }
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };

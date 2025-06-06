@@ -10,7 +10,7 @@ import {
 
 import ManageVendorsModal from './ManageVendorsModal';
 
-const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendorsError, fetchVendors }) => {
+const PurchaseInfoSection = ({ data, setData, vendors = [], isLoadingVendors, vendorsError, fetchVendors }) => {
 
   const handleVendorChange = (selectedValue) => {
     setData({ ...data, vendor: selectedValue });
@@ -58,14 +58,14 @@ const PurchaseInfoSection = ({ data, setData, vendors, isLoadingVendors, vendors
               ) : (
                 vendors.map((vendor) => (
                   <SelectItem key={vendor.vendor_id} value={String(vendor.vendor_id)}>
-                    {vendor.vendor_name}
+                    {vendor.display_name || `${vendor.first_name} ${vendor.last_name}`}
                   </SelectItem>
                 ))
               )}
             </SelectContent>
           </Select>
 
-          <ManageVendorsModal onVendorsUpdated={fetchVendors} currentVendors={vendors} />
+          <ManageVendorsModal onVendorsUpdated={fetchVendors} />
         </div>
         {vendorsError && (
           <p className="text-red-500 text-sm mt-1">Failed to load vendors. Please try again.</p>

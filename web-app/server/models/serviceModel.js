@@ -19,7 +19,7 @@ const createService = async (service) => {
     parseInt(service.item_group, 10), // Ensure item_group is stored as an integer ID
     JSON.stringify(service.sales_information),
     JSON.stringify(service.purchase_information),
-    parseInt(service.preferred_vendor, 10), // Ensure preferred_vendor is stored as an integer ID
+    service.preferred_vendor, // Store vendor_id directly
     JSON.stringify(service.default_tax_rates),
   ];
 
@@ -39,8 +39,9 @@ const getAllServices = async () => {
         ig.item_group_name, -- Join to get the name
         s.sales_info,
         s.purchase_info,
-        s.preferred_vendor AS preferred_vendor_id, -- Keep ID for internal use
-        v.vendor_name AS preferred_vendor_name, -- Join to get the name
+        s.preferred_vendor,
+        v.display_name AS preferred_vendor_name,
+        v.company_name AS preferred_vendor_company,
         s.default_tax_rates,
         s.created_at,
         s.updated_at
@@ -68,8 +69,9 @@ const getServiceById = async (service_id) => {
         ig.item_group_name,
         s.sales_info,
         s.purchase_info,
-        s.preferred_vendor AS preferred_vendor_id,
-        v.vendor_name AS preferred_vendor_name,
+        s.preferred_vendor,
+        v.display_name AS preferred_vendor_name,
+        v.company_name AS preferred_vendor_company,
         s.default_tax_rates,
         s.created_at,
         s.updated_at
@@ -107,7 +109,7 @@ const updateService = async (service_id, updatedData) => {
     parseInt(updatedData.item_group, 10), // Convert to integer
     JSON.stringify(updatedData.sales_information),
     JSON.stringify(updatedData.purchase_information),
-    parseInt(updatedData.preferred_vendor, 10), // Convert to integer
+    updatedData.preferred_vendor, // Store vendor_id directly
     JSON.stringify(updatedData.default_tax_rates),
     service_id,
   ];
@@ -118,8 +120,15 @@ const updateService = async (service_id, updatedData) => {
 
 // DELETE
 const deleteService = async (service_id) => {
-  const [result] = await appDB.execute(`DELETE FROM services WHERE service_id = ?`, [service_id]);
+  const query = `DELETE FROM services WHERE service_id = ?`;
+  const [result] = await appDB.execute(query, [service_id]);
   return result;
 }
 
-export { createService, getAllServices, getServiceById, updateService, deleteService };
+export {
+  createService,
+  getAllServices,
+  getServiceById,
+  updateService,
+  deleteService
+};

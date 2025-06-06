@@ -1,4 +1,5 @@
 import Select from "react-select";
+import countryList from "react-select-country-list";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,13 +11,18 @@ const AddressSection = ({
   handleInputChange,
   handleSelectChange,
   countries,
-  states,
-  setStates,
+  states = [],
+  setStates = () => {}, // fallback to no-op if not provided
 }) => {
+  const countryOptions = countries && Array.isArray(countries) && countries.length > 0
+    ? countries
+    : countryList().getData();
+
   const handleCountryChange = (selectedOption) => {
     handleSelectChange("address.country", selectedOption);
     handleSelectChange("address.state", null);
 
+    // Always update states if setStates is available
     if (selectedOption && selectedOption.value === "IN") {
       setStates(indianStates);
     } else {
@@ -29,7 +35,6 @@ const AddressSection = ({
   };
 
   const address = customerData.address || {};
-  // Set default country to India (IN) if not set
   const countryValue = address.country || "IN";
 
   return (
@@ -55,13 +60,10 @@ const AddressSection = ({
           <Select
             id="country"
             placeholder="Select Country"
-            options={countries}
-            value={(() => {
-              const selectedCountryOption = countries.find(
-                (option) => option.value === countryValue
-              );
-              return selectedCountryOption || null;
-            })()}
+            options={countryOptions}
+            value={Array.isArray(countryOptions)
+              ? countryOptions.find(option => option.value === countryValue) || null
+              : null}
             onChange={handleCountryChange}
             className="react-select-container shadow-sm"
             classNamePrefix="react-select"
@@ -74,12 +76,9 @@ const AddressSection = ({
             id="state"
             placeholder="Select State"
             options={states}
-            value={(() => {
-              const selectedStateOption = states.find(
-                (option) => option.value === address.state
-              );
-              return selectedStateOption || null;
-            })()}
+            value={Array.isArray(states)
+              ? states.find(option => option.value === address.state) || null
+              : null}
             onChange={handleStateChange}
             className="react-select-container shadow-sm"
             classNamePrefix="react-select"

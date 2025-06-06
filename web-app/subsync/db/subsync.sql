@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS domains (
     domain_name VARCHAR(255) UNIQUE NOT NULL,
     registration_date DATE NOT NULL,
     registered_with ENUM('OCS', 'Direct Customer', 'Winds', 'Others') NOT NULL,
-    mail_service_provider ENUM('ResellerClub', 'GWS', 'Business Email', 'Microsoft', 'Others') NOT NULL DEFAULT 'Others',
+    mail_service_provider ENUM('ResellerClub', 'Google Workspace', 'Business Email', 'Microsoft 365', 'Others') NOT NULL DEFAULT 'Others',
     other_provider VARCHAR(255) DEFAULT NULL,
     other_mail_service_details VARCHAR(255) DEFAULT NULL,
     name_server VARCHAR(255),
@@ -107,11 +107,40 @@ CREATE TABLE IF NOT EXISTS item_groups (
 );
 
 CREATE TABLE IF NOT EXISTS vendors (
-	vendor_id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_name VARCHAR(255) UNIQUE NOT NULL,
+    vendor_id VARCHAR(20) PRIMARY KEY,
+    salutation VARCHAR(10) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    primary_email VARCHAR(100) NOT NULL,
+    country_code VARCHAR(5) NOT NULL DEFAULT '+91',
+    primary_phone_number BIGINT NOT NULL,
+    secondary_phone_number BIGINT,
+    vendor_address JSON NOT NULL,
+    other_contacts JSON,
+    company_name VARCHAR(100) NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    gst_in VARCHAR(15) NOT NULL,
+    currency_code VARCHAR(3) NOT NULL DEFAULT 'INR',
+    gst_treatment VARCHAR(50) NOT NULL,
+    tax_preference VARCHAR(20) NOT NULL DEFAULT 'Taxable',
+    exemption_reason TEXT,
+    payment_terms JSON,
+    notes TEXT,
+    vendor_status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_gst_in (gst_in),
+    UNIQUE KEY unique_email (primary_email),
+    UNIQUE KEY unique_phone (primary_phone_number)
+); 
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+ALTER TABLE services
+    MODIFY COLUMN preferred_vendor VARCHAR(20),
+    ADD CONSTRAINT fk_preferred_vendor
+    FOREIGN KEY (preferred_vendor)
+    REFERENCES vendors(vendor_id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE; 
 
 -- Create the Tax details table
 CREATE TABLE taxes (

@@ -48,9 +48,9 @@ function AddDomain() {
 
   const mailServicesOptions = [
     { value: "ResellerClub", label: "ResellerClub" },
-    { value: "GWS", label: "GWS" },
+    { value: "Google Workspace", label: "Google Workspace" },
     { value: "Business email", label: "Business email" },
-    { value: "Microsoft", label: "Microsoft" },
+    { value: "Microsoft 365", label: "Microsoft 365" },
     { value: "Others", label: "Others" },
   ];
 

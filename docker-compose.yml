@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Database Service (MySQL)
+  db:
+    image: mysql:8.0 # Using MySQL 8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: your_mysql_root_password # Set a strong root password
+      MYSQL_DATABASE: ocs_srms # Matches DB_NAME from backend .env
+      MYSQL_USER: subsync_user # Matches DB_USER from backend .env
+      MYSQL_PASSWORD: subsync_pass # Matches DB_PASS from backend .env
+    volumes:
+      # Persistent data for your database
+      - db_data:/var/lib/mysql
+      # Mount the SQL script for initial database setup
+      # Ensure it's treated as a file, and the full absolute path might be safer if relative causes issues
+      - E:\subsync\subsync\db\subsync.sql:/docker-entrypoint-initdb.d/subsync.sql # Use absolute path
+    ports:
+      - "3307:3306" # Optional: Map DB port to host for local access (e.g., with MySQL Workbench)
+    healthcheck: # Healthcheck for MySQL to ensure it's ready
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pyour_mysql_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend Service (Node.js)
+  backend:
+    build:
+      context: ./server # Assuming 'server' is directly under E:\subsync based on previous Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # Map backend port to host
+    environment:
+      DB_HOST: db
+      DB_USER: subsync_user
+      DB_PASS: subsync_pass
+      DB_NAME: ocs_srms
+      JWT_SECRET: your_super_secret_key
+      CLIENT_PORT: 5173
+      NODE_PORT: 3000
+      HOME_IP: "192.168.32.57"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend Service (React Vite with Nginx)
+  frontend:
+    build:
+      context: ./subsync # Assuming 'subsync' is directly under E:\subsync
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://backend:3000
+    ports:
+      - "80:80"
+    environment:
+      NGINX_HOST: 0.0.0.0
+    depends_on:
+      backend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  db_data:

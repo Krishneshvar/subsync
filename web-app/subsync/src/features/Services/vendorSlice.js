@@ -9,7 +9,8 @@ export const fetchVendors = createAsyncThunk(
         try {
             const response = await api.get("/all-vendors");
             console.log("Fetched vendors:", response.data);
-            return response.data;
+            // Ensure we return an array even if the response is empty
+            return response.data.vendors || [];
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -32,9 +33,9 @@ export const createVendor = createAsyncThunk(
 
 export const updateVendor = createAsyncThunk(
     "vendors/updateVendor",
-    async ({ id, vendor_name }, thunkAPI) => {
+    async ({ id, ...payload }, thunkAPI) => {
         try {
-            const response = await api.put(`/update-vendor/${id}`, { vendor_name });
+            const response = await api.put(`/update-vendor/${id}`, payload);
             toast.success('Vendor updated successfully.');
             return response.data;
         } catch (error) {
