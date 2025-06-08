@@ -1,64 +1,59 @@
-version: '3.8'
-
 services:
-  # Database Service (MySQL)
   db:
-    image: mysql:8.0 # Using MySQL 8.0
+    image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: your_mysql_root_password # Set a strong root password
-      MYSQL_DATABASE: ocs_srms # Matches DB_NAME from backend .env
-      MYSQL_USER: subsync_user # Matches DB_USER from backend .env
-      MYSQL_PASSWORD: subsync_pass # Matches DB_PASS from backend .env
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
     volumes:
-      # Persistent data for your database
       - db_data:/var/lib/mysql
-      # Mount the SQL script for initial database setup
-      # Ensure it's treated as a file, and the full absolute path might be safer if relative causes issues
-      - E:\subsync\subsync\db\subsync.sql:/docker-entrypoint-initdb.d/subsync.sql # Use absolute path
+      - ./web-app/server/db/subsync.sql:/docker-entrypoint-initdb.d/subsync.sql
     ports:
-      - "3307:3306" # Optional: Map DB port to host for local access (e.g., with MySQL Workbench)
-    healthcheck: # Healthcheck for MySQL to ensure it's ready
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pyour_mysql_root_password"]
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASS}"]
       interval: 5s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
-  # Backend Service (Node.js)
   backend:
     build:
-      context: ./server # Assuming 'server' is directly under E:\subsync based on previous Dockerfile
+      context: ./web-app/server
       dockerfile: Dockerfile
     ports:
-      - "3000:3000" # Map backend port to host
+      - "3000:3000"
     environment:
-      DB_HOST: db
-      DB_USER: subsync_user
-      DB_PASS: subsync_pass
-      DB_NAME: ocs_srms
-      JWT_SECRET: your_super_secret_key
+      DB_HOST: "db"
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
       CLIENT_PORT: 5173
       NODE_PORT: 3000
-      HOME_IP: "192.168.32.57"
+      HOME_IP: "localhost"
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep node || exit 1"] # Check if a node process is running
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
-  # Frontend Service (React Vite with Nginx)
   frontend:
     build:
-      context: ./subsync # Assuming 'subsync' is directly under E:\subsync
+      context: ./web-app/subsync
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://backend:3000
+        VITE_API_URL: http://localhost:3000
     ports:
       - "80:80"
     environment:
       NGINX_HOST: 0.0.0.0
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

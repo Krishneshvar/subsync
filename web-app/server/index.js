@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import router from './routes/appRoutes.js';
 
-
 dotenv.config();
 const app = express();
 app.use(express.json());
@@ -15,7 +14,10 @@ app.use(helmet());
 // CORS configuration
 app.use(cors({
   origin: [
-    `http://localhost:${process.env.CLIENT_PORT}`, `http://${process.env.HOME_IP}:${process.env.CLIENT_PORT}`,
+    `http://localhost:${process.env.CLIENT_PORT}`, // for dev outside Docker
+    `http://<span class="math-inline">\{process\.env\.HOME\_IP\}\:</span>{process.env.CLIENT_PORT}`, // for dev outside Docker
+    `http://localhost`, // allows requests from your Nginx frontend (port 80)
+    `http://127.0.0.1`,
   ],
   methods: ['GET', 'POST','PUT','DELETE'],
   allowedHeaders: ["Content-Type", "Authorization"],

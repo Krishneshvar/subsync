@@ -1,5 +1,5 @@
 -- Create the database
-CREATE DATABASE ocs_srms;
+CREATE DATABASE IF NOT EXISTS ocs_srms;
 
 -- Connect to the subsync database
 USE ocs_srms;
