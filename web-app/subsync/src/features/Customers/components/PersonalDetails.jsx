@@ -12,11 +12,10 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
 
   const getCurrentPhoneNumber = (type = 'primary') => {
     const phoneNumber = type === 'primary' ? customerData.phoneNumber : customerData.secondaryPhoneNumber;
-    if (customerData.country_code && phoneNumber) {
-      if (customerData.country_code.startsWith('+')) {
-        return `${customerData.country_code}${phoneNumber}`;
-      }
-      return `+${customerData.country_code}${phoneNumber}`;
+    // Ensure country_code is always a string and starts with '+'
+    const countryCodePrefix = customerData.country_code ? customerData.country_code.startsWith('+') ? customerData.country_code : `+${customerData.country_code}` : '';
+    if (countryCodePrefix && phoneNumber) {
+      return `${countryCodePrefix}${phoneNumber}`;
     }
     return "";
   };
@@ -25,6 +24,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
     if (value) {
       const phoneNumberObj = parsePhoneNumberFromString(value);
       if (phoneNumberObj && phoneNumberObj.isValid()) {
+        // Store country_code with '+' prefix
         handleInputChange({
           target: { name: "country_code", value: phoneNumberObj.countryCallingCode ? `+${phoneNumberObj.countryCallingCode}` : "" }
         });
@@ -32,10 +32,12 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
           target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: phoneNumberObj.nationalNumber || "" }
         });
       } else {
+        // If invalid, clear both fields
         handleInputChange({ target: { name: "country_code", value: "" } });
         handleInputChange({ target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: "" } });
       }
     } else {
+      // If value is null/empty, clear both fields
       handleInputChange({ target: { name: "country_code", value: "" } });
       handleInputChange({ target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: "" } });
     }
@@ -48,8 +50,9 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
     { value: "Dr.", label: "Dr." },
   ];
 
-  // Set default salutation to Mr. if not set
-  const selectedSalutation = salutationOptions.find(option => option.value === customerData.salutation) || salutationOptions[0];
+  // For react-select, the `value` prop expects the *entire object* from `options`.
+  // `customerData.salutation` is now an object, so find the matching object.
+  const selectedSalutation = salutationOptions.find(option => option.value === (customerData.salutation?.value || "Mr.")) || salutationOptions[0];
 
   return (
     <>
@@ -83,8 +86,8 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
           <Select
             id="salutation"
             options={salutationOptions}
-            value={selectedSalutation}
-            onChange={(selectedOption) => handleSelectChange("salutation", selectedOption ? selectedOption.value : null)}
+            value={selectedSalutation} // Pass the full object
+            onChange={(selectedOption) => handleSelectChange("salutation", selectedOption)} // Pass the full object
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
             classNamePrefix="react-select"
@@ -142,10 +145,10 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             id="firstName"
             type="text"
             name="firstName"
-            value={customerData.firstName}
+            value={customerData.firstName || ""} // Ensure default for controlled input
             onChange={handleInputChange}
             required
-            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2" // Shadcn Input classes
+            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           />
         </div>
 
@@ -155,10 +158,10 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             id="lastName"
             type="text"
             name="lastName"
-            value={customerData.lastName}
+            value={customerData.lastName || ""} // Ensure default for controlled input
             onChange={handleInputChange}
             required
-            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2" // Shadcn Input classes
+            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           />
         </div>
       </div>
@@ -198,7 +201,7 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             id="email"
             type="email"
             name="email"
-            value={customerData.email}
+            value={customerData.email || ""} // Ensure default for controlled input
             onChange={handleInputChange}
             required
             className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"

@@ -20,7 +20,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   const [paymentTerms, setPaymentTerms] = useState([]);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const [newTerm, setNewTerm] = useState({ term_name: '', days: '' });
-  const [editingTerm, setEditingTerm] = useState(null);
+  const [editingTerm, setEditingTerm] = useState(null); // Should be a copy for safer editing
   const [isAddingNew, setIsAddingNew] = useState(false);
 
   useEffect(() => {
@@ -35,35 +35,41 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
         setPaymentTerms(terms);
         if (!selectedTerm && terms.length > 0) {
           const defaultTerm = terms.find(term => term.is_default) || terms[0];
-          onTermChange(defaultTerm);
+          if (defaultTerm) { // Ensure defaultTerm exists before calling onTermChange
+            onTermChange(defaultTerm);
+          }
         }
       }
     } catch (error) {
       console.error('Error fetching payment terms:', error);
-      toast.error('Failed to load payment terms');
+      toast.error(error.response?.data?.message || 'Failed to load payment terms');
     }
   };
 
   const handleAddTerm = async () => {
     try {
-      if (!newTerm.term_name) {
-        toast.error('Please enter a term name');
+      if (!newTerm.term_name.trim()) {
+        toast.error('Please enter a term name.');
         return;
       }
 
-      const daysValue = newTerm.term_name.toLowerCase() === 'due on receipt' ? 0 : newTerm.days;
+      let daysValue = Number(newTerm.days); // Convert to number
 
-      if (daysValue === '' && newTerm.term_name.toLowerCase() !== 'due on receipt') {
-        toast.error('Please enter the number of days');
+      // Frontend-side logic for "Due on Receipt" days
+      if (newTerm.term_name.toLowerCase() === 'due on receipt') {
+        daysValue = 0;
+      } else if (isNaN(daysValue) || daysValue < 0) {
+        toast.error('Please enter a valid non-negative number of days.');
         return;
       }
+
 
       const termData = {
-        termName: newTerm.term_name,
+        termName: newTerm.term_name.trim(),
         days: daysValue
       };
 
-      const response = await api.post('/payment-terms', termData);
+      await api.post('/payment-terms', termData);
       await fetchPaymentTerms();
       setNewTerm({ term_name: '', days: '' });
       setIsAddingNew(false);
@@ -75,59 +81,67 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
 
   const handleUpdateTerm = async (termId) => {
     try {
-      if (!editingTerm.term_name) {
-        toast.error('Please enter a term name');
+      if (!editingTerm.term_name.trim()) {
+        toast.error('Please enter a term name.');
         return;
       }
 
-      const daysValue = editingTerm.term_name.toLowerCase() === 'due on receipt' ? 0 : editingTerm.days;
+      let daysValue = Number(editingTerm.days); // Convert to number
 
-      if (daysValue === '' && editingTerm.term_name.toLowerCase() !== 'due on receipt') {
-        toast.error('Please enter the number of days');
+      // Frontend-side logic for "Due on Receipt" days
+      if (editingTerm.term_name.toLowerCase() === 'due on receipt') {
+        daysValue = 0;
+      } else if (isNaN(daysValue) || daysValue < 0) {
+        toast.error('Please enter a valid non-negative number of days.');
         return;
       }
 
       const termData = {
-        termName: editingTerm.term_name,
+        termName: editingTerm.term_name.trim(),
         days: daysValue
       };
 
-      const response = await api.put(`/payment-terms/${termId}`, termData);
+      await api.put(`/payment-terms/${termId}`, termData);
       await fetchPaymentTerms();
       setEditingTerm(null);
       toast.success('Payment term updated successfully');
     } catch (error) {
-      toast.error('Failed to update payment term');
+      toast.error(error.response?.data?.message || 'Failed to update payment term');
     }
   };
 
   const handleDeleteTerm = async (termId) => {
     try {
-      await api.delete(`/payment-terms/${termId}`);
-      await fetchPaymentTerms();
-      toast.success('Payment term deleted successfully');
+      // Add a confirmation dialog for deleting terms, especially default
+      if (window.confirm("Are you sure you want to delete this payment term? This action cannot be undone.")) {
+          await api.delete(`/payment-terms/${termId}`);
+          await fetchPaymentTerms();
+          toast.success('Payment term deleted successfully');
+      }
     } catch (error) {
-      toast.error('Failed to delete payment term');
+      toast.error(error.response?.data?.message || 'Failed to delete payment term');
     }
   };
 
   const handleSetDefault = async (termId) => {
     try {
+      // No need to send body, just the ID via URL segment
       await api.put(`/payment-terms/${termId}/default`);
       await fetchPaymentTerms();
       toast.success('Default payment term updated');
     } catch (error) {
-      toast.error('Failed to set default payment term');
+      toast.error(error.response?.data?.message || 'Failed to set default payment term');
     }
   };
 
   const handleTermSelection = (value) => {
     const term = paymentTerms.find(t => t.term_name === value);
     if (term) {
+      // Ensure days is a number when passed to onTermChange
       const selectedTermData = {
         term_id: term.term_id,
         term_name: term.term_name,
-        days: term.term_name.toLowerCase() === 'due on receipt' ? 0 : term.days,
+        days: Number(term.days), // Ensure it's a number
         is_default: term.is_default
       };
       onTermChange(selectedTermData);
@@ -143,7 +157,6 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
             <Select
               value={selectedTerm?.term_name || ''}
               onValueChange={handleTermSelection}
-              className="flex-1"
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select payment term" />
@@ -174,7 +187,11 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                   <Button
                     variant="outline"
                     className="w-full bg-blue-500 text-white hover:bg-blue-600"
-                    onClick={() => setIsAddingNew(true)}
+                    onClick={() => {
+                        setIsAddingNew(true);
+                        setNewTerm({ term_name: '', days: '' }); // Reset new term state
+                        setEditingTerm(null); // Clear editing state when adding new
+                    }}
                   >
                     + Add New Payment Term
                   </Button>
@@ -183,7 +200,14 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                     <div className="flex items-center gap-4 p-4 border rounded-lg">
                       <Input
                         value={newTerm.term_name}
-                        onChange={(e) => setNewTerm({ ...newTerm, term_name: e.target.value })}
+                        onChange={(e) => {
+                            const newName = e.target.value;
+                            let newDays = newTerm.days;
+                            if (newName.toLowerCase() === 'due on receipt') {
+                                newDays = 0; // Automatically set days to 0 for 'Due on Receipt'
+                            }
+                            setNewTerm({ ...newTerm, term_name: newName, days: newDays });
+                        }}
                         placeholder="Term name"
                         className="flex-1"
                       />
@@ -193,6 +217,8 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                         onChange={(e) => setNewTerm({ ...newTerm, days: e.target.value })}
                         placeholder="Days"
                         className="w-24"
+                        // Disable days input if term name is 'Due on Receipt'
+                        disabled={newTerm.term_name.toLowerCase() === 'due on receipt'}
                       />
                       <Button onClick={handleAddTerm}>Save</Button>
                       <Button variant="outline" onClick={() => {
@@ -209,38 +235,52 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                           <>
                             <Input
                               value={editingTerm.term_name}
-                              onChange={(e) => setEditingTerm({ ...editingTerm, term_name: e.target.value })}
+                              onChange={(e) => {
+                                  const newName = e.target.value;
+                                  let newDays = editingTerm.days;
+                                  if (newName.toLowerCase() === 'due on receipt') {
+                                      newDays = 0; // Automatically set days to 0 for 'Due on Receipt'
+                                  }
+                                  setEditingTerm({ ...editingTerm, term_name: newName, days: newDays });
+                              }}
                               className="flex-1"
                             />
                             <Input
                               type="number"
                               value={editingTerm.days}
                               onChange={(e) => setEditingTerm({ ...editingTerm, days: e.target.value })}
+                              placeholder="Days" // Added placeholder for clarity
                               className="w-24"
+                              // Disable days input if term name is 'Due on Receipt'
+                              disabled={editingTerm.term_name.toLowerCase() === 'due on receipt'}
                             />
                             <Button onClick={() => handleUpdateTerm(term.term_id)}>Save</Button>
                             <Button variant="outline" onClick={() => setEditingTerm(null)}>Cancel</Button>
                           </>
                         ) : (
                           <>
-                            <span className="flex-1">{term.term_name}</span>
-                            <span className="w-24 text-gray-500">{term.days} days</span>
+                            <span className="flex-1 font-medium">{term.term_name}</span>
+                            <span className="w-24 text-gray-600 text-right">{term.days} days</span>
                             <Button
                               variant={term.is_default ? "default" : "outline"}
                               onClick={() => handleSetDefault(term.term_id)}
+                              disabled={term.is_default} // Disable if already default
                             >
                               {term.is_default ? "Default" : "Set Default"}
                             </Button>
                             <Button
                               variant="outline"
-                              onClick={() => setEditingTerm(term)}
+                              onClick={() => {
+                                setEditingTerm({ ...term }); // Pass a copy to avoid direct state mutation
+                                setIsAddingNew(false); // Ensure "Add New" form is hidden
+                              }}
                             >
                               Edit
                             </Button>
                             <Button
                               variant="destructive"
                               onClick={() => handleDeleteTerm(term.term_id)}
-                              disabled={term.is_default}
+                              disabled={term.is_default} // Cannot delete default term
                             >
                               Delete
                             </Button>

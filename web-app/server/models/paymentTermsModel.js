@@ -6,7 +6,7 @@ export const getAllPaymentTerms = async () => {
         return rows;
     } catch (error) {
         console.error('Error fetching payment terms:', error);
-        throw new Error('Failed to fetch payment terms');
+        throw new Error('Database Error: Failed to fetch payment terms');
     }
 };
 
@@ -16,7 +16,7 @@ export const getPaymentTermById = async (termId) => {
         return rows[0];
     } catch (error) {
         console.error('Error fetching payment term:', error);
-        throw new Error('Failed to fetch payment term');
+        throw new Error('Database Error: Failed to fetch payment term');
     }
 };
 
@@ -30,9 +30,9 @@ export const addPaymentTerm = async (termName, days) => {
     } catch (error) {
         console.error('Error adding payment term:', error);
         if (error.code === 'ER_DUP_ENTRY') {
-            throw new Error('Payment term name already exists');
+            throw new Error('Conflict: Payment term name already exists');
         }
-        throw new Error('Failed to add payment term');
+        throw new Error('Database Error: Failed to add payment term');
     }
 };
 
@@ -43,15 +43,15 @@ export const updatePaymentTerm = async (termId, termName, days) => {
             [termName, days, termId]
         );
         if (result.affectedRows === 0) {
-            throw new Error('Payment term not found');
+            throw new Error('Not Found: Payment term not found');
         }
         return true;
     } catch (error) {
         console.error('Error updating payment term:', error);
         if (error.code === 'ER_DUP_ENTRY') {
-            throw new Error('Payment term name already exists');
+            throw new Error('Conflict: Payment term name already exists');
         }
-        throw new Error('Failed to update payment term');
+        throw new Error('Database Error: Failed to update payment term');
     }
 };
 
@@ -59,11 +59,45 @@ export const deletePaymentTerm = async (termId) => {
     try {
         const [result] = await appDB.query('DELETE FROM payment_terms WHERE term_id = ?', [termId]);
         if (result.affectedRows === 0) {
-            throw new Error('Payment term not found');
+            throw new Error('Not Found: Payment term not found');
         }
         return true;
     } catch (error) {
         console.error('Error deleting payment term:', error);
-        throw new Error('Failed to delete payment term');
+        throw new Error('Database Error: Failed to delete payment term');
     }
-}; 
+};
+
+export const setDefaultPaymentTerm = async (termId) => {
+    let connection;
+    try {
+        connection = await appDB.getConnection();
+        await connection.beginTransaction();
+
+        await connection.query('UPDATE payment_terms SET is_default = FALSE');
+
+        const [result] = await connection.query(
+            'UPDATE payment_terms SET is_default = TRUE WHERE term_id = ?',
+            [termId]
+        );
+
+        if (result.affectedRows === 0) {
+            throw new Error('Not Found: Payment term to set as default not found');
+        }
+
+        await connection.commit();
+        return true;
+    } catch (error) {
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error('Error setting default payment term:', error);
+        if (error.message.startsWith('Not Found')) {
+        }
+        throw new Error('Database Error: Failed to set default payment term');
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+};

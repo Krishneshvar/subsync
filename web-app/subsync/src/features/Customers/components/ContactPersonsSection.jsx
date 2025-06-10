@@ -1,25 +1,37 @@
-import { UserPlus } from "lucide-react";
+import { UserPlus, Trash2 } from "lucide-react"; // Import Trash2 for delete icon
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
-  const handleInputChange = (index, field, value) => {
-    const updatedPersons = [...contactPersons];
-    updatedPersons[index][field] = value;
+
+  const handleInputChange = (id, field, value) => {
+    const updatedPersons = contactPersons.map(person =>
+      person.id === id ? { ...person, [field]: value } : person
+    );
     setContactPersons(updatedPersons);
   };
 
   const addContactPerson = () => {
     setContactPersons([
       ...contactPersons,
-      { salutation: "Mr.", designation: "", first_name: "", last_name: "", email: "", phone_number: "" },
+      // Generate a unique temporary ID for new contacts
+      {
+        id: `new-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, // Temporary unique ID
+        salutation: "Mr.",
+        designation: "",
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone_number: "",
+        country_code: "+91", // Assuming a default country code
+      },
     ]);
   };
 
-  const deleteContactPerson = (index) => {
-    const updatedPersons = contactPersons.filter((_, i) => i !== index);
+  const deleteContactPerson = (idToDelete) => {
+    const updatedPersons = contactPersons.filter(person => person.id !== idToDelete);
     setContactPersons(updatedPersons);
   };
 
@@ -39,12 +51,13 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
             </tr>
           </thead>
           <tbody>
-            {contactPersons.map((person, index) => (
-              <tr key={index} className="even:bg-gray-50">
+            {/* Use person.id as key */}
+            {contactPersons.map((person) => (
+              <tr key={person.id} className="even:bg-gray-50">
                 <td className="px-4 py-2 border-r">
                   <Select
                     value={person.salutation || "Mr."}
-                    onValueChange={(value) => handleInputChange(index, "salutation", value)}
+                    onValueChange={(value) => handleInputChange(person.id, "salutation", value)}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -59,46 +72,54 @@ const ContactPersonsSection = ({ contactPersons, setContactPersons }) => {
                 </td>
                 <td className="px-4 py-2 border-r">
                   <Input
-                    value={person.first_name}
-                    onChange={(e) => handleInputChange(index, "first_name", e.target.value)}
+                    value={person.first_name || ""} // Ensure controlled component has a value
+                    onChange={(e) => handleInputChange(person.id, "first_name", e.target.value)}
                   />
                 </td>
                 <td className="px-4 py-2 border-r">
                   <Input
-                    value={person.last_name}
-                    onChange={(e) => handleInputChange(index, "last_name", e.target.value)}
+                    value={person.last_name || ""}
+                    onChange={(e) => handleInputChange(person.id, "last_name", e.target.value)}
                   />
                 </td>
                 <td className="px-4 py-2 border-r">
                   <Input
-                    value={person.designation}
-                    onChange={(e) => handleInputChange(index, "designation", e.target.value)}
+                    value={person.designation || ""}
+                    onChange={(e) => handleInputChange(person.id, "designation", e.target.value)}
                   />
                 </td>
                 <td className="px-4 py-2 border-r">
                   <Input
                     type="email"
-                    value={person.email}
-                    onChange={(e) => handleInputChange(index, "email", e.target.value)}
+                    value={person.email || ""}
+                    onChange={(e) => handleInputChange(person.id, "email", e.target.value)}
                   />
                 </td>
                 <td className="px-4 py-2 border-r">
                   <Input
-                    value={person.phone_number}
-                    onChange={(e) => handleInputChange(index, "phone_number", e.target.value)}
+                    value={person.phone_number || ""}
+                    onChange={(e) => handleInputChange(person.id, "phone_number", e.target.value)}
                   />
                 </td>
                 <td className="px-4 py-2">
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => deleteContactPerson(index)}
+                    onClick={() => deleteContactPerson(person.id)} // Pass the unique ID
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" /> {/* Added icon for clarity */}
+                    <span className="sr-only">Delete Contact Person</span>
                   </Button>
                 </td>
               </tr>
             ))}
+            {contactPersons.length === 0 && (
+              <tr>
+                <td colSpan="7" className="px-4 py-4 text-center text-gray-500">
+                  No contact persons added yet. Click "Add Contact" to start.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

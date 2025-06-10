@@ -7,9 +7,10 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
   const gstTreatmentOptions = ["iGST", "CGST & SGST", "No GST", "Zero Tax", "SEZ"];
   const taxPreferenceOptions = ["Taxable", "Tax Exempt"];
 
-  // Set default values if not set
+  // customerData.currencyCode is now directly the string value (e.g., "INR")
   const currencyValue = customerData.currencyCode || "INR";
-  const gstTreatmentValue = customerData.gst_treatment || "CGST & SGST";
+  const gstTreatmentValue = customerData.gst_treatment || "iGST"; // Default to iGST if not set
+  const taxPreferenceValue = customerData.tax_preference || "Taxable"; // Default to Taxable if not set
 
   return (
     <div className="space-y-6">
@@ -19,7 +20,7 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
           <Input
             id="gstin"
             name="gstin"
-            value={customerData.gstin}
+            value={customerData.gstin || ""} // Ensure default for controlled input
             onChange={handleInputChange}
             required
             className="rounded-xl px-4 py-3 text-base border border-gray-300"
@@ -29,8 +30,8 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
         <div className="space-y-2">
           <Label>Currency Code</Label>
           <Select
-            value={currencyValue}
-            onValueChange={(value) => handleSelectChange("currencyCode", value)}
+            value={currencyValue} // Pass the string value
+            onValueChange={(value) => handleSelectChange("currencyCode", value)} // Value is a string
           >
             <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
               <SelectValue placeholder="Select currency" />
@@ -48,8 +49,8 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
         <div className="space-y-2">
           <Label>GST Treatment</Label>
           <Select
-            value={gstTreatmentValue}
-            onValueChange={(value) => handleSelectChange("gst_treatment", value)}
+            value={gstTreatmentValue} // Pass the string value
+            onValueChange={(value) => handleSelectChange("gst_treatment", value)} // Value is a string
           >
             <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
               <SelectValue placeholder="Select treatment" />
@@ -65,8 +66,8 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
         <div className="space-y-2">
           <Label>Tax Preference</Label>
           <Select
-            value={customerData.tax_preference || ""}
-            onValueChange={(value) => handleSelectChange("tax_preference", value)}
+            value={taxPreferenceValue} // Pass the string value
+            onValueChange={(value) => handleSelectChange("tax_preference", value)} // Value is a string
           >
             <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
               <SelectValue placeholder="Select tax preference" />
@@ -86,7 +87,7 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
           <Input
             id="exemption_reason"
             name="exemption_reason"
-            value={customerData.exemption_reason}
+            value={customerData.exemption_reason || ""} // Ensure default for controlled input
             onChange={handleInputChange}
             required
             className="rounded-xl px-4 py-3 text-base border border-gray-300"

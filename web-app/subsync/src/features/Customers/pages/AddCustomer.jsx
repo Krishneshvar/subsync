@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import countryList from "react-select-country-list";
 import { Bounce, toast, ToastContainer } from "react-toastify";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react"; // Added useRef for phone input consistency
 
 import { Button } from "@/components/ui/button.jsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
@@ -26,14 +26,18 @@ const AddCustomer = () => {
   const { currentCustomer, loading, error } = useSelector((state) => state.customers);
   const editableCustomerId = location.state?.editableCustomerId || null;
 
-  const countries = countryList().getData();
-  const [states, setStates] = useState([]);
+  const countries = useMemo(() => countryList().getData(), []);
+  // Memoize indianStates too
+  const allIndianStates = useMemo(() => indianStates, []);
+
+  const [states, setStates] = useState([]); // This state is for AddressSection, probably
   const [contactPersons, setContactPersons] = useState([]);
   const [activeTab, setActiveTab] = useState("otherDetails");
   const [isEditing, setIsEditing] = useState(!!editableCustomerId);
 
+  // Initialize all select-related fields to their expected object/string structure
   const [customerData, setCustomerData] = useState({
-    salutation: "",
+    salutation: { label: "Mr.", value: "Mr." }, // Object for react-select
     firstName: "",
     lastName: "",
     companyName: "",
@@ -43,14 +47,14 @@ const AddCustomer = () => {
     phoneNumber: "",
     secondaryPhoneNumber: "",
     gstin: "",
-    gst_treatment: "",
-    tax_preference: "Taxable",
+    gst_treatment: "iGST", // String for Shadcn Select
+    tax_preference: "Taxable", // String for Shadcn Select
     exemption_reason: "",
-    currencyCode: { label: "INR", value: "INR" },
+    currencyCode: "INR", // String for Shadcn Select
     address: {
-      country: { label: "India", value: "IN" },
+      country: { label: "India", value: "IN" }, // Object for react-select
       addressLine: "",
-      state: null,
+      state: null, // Object for react-select, will be set on country change
       city: "",
       zipCode: "",
     },
@@ -61,7 +65,7 @@ const AddCustomer = () => {
 
   const resetCustomerData = () => {
     setCustomerData({
-      salutation: "",
+      salutation: { label: "Mr.", value: "Mr." },
       firstName: "",
       lastName: "",
       companyName: "",
@@ -71,10 +75,10 @@ const AddCustomer = () => {
       phoneNumber: "",
       secondaryPhoneNumber: "",
       gstin: "",
-      gst_treatment: "",
+      gst_treatment: "iGST",
       tax_preference: "Taxable",
       exemption_reason: "",
-      currencyCode: { label: "INR", value: "INR" },
+      currencyCode: "INR",
       address: {
         country: { label: "India", value: "IN" },
         addressLine: "",
@@ -88,6 +92,7 @@ const AddCustomer = () => {
     });
     setContactPersons([]);
     dispatch(clearCustomerState());
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -107,48 +112,96 @@ const AddCustomer = () => {
     if (editableCustomerId) {
       dispatch(fetchCustomerById(editableCustomerId));
     }
+    // Cleanup function: Clear customer state when component unmounts OR when switching from edit to add
     return () => {
-      dispatch(clearCustomerState()); // Clear current customer data when component unmounts
+      // Only clear if we are not actively in an edit session after unmount
+      // Or if editableCustomerId changes from a value to null (meaning going from edit to add)
+      if (!location.state?.editableCustomerId && editableCustomerId) {
+         dispatch(clearCustomerState());
+      }
     };
-  }, [editableCustomerId, dispatch]);
+  }, [editableCustomerId, dispatch, location.state?.editableCustomerId]);
 
   useEffect(() => {
     if (currentCustomer && isEditing) {
+      // Map currency code to object if it's a string from backend
+      const mappedCurrencyCode = {
+        label: currentCustomer.currency_code || "INR",
+        value: currentCustomer.currency_code || "INR"
+      };
+
+      // Map address country to object
+      const mappedAddressCountry = countries.find(
+        (country) => country.value === (currentCustomer.customer_address?.country || "IN")
+      ) || { label: "India", value: "IN" };
+
+      // Map address state to object
+      const mappedAddressState = allIndianStates.find(
+        (state) => state.value === (currentCustomer.customer_address?.state || "")
+      ) || null;
+
+      // Map salutation to object
+      const mappedSalutation = {
+        label: currentCustomer.salutation || "Mr.",
+        value: currentCustomer.salutation || "Mr."
+      };
+
+
       setCustomerData({
-        salutation: currentCustomer.salutation,
-        firstName: currentCustomer.first_name,
-        lastName: currentCustomer.last_name,
-        companyName: currentCustomer.company_name,
-        displayName: currentCustomer.display_name,
-        email: currentCustomer.primary_email,
-        country_code: currentCustomer.country_code,
-        phoneNumber: currentCustomer.primary_phone_number,
-        secondaryPhoneNumber: currentCustomer.secondary_phone_number,
-        gstin: currentCustomer.gst_in,
-        gst_treatment: currentCustomer.gst_treatment,
-        tax_preference: currentCustomer.tax_preference,
-        exemption_reason: currentCustomer.exemption_reason,
-        currencyCode: currentCustomer.currency_code?.value || currentCustomer.currency_code || "",
+        salutation: mappedSalutation, // Now an object
+        firstName: currentCustomer.first_name || "",
+        lastName: currentCustomer.last_name || "",
+        companyName: currentCustomer.company_name || "",
+        displayName: currentCustomer.display_name || "",
+        email: currentCustomer.primary_email || "",
+        country_code: currentCustomer.country_code || "+91",
+        phoneNumber: currentCustomer.primary_phone_number || "",
+        secondaryPhoneNumber: currentCustomer.secondary_phone_number || "",
+        gstin: currentCustomer.gst_in || "",
+        gst_treatment: currentCustomer.gst_treatment || "iGST",
+        tax_preference: currentCustomer.tax_preference || "Taxable",
+        exemption_reason: currentCustomer.exemption_reason || "",
+        currencyCode: currentCustomer.currency_code || "INR", // Keep as string for Shadcn Select
         address: {
-          country: currentCustomer.customer_address.country?.value || currentCustomer.customer_address.country || "",
+          country: mappedAddressCountry, // Now an object
           addressLine: currentCustomer.customer_address?.addressLine || "",
-          state: currentCustomer.customer_address.state?.value || currentCustomer.customer_address.state || "",
+          state: mappedAddressState, // Now an object
           city: currentCustomer.customer_address?.city || "",
           zipCode: currentCustomer.customer_address?.zipCode || "",
         },
-        payment_terms: currentCustomer.payment_terms,
-        notes: currentCustomer.notes,
-        customerStatus: currentCustomer.customer_status,
+        payment_terms: currentCustomer.payment_terms || null,
+        notes: currentCustomer.notes || "",
+        customerStatus: currentCustomer.customer_status || "Active",
       });
-      setContactPersons(currentCustomer.other_contacts || []);
-    }
-  }, [currentCustomer, isEditing]);
 
-  useEffect(() => {
-    if (!customerData.address.state) {
-      setStates(indianStates);
+      setContactPersons(currentCustomer.other_contacts.map(person => ({
+        ...person,
+        id: person.contact_person_id || `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+      })) || []);
+
+      // If the loaded customer's country is India, set the states for the AddressSection
+      if (mappedAddressCountry.value === "IN") {
+        setStates(allIndianStates);
+      } else {
+        setStates([]);
+      }
+
+    } else if (!editableCustomerId && currentCustomer) {
+        // This means currentCustomer was loaded (e.g., from a previous edit session)
+        // but we are in add mode, so clear it.
+        resetCustomerData();
     }
-  }, []);
+  }, [currentCustomer, isEditing, editableCustomerId, countries, allIndianStates]);
+
+  // This effect handles setting available states for AddressSection dynamically
+  useEffect(() => {
+    if (customerData.address.country?.value === "IN") { // Check .value as it's an object now
+        setStates(allIndianStates);
+    } else {
+        setStates([]);
+    }
+  }, [customerData.address.country, allIndianStates]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -170,22 +223,27 @@ const AddCustomer = () => {
     }
   };
 
-  const handleSelectChange = (field, value) => {
+  // Unified handleSelectChange:
+  // For react-select (e.g., country, state, salutation), 'value' will be an object {label, value}
+  // For Shadcn Select (e.g., currencyCode, gst_treatment), 'value' will be a string
+  const handleSelectChange = (field, selectedValue) => {
     const keys = field.split(".");
-    if (keys.length > 1) {
-      setCustomerData((prevData) => ({
-        ...prevData,
-        [keys[0]]: {
+
+    setCustomerData((prevData) => {
+      let newData = { ...prevData };
+
+      if (keys.length > 1) {
+        // Nested field (e.g., address.country, address.state)
+        newData[keys[0]] = {
           ...prevData[keys[0]],
-          [keys[1]]: value?.value || "",
-        },
-      }));
-    } else {
-      setCustomerData((prevData) => ({
-        ...prevData,
-        [field]: value,
-      }));
-    }
+          [keys[1]]: selectedValue, // Store the full object or string as provided
+        };
+      } else {
+        // Top-level field (e.g., currencyCode, gst_treatment, salutation)
+        newData[field] = selectedValue; // Store the full object or string as provided
+      }
+      return newData;
+    });
   };
 
   const handlePaymentTermChange = (term) => {
@@ -199,38 +257,45 @@ const AddCustomer = () => {
     e.preventDefault();
     try {
       validateCustomerData(customerData);
+
+      const contactPersonsPayload = contactPersons.map((person) => {
+        const { id, ...rest } = person;
+        return {
+          ...(typeof id === 'number' ? { contact_person_id: id } : {}),
+          salutation: rest.salutation || "",
+          designation: rest.designation || "",
+          first_name: rest.first_name || "",
+          last_name: rest.last_name || "",
+          email: rest.email || "",
+          phone_number: rest.phone_number || "",
+          country_code: rest.country_code || "+91"
+        };
+      });
+
       const payload = {
-        salutation: customerData.salutation,
-        firstName: customerData.firstName,
-        lastName: customerData.lastName,
-        email: customerData.email,
-        country_code: customerData.country_code,
-        phoneNumber: customerData.phoneNumber,
-        secondaryPhoneNumber: customerData.secondaryPhoneNumber,
-        companyName: customerData.companyName,
-        displayName: customerData.displayName,
-        gstin: customerData.gstin,
-        currencyCode: customerData.currencyCode?.value || customerData.currencyCode || "INR",
-        gst_treatment: customerData.gst_treatment,
-        tax_preference: customerData.tax_preference,
+        salutation: customerData.salutation?.value || "Mr.", // Extract value from object
+        firstName: customerData.firstName || "",
+        lastName: customerData.lastName || "",
+        email: customerData.email || "",
+        country_code: customerData.country_code || "+91",
+        phoneNumber: customerData.phoneNumber || "",
+        secondaryPhoneNumber: customerData.secondaryPhoneNumber || "",
+        companyName: customerData.companyName || "",
+        displayName: customerData.displayName || "",
+        gstin: customerData.gstin || "",
+        currencyCode: customerData.currencyCode || "INR", // Already a string
+        gst_treatment: customerData.gst_treatment || "iGST", // Already a string
+        tax_preference: customerData.tax_preference || "Taxable", // Already a string
         exemption_reason: customerData.exemption_reason || "",
         address: {
           ...customerData.address,
-          country: customerData.address.country?.value || customerData.address.country || "IN",
-          state: customerData.address.state?.value || customerData.address.state || "",
+          country: customerData.address.country?.value || "IN", // Extract value from object
+          state: customerData.address.state?.value || "", // Extract value from object
           addressLine: customerData.address.addressLine || "",
           city: customerData.address.city || "",
           zipCode: customerData.address.zipCode || ""
         },
-        contactPersons: contactPersons.map((person) => ({
-          salutation: person.salutation || "",
-          designation: person.designation || "",
-          first_name: person.first_name || "",
-          last_name: person.last_name || "",
-          email: person.email || "",
-          phone_number: person.phone_number || "",
-          country_code: person.country_code || "+91"
-        })),
+        contactPersons: contactPersonsPayload,
         payment_terms: customerData.payment_terms || { term_name: "Due on Receipt", days: 0, is_default: true },
         notes: customerData.notes || "",
         customerStatus: customerData.customerStatus || "Active"
@@ -255,11 +320,13 @@ const AddCustomer = () => {
     } catch (err) {
       const errorMessage = typeof err === 'string' ? err : err.message || 'An error occurred';
       toast.error(errorMessage);
+      console.error("Submission error:", err);
     }
   };
 
   if (loading) return <p>Loading customer details...</p>;
-  if (error) return <p className="text-red-500">Error: {typeof error === 'string' ? error : error.message || 'An error occurred'}</p>;
+  if (error) return <p className="text-red-500">Error: {typeof error === 'string' ? error : error?.message || 'An unknown error occurred'}</p>;
+
 
   return (
     <div className="container mt-4">
@@ -324,8 +391,8 @@ const AddCustomer = () => {
               handleInputChange={handleInputChange}
               handleSelectChange={handleSelectChange}
               countries={countries}
-              states={states}
-              setStates={setStates}
+              states={states} // states for react-select in AddressSection
+              setStates={setStates} // setStates for react-select in AddressSection
             />
           </TabsContent>
 

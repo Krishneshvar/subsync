@@ -5,37 +5,42 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { indianStates } from "@/features/Customers/data/statesOfIndia.js";
+import { useMemo } from "react"; // Import useMemo
 
 const AddressSection = ({
   customerData = {},
   handleInputChange,
   handleSelectChange,
-  countries,
-  states = [],
+  countries, // Prop should now be the memoized list from AddCustomer
+  states = [], // Prop should now be the states dynamically set in AddCustomer
   setStates = () => {}, // fallback to no-op if not provided
 }) => {
-  const countryOptions = countries && Array.isArray(countries) && countries.length > 0
-    ? countries
-    : countryList().getData();
+  // Use the 'countries' prop directly, as it's already memoized in AddCustomer
+  const countryOptions = countries;
+
+  // Use memoized indianStates
+  const allIndianStates = useMemo(() => indianStates, []);
 
   const handleCountryChange = (selectedOption) => {
-    handleSelectChange("address.country", selectedOption);
-    handleSelectChange("address.state", null);
+    handleSelectChange("address.country", selectedOption); // selectedOption is {label, value}
+    handleSelectChange("address.state", null); // Clear state when country changes
 
-    // Always update states if setStates is available
+    // Update states based on selected country
     if (selectedOption && selectedOption.value === "IN") {
-      setStates(indianStates);
+      setStates(allIndianStates);
     } else {
       setStates([]);
     }
   };
 
   const handleStateChange = (selectedOption) => {
-    handleSelectChange("address.state", selectedOption);
+    handleSelectChange("address.state", selectedOption); // selectedOption is {label, value} or null
   };
 
   const address = customerData.address || {};
-  const countryValue = address.country || "IN";
+  // The value for react-select's 'value' prop should be the object directly from state
+  const countryValue = address.country; // This is already an object now
+  const stateValue = address.state; // This is already an object or null now
 
   return (
     <>
@@ -61,9 +66,7 @@ const AddressSection = ({
             id="country"
             placeholder="Select Country"
             options={countryOptions}
-            value={Array.isArray(countryOptions)
-              ? countryOptions.find(option => option.value === countryValue) || null
-              : null}
+            value={countryValue} // Pass the object directly
             onChange={handleCountryChange}
             className="react-select-container shadow-sm"
             classNamePrefix="react-select"
@@ -75,13 +78,12 @@ const AddressSection = ({
           <Select
             id="state"
             placeholder="Select State"
-            options={states}
-            value={Array.isArray(states)
-              ? states.find(option => option.value === address.state) || null
-              : null}
+            options={states} // Use the states prop (which is already an array of {label, value} objects)
+            value={stateValue} // Pass the object directly
             onChange={handleStateChange}
             className="react-select-container shadow-sm"
             classNamePrefix="react-select"
+            isDisabled={states.length === 0} // Disable if no states are available
           />
         </div>
       </div>
