@@ -1,26 +1,23 @@
 import appDB from "../db/subsyncDB.js";
 
 /**
- * Function to validate user login
+ * Function to retrieve user data for login validation.
  * @param   {string}                 username      The username to be validated
- * @param   {string}                 inputPassword The password input by the user
- * @returns {Promise<number|number>}               The result of validation
+ * @returns {Promise<object|null>}               User object with password hash and other details, or null if not found
  */
-async function checkLogin(username, inputPassword) {
+async function getUserForLogin(username) {
     try {
-        const result = await appDB.query("SELECT password FROM users WHERE username = ?;", [username]);
+        const [rows] = await appDB.query("SELECT username, name, password, role, email FROM users WHERE username = ?;", [username]);
 
-        if (result[0].length === 0) { return 0; }
-
-        const dbPassword = result[0][0].password;
-        const match = (inputPassword == dbPassword); // await bcrypt.compare(inputPassword, dbPassword);
-
-        return match ? 1 : 0;
+        if (rows.length === 0) {
+            return null;
+        }
+        return rows[0];
     }
     catch (err) {
-        console.error("Error during user login:\n", err);
+        console.error("Error retrieving user for login:\n", err);
         throw err;
     }
 }
 
-export { checkLogin };
+export { getUserForLogin };

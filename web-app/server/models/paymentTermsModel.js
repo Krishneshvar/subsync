@@ -1,26 +1,27 @@
 import appDB from "../db/subsyncDB.js";
+import logger from '../utils/logger.js';
 
-export const getAllPaymentTerms = async () => {
+export const findAllPaymentTerms = async () => {
     try {
         const [rows] = await appDB.query('SELECT * FROM payment_terms ORDER BY term_name');
         return rows;
     } catch (error) {
-        console.error('Error fetching payment terms:', error);
-        throw new Error('Database Error: Failed to fetch payment terms');
+        logger.error('Database Error: Failed to fetch payment terms', { error });
+        throw error;
     }
 };
 
-export const getPaymentTermById = async (termId) => {
+export const findPaymentTermById = async (termId) => {
     try {
         const [rows] = await appDB.query('SELECT * FROM payment_terms WHERE term_id = ?', [termId]);
         return rows[0];
     } catch (error) {
-        console.error('Error fetching payment term:', error);
-        throw new Error('Database Error: Failed to fetch payment term');
+        logger.error(`Database Error: Failed to fetch payment term with ID ${termId}`, { error });
+        throw error;
     }
 };
 
-export const addPaymentTerm = async (termName, days) => {
+export const insertPaymentTerm = async (termName, days) => {
     try {
         const [result] = await appDB.query(
             'INSERT INTO payment_terms (term_name, days) VALUES (?, ?)',
@@ -28,47 +29,35 @@ export const addPaymentTerm = async (termName, days) => {
         );
         return result.insertId;
     } catch (error) {
-        console.error('Error adding payment term:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            throw new Error('Conflict: Payment term name already exists');
-        }
-        throw new Error('Database Error: Failed to add payment term');
+        logger.error('Database Error: Failed to add payment term', { error });
+        throw error;
     }
 };
 
-export const updatePaymentTerm = async (termId, termName, days) => {
+export const updatePaymentTermInDb = async (termId, termName, days) => {
     try {
         const [result] = await appDB.query(
             'UPDATE payment_terms SET term_name = ?, days = ? WHERE term_id = ?',
             [termName, days, termId]
         );
-        if (result.affectedRows === 0) {
-            throw new Error('Not Found: Payment term not found');
-        }
-        return true;
+        return result.affectedRows;
     } catch (error) {
-        console.error('Error updating payment term:', error);
-        if (error.code === 'ER_DUP_ENTRY') {
-            throw new Error('Conflict: Payment term name already exists');
-        }
-        throw new Error('Database Error: Failed to update payment term');
+        logger.error(`Database Error: Failed to update payment term with ID ${termId}`, { error });
+        throw error;
     }
 };
 
-export const deletePaymentTerm = async (termId) => {
+export const deletePaymentTermFromDb = async (termId) => {
     try {
         const [result] = await appDB.query('DELETE FROM payment_terms WHERE term_id = ?', [termId]);
-        if (result.affectedRows === 0) {
-            throw new Error('Not Found: Payment term not found');
-        }
-        return true;
+        return result.affectedRows;
     } catch (error) {
-        console.error('Error deleting payment term:', error);
-        throw new Error('Database Error: Failed to delete payment term');
+        logger.error(`Database Error: Failed to delete payment term with ID ${termId}`, { error });
+        throw error;
     }
 };
 
-export const setDefaultPaymentTerm = async (termId) => {
+export const updateDefaultPaymentTermInDb = async (termId) => {
     let connection;
     try {
         connection = await appDB.getConnection();
@@ -81,20 +70,14 @@ export const setDefaultPaymentTerm = async (termId) => {
             [termId]
         );
 
-        if (result.affectedRows === 0) {
-            throw new Error('Not Found: Payment term to set as default not found');
-        }
-
         await connection.commit();
-        return true;
+        return result.affectedRows;
     } catch (error) {
         if (connection) {
             await connection.rollback();
         }
-        console.error('Error setting default payment term:', error);
-        if (error.message.startsWith('Not Found')) {
-        }
-        throw new Error('Database Error: Failed to set default payment term');
+        logger.error(`Database Error: Failed to set default payment term with ID ${termId}`, { error });
+        throw error;
     } finally {
         if (connection) {
             connection.release();

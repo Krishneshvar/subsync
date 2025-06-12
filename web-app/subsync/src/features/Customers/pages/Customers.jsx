@@ -1,4 +1,3 @@
-import axios from "axios";
 import { saveAs } from "file-saver";
 import { Eye, FileDown, FileUp, UserPlus } from "lucide-react";
 import * as Papa from "papaparse";
@@ -14,17 +13,19 @@ import api from "@/lib/axiosInstance.js";
 import GenericTable from "@/components/layouts/GenericTable.jsx";
 import Pagination from "@/components/layouts/Pagination.jsx";
 import SearchFilterForm from "@/components/layouts/SearchFilterForm.jsx";
-import useFetchData from "@/hooks/useFetchData.js";
+
+import {
+  useGetPaginatedCustomersQuery,
+  useImportCustomersMutation,
+} from "@/features/Customers/customerApi.js";
 
 import "jspdf-autotable";
 
 const headers = [
-  // { key: "customer_id", label: "CID" },
-  // { key: "salutation", label: "Salutation" },
   { key: "first_name", label: "Name" },
   { key: "display_name", label: "Display Name" },
   { key: "company_name", label: "Company Name" },
-  { key: "phone_with_country_code", label: "Phone Number" },
+  { key: "primary_phone_number", label: "Phone Number" },
   { key: "primary_email", label: "Email" },
   { key: "customer_status", label: "Status" },
   { key: "actions", label: "View/Edit" },
@@ -35,64 +36,76 @@ function Customers() {
   const [order, setOrder] = useState("asc");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [file, setFile] = useState(null);
-  const [importData, setImportData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+  const [parsedImportData, setParsedImportData] = useState([]);
 
-  const { data = [], error, loading: fetchLoading, totalPages = 0 } = useFetchData(
-    `${import.meta.env.VITE_API_URL}/all-customers`,
-    { search, sort: sortBy, order, currentPage }
-  );
+  const {
+    data: paginatedCustomersData,
+    isLoading: fetchLoading,
+    isError: fetchError,
+    error: fetchErrorObject,
+    refetch,
+  } = useGetPaginatedCustomersQuery({ search, sort: sortBy, order, page: currentPage });
+
+  const [importCustomers, { isLoading: isImporting }] = useImportCustomersMutation();
+
+  const loading = fetchLoading || isImporting;
 
   useEffect(() => {
     setCurrentPage(1);
   }, [search]);
 
   const handleSearch = (e) => {
-    if (e.key === "Enter") setCurrentPage(1);
+    if (e.key === "Enter") {
+      setCurrentPage(1);
+    }
   };
 
- const fetchCustomersAndExport = async () => {
-  try {
-    const response = await api.get(`/all-customer-details`);
-    const data = response.data;
+  const fetchCustomersAndExport = async () => {
+    try {
+      const response = await api.get(`/all-customer-details`);
+      const data = response.data;
 
-    if (!data.customers || !Array.isArray(data.customers)) throw new Error("Invalid customer data received!");
-    if (data.customers.length === 0) throw new Error("No customer data available to export!");
+      if (!data.customers || !Array.isArray(data.customers)) {
+        throw new Error("Invalid customer data received for export!");
+      }
+      if (data.customers.length === 0) {
+        throw new Error("No customer data available to export!");
+      }
 
-    const formattedData = data.customers.map((c) => ({
-      "Customer ID": c.customer_id || "",
-      "Salutation": c.salutation || "",
-      "First Name": c.first_name || "",
-      "Last Name": c.last_name || "",
-      "Display Name": c.display_name || "",
-      "Company Name": c.company_name || "",
-      "Phone Number": `${c.country_code || ""}${c.primary_phone_number || ""}`,
-      "Secondary Phone Number": c.secondary_phone_number || "",
-      "Email": c.primary_email || "",
-      "GSTIN": c.gst_in || "",
-      "GST Treatment": c.gst_treatment || "",
-      "Tax Preference": c.tax_preference || "",
-      "Payment Terms": c.payment_terms?.term_name || "",
-      "Exemption Reason": c.exemption_reason || "",
-      "Currency Code": c.currency_code || "",
-      "Address Line": c.customer_address?.addressLine || "",
-      "City": c.customer_address?.city || "",
-      "State": c.customer_address?.state || "",
-      "Country": c.customer_address?.country || "",
-      "Zip Code": c.customer_address?.zipCode || "",
-      "Notes": c.notes || "",
-      "Customer Status": c.customer_status || "Active",
-    }));
+      const formattedData = data.customers.map((c) => ({
+        "Customer ID": c.customer_id || "",
+        "Salutation": c.salutation || "",
+        "First Name": c.first_name || "",
+        "Last Name": c.last_name || "",
+        "Display Name": c.display_name || "",
+        "Company Name": c.company_name || "",
+        "Phone Number": c.primary_phone_number || "",
+        "Secondary Phone Number": c.secondary_phone_number || "",
+        "Email": c.primary_email || "",
+        "GSTIN": c.gst_in || "",
+        "GST Treatment": c.gst_treatment || "",
+        "Tax Preference": c.tax_preference || "",
+        "Payment Terms": c.payment_terms?.term_name || "",
+        "Exemption Reason": c.exemption_reason || "",
+        "Currency Code": c.currency_code || "",
+        "Address Line": c.customer_address?.addressLine || "",
+        "City": c.customer_address?.city || "",
+        "State": c.customer_address?.state || "",
+        "Country": c.customer_address?.country || "",
+        "Zip Code": c.customer_address?.zipCode || "",
+        "Notes": c.notes || "",
+        "Customer Status": c.customer_status || "Active",
+      }));
 
-    const csv = Papa.unparse(formattedData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    saveAs(blob, `customers_export_${new Date().toISOString()}.csv`);
-    toast.success("CSV file downloaded successfully!");
-  } catch (err) {
-    toast.error(err.message || "Failed to generate CSV file.");
-  }
-};
+      const csv = Papa.unparse(formattedData);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      saveAs(blob, `customers_export_${new Date().toISOString()}.csv`);
+      toast.success("CSV file downloaded successfully!");
+    } catch (err) {
+      toast.error(err.message || "Failed to generate CSV file.");
+    }
+  };
 
   const fileInputRef = useRef(null);
 
@@ -101,7 +114,7 @@ function Customers() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      setFile(selectedFile);
+      setImportFile(selectedFile);
       parseCSV(selectedFile);
     }
   };
@@ -115,7 +128,6 @@ function Customers() {
           first_name: row["First Name"] || "",
           last_name: row["Last Name"] || "",
           primary_email: row["Email"] || "",
-          country_code: row["Country Code"] || "",
           primary_phone_number: row["Phone Number"] || "",
           secondary_phone_number: row["Secondary Phone Number"] || "",
           company_name: row["Company Name"] || "",
@@ -137,7 +149,7 @@ function Customers() {
           notes: row["Notes"] || "",
           customer_status: row["Customer Status"] || "Active",
         }));
-        setImportData(formatted);
+        setParsedImportData(formatted);
       },
       header: true,
       skipEmptyLines: true,
@@ -145,51 +157,45 @@ function Customers() {
   };
 
   const handleImport = async () => {
-    if (importData.length === 0) return toast.error("No data to import!");
-    setLoading(true);
+    if (parsedImportData.length === 0) {
+      return toast.error("No data to import!");
+    }
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/import-customers`, { customers: importData });
-      if (res.status !== 200) throw new Error("Import failed!");
+      await importCustomers({ customers: parsedImportData }).unwrap();
       toast.success("Customers Imported Successfully!");
-      setImportData([]);
+      setParsedImportData([]);
+      setImportFile(null);
+      refetch();
     } catch (err) {
-      toast.error(err.message || "Error importing customers.");
-    } finally {
-      setLoading(false);
+      console.error("Import error:", err);
+      const errorMessage = err?.data?.message || err?.message || "Error importing customers.";
+      toast.error(errorMessage);
     }
   };
 
   const renderActions = (id) => (
     <div className="flex items-center">
       <Link to={`${id}`}>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" title="View/Edit Customer">
           <Eye className="w-4 h-4" />
         </Button>
       </Link>
     </div>
   );
 
-  const filteredData = data.filter((c) => {
-    const term = search.toLowerCase();
-    return (
-      c.customer_id.toString().toLowerCase().includes(term) ||
-      c.salutation.toLowerCase().includes(term) ||
-      c.first_name.toLowerCase().includes(term) ||
-      c.last_name?.toLowerCase().includes(term) ||
-      c.display_name.toLowerCase().includes(term) ||
-      c.company_name.toLowerCase().includes(term) ||
-      c.primary_phone_number.toString().toLowerCase().includes(term) ||
-      c.primary_email.toLowerCase().includes(term) ||
-      c.gst_in?.toLowerCase().includes(term) ||
-      c.customer_status.toLowerCase().includes(term)
-    );
-  });
-
-  const modifiedData = filteredData.map((c) => ({
+  const modifiedData = paginatedCustomersData?.customers?.map((c) => ({
     ...c,
-    phone_with_country_code: `${c.country_code || ""}${c.primary_phone_number}`,
-    actions: renderActions(c.customer_id),
-  }));
+    primary_phone_number: c.primaryPhoneNumber,
+    customer_id: c.customerId,
+    first_name: c.firstName,
+    display_name: c.displayName,
+    company_name: c.companyName,
+    primary_email: c.primaryEmail,
+    customer_status: c.customerStatus,
+    actions: renderActions(c.customerId),
+  })) || [];
+
+  const totalPages = paginatedCustomersData?.totalPages || 0;
 
   return (
     <div className="container p-6 rounded-lg shadow-lg">
@@ -211,40 +217,38 @@ function Customers() {
 
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Link to={`add`}>
-            <Button className="w-full sm:w-auto"> 
-              <UserPlus/> Add
+            <Button className="w-full sm:w-auto">
+              <UserPlus className="mr-2 h-4 w-4" /> Add
             </Button>
           </Link>
 
-          <Button className="sm:w-auto" onClick={handleImportButtonClick}>
-            <FileDown /> Import
+          <Button className="sm:w-auto" onClick={handleImportButtonClick} disabled={isImporting}>
+            <FileDown className="mr-2 h-4 w-4" /> Import {isImporting ? "(..." : ""}
           </Button>
 
-          <div className="flex flex-col md:flex-row gap-2 sm:w-auto">
-            <Button className="w-full sm:w-auto" onClick={fetchCustomersAndExport}>
-              <FileUp /> Export
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="w-full sm:w-auto">
+                <FileUp className="mr-2 h-4 w-4" /> Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={fetchCustomersAndExport}>Export as CSV</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} style={{ display: "none" }} />
-          </div>
+          <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} style={{ display: "none" }} />
         </div>
       </div>
 
-      {error && (
+      {fetchError && (
         <Alert variant="destructive" className="mb-6">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>{fetchErrorObject?.data?.message || fetchErrorObject?.message || 'Failed to load customers.'}</AlertDescription>
         </Alert>
       )}
 
-      {(fetchLoading || loading) ? (
+      {loading ? (
         <div className="flex justify-center items-center my-8">
           <span className="animate-spin w-6 h-6 border-4 border-t-transparent border-blue-500 rounded-full"></span>
         </div>

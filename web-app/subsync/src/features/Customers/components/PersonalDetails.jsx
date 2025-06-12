@@ -1,6 +1,7 @@
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import PhoneInput from "react-phone-number-input";
 import Select from "react-select";
+import { cn } from "@/lib/utils.js";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,12 +9,11 @@ import { Label } from "@/components/ui/label";
 
 import 'react-phone-number-input/style.css';
 
-const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, handleStatusChange }) => {
+const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, handleStatusChange, errors = {} }) => {
 
   const getCurrentPhoneNumber = (type = 'primary') => {
     const phoneNumber = type === 'primary' ? customerData.phoneNumber : customerData.secondaryPhoneNumber;
-    // Ensure country_code is always a string and starts with '+'
-    const countryCodePrefix = customerData.country_code ? customerData.country_code.startsWith('+') ? customerData.country_code : `+${customerData.country_code}` : '';
+    const countryCodePrefix = customerData.countryCode ? customerData.countryCode.startsWith('+') ? customerData.countryCode : `+${customerData.countryCode}` : '';
     if (countryCodePrefix && phoneNumber) {
       return `${countryCodePrefix}${phoneNumber}`;
     }
@@ -24,21 +24,18 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
     if (value) {
       const phoneNumberObj = parsePhoneNumberFromString(value);
       if (phoneNumberObj && phoneNumberObj.isValid()) {
-        // Store country_code with '+' prefix
         handleInputChange({
-          target: { name: "country_code", value: phoneNumberObj.countryCallingCode ? `+${phoneNumberObj.countryCallingCode}` : "" }
+          target: { name: "countryCode", value: phoneNumberObj.countryCallingCode ? `+${phoneNumberObj.countryCallingCode}` : "" }
         });
         handleInputChange({
           target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: phoneNumberObj.nationalNumber || "" }
         });
       } else {
-        // If invalid, clear both fields
-        handleInputChange({ target: { name: "country_code", value: "" } });
+        handleInputChange({ target: { name: "countryCode", value: "" } });
         handleInputChange({ target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: "" } });
       }
     } else {
-      // If value is null/empty, clear both fields
-      handleInputChange({ target: { name: "country_code", value: "" } });
+      handleInputChange({ target: { name: "countryCode", value: "" } });
       handleInputChange({ target: { name: type === 'primary' ? "phoneNumber" : "secondaryPhoneNumber", value: "" } });
     }
   };
@@ -50,9 +47,15 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
     { value: "Dr.", label: "Dr." },
   ];
 
-  // For react-select, the `value` prop expects the *entire object* from `options`.
-  // `customerData.salutation` is now an object, so find the matching object.
   const selectedSalutation = salutationOptions.find(option => option.value === (customerData.salutation?.value || "Mr.")) || salutationOptions[0];
+
+  const hasCustomerStatusError = errors.customerStatus;
+  const hasSalutationError = errors.salutation;
+  const hasFirstNameError = errors.firstName;
+  const hasLastNameError = errors.lastName;
+  const hasPrimaryPhoneNumberError = errors.phoneNumber;
+  const hasSecondaryPhoneNumberError = errors.secondaryPhoneNumber;
+  const hasEmailError = errors.email;
 
   return (
     <>
@@ -63,8 +66,12 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             <Button
               id="tbg-radio-1"
               type="button"
-              variant={customerData.customerStatus === "Active" ? "default" : "outline"}
-              className={`rounded-r-none ${customerData.customerStatus === "Active" ? 'bg-green-600 hover:bg-green-700 text-white' : 'border-green-600 text-green-600 hover:bg-green-50'}`}
+              className={cn(
+                "rounded-r-none",
+                customerData.customerStatus === "Active"
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'border border-green-600 text-green-600 hover:bg-green-50'
+              )}
               onClick={() => handleStatusChange("Active")}
             >
               Active
@@ -72,13 +79,20 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             <Button
               id="tbg-radio-2"
               type="button"
-              variant={customerData.customerStatus === "Inactive" ? "destructive" : "outline"}
-              className={`rounded-l-none ${customerData.customerStatus === "Inactive" ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-red-600 text-red-600 hover:bg-red-50'}`}
+              className={cn(
+                "rounded-l-none",
+                customerData.customerStatus === "Inactive"
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'border border-red-600 text-red-600 hover:bg-red-50'
+              )}
               onClick={() => handleStatusChange("Inactive")}
             >
               Inactive
             </Button>
           </div>
+          {hasCustomerStatusError && (
+            <p id="customerStatus-error" className="text-red-500 text-sm mt-1">{hasCustomerStatusError}</p>
+          )}
         </div>
 
         <div className="flex flex-col mb-2 md:col-span-2">
@@ -86,22 +100,26 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
           <Select
             id="salutation"
             options={salutationOptions}
-            value={selectedSalutation} // Pass the full object
-            onChange={(selectedOption) => handleSelectChange("salutation", selectedOption)} // Pass the full object
+            value={selectedSalutation}
+            onChange={(selectedOption) => handleSelectChange("salutation", selectedOption)}
             getOptionLabel={(option) => option.label}
             getOptionValue={(option) => option.value}
             classNamePrefix="react-select"
-            className="react-select-container rounded-md shadow-sm"
+            className={cn(
+              "react-select-container rounded-md shadow-sm",
+              hasSalutationError && "border-red-500 rounded-md"
+            )}
             placeholder="Select Salutation"
             styles={{
               control: (base) => ({
                 ...base,
                 backgroundColor: "white",
-                borderColor: "#d1d5db",
+                borderColor: hasSalutationError ? "red" : "#d1d5db",
                 minHeight: "2.25rem",
                 borderRadius: "0.5rem",
                 fontSize: "1rem",
                 padding: "0px 4px",
+                boxShadow: hasSalutationError ? "0 0 0 1px red" : base.boxShadow,
               }),
               valueContainer: (base) => ({
                 ...base,
@@ -136,7 +154,12 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
                 cursor: "pointer",
               }),
             }}
+            aria-invalid={hasSalutationError ? "true" : undefined}
+            aria-describedby={hasSalutationError ? "salutation-error" : undefined}
           />
+          {hasSalutationError && (
+            <p id="salutation-error" className="text-red-500 text-sm mt-1">{hasSalutationError}</p>
+          )}
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-5">
@@ -145,11 +168,18 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             id="firstName"
             type="text"
             name="firstName"
-            value={customerData.firstName || ""} // Ensure default for controlled input
+            value={customerData.firstName || ""}
             onChange={handleInputChange}
-            required
-            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className={cn(
+              "rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              hasFirstNameError && "border-red-500 focus-visible:ring-red-500"
+            )}
+            aria-invalid={hasFirstNameError ? "true" : undefined}
+            aria-describedby={hasFirstNameError ? "firstName-error" : undefined}
           />
+          {hasFirstNameError && (
+            <p id="firstName-error" className="text-red-500 text-sm mt-1">{hasFirstNameError}</p>
+          )}
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-5">
@@ -158,11 +188,18 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             id="lastName"
             type="text"
             name="lastName"
-            value={customerData.lastName || ""} // Ensure default for controlled input
+            value={customerData.lastName || ""}
             onChange={handleInputChange}
-            required
-            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className={cn(
+              "rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              hasLastNameError && "border-red-500 focus-visible:ring-red-500"
+            )}
+            aria-invalid={hasLastNameError ? "true" : undefined}
+            aria-describedby={hasLastNameError ? "lastName-error" : undefined}
           />
+          {hasLastNameError && (
+            <p id="lastName-error" className="text-red-500 text-sm mt-1">{hasLastNameError}</p>
+          )}
         </div>
       </div>
 
@@ -175,10 +212,18 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
               defaultCountry="IN"
               value={getCurrentPhoneNumber('primary')}
               onChange={(value) => handlePhoneNumberChange(value, 'primary')}
-              className="phone-input-custom-style min-h-[2.25rem] shadow-sm"
+              className={cn(
+                "phone-input-custom-style min-h-[2.25rem] shadow-sm",
+                hasPrimaryPhoneNumberError && "phone-input-error"
+              )}
               placeholder="Enter primary phone number"
+              aria-invalid={hasPrimaryPhoneNumberError ? "true" : undefined}
+              aria-describedby={hasPrimaryPhoneNumberError ? "primaryPhoneNumber-error" : undefined}
             />
           </div>
+          {hasPrimaryPhoneNumberError && (
+            <p id="primaryPhoneNumber-error" className="text-red-500 text-sm mt-1">{hasPrimaryPhoneNumberError}</p>
+          )}
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-6">
@@ -189,10 +234,18 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
               defaultCountry="IN"
               value={getCurrentPhoneNumber('secondary')}
               onChange={(value) => handlePhoneNumberChange(value, 'secondary')}
-              className="phone-input-custom-style min-h-[2.25rem] shadow-sm"
+              className={cn(
+                "phone-input-custom-style min-h-[2.25rem] shadow-sm",
+                hasSecondaryPhoneNumberError && "phone-input-error"
+              )}
               placeholder="Enter secondary phone number (optional)"
+              aria-invalid={hasSecondaryPhoneNumberError ? "true" : undefined}
+              aria-describedby={hasSecondaryPhoneNumberError ? "secondaryPhoneNumber-error" : undefined}
             />
           </div>
+          {hasSecondaryPhoneNumberError && (
+            <p id="secondaryPhoneNumber-error" className="text-red-500 text-sm mt-1">{hasSecondaryPhoneNumberError}</p>
+          )}
         </div>
 
         <div className="flex flex-col mb-4 md:col-span-6">
@@ -201,11 +254,18 @@ const PersonalDetails = ({ customerData, handleInputChange, handleSelectChange, 
             id="email"
             type="email"
             name="email"
-            value={customerData.email || ""} // Ensure default for controlled input
+            value={customerData.email || ""}
             onChange={handleInputChange}
-            required
-            className="rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className={cn(
+              "rounded-lg px-4 py-2 text-base border border-input focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+              hasEmailError && "border-red-500 focus-visible:ring-red-500"
+            )}
+            aria-invalid={hasEmailError ? "true" : undefined}
+            aria-describedby={hasEmailError ? "email-error" : undefined}
           />
+          {hasEmailError && (
+            <p id="email-error" className="text-red-500 text-sm mt-1">{hasEmailError}</p>
+          )}
         </div>
       </div>
     </>

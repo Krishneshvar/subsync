@@ -1,38 +1,36 @@
-import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
 
 import DisplayCustomer from "../components/DisplayCustomer.jsx";
 
 import { Skeleton } from "@/components/ui/skeleton.jsx";
 
-import { fetchCustomerById, clearCustomerState } from "@/features/Customers/customerSlice.js";
+import { useGetCustomerByIdQuery } from "@/features/Customers/customerApi.js";
 
 function CustomerDetails() {
   const { id } = useParams();
-  const dispatch = useDispatch();
-  const { currentCustomer, loading, error } = useSelector((state) => state.customers);
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchCustomerById(id));
-    }
-    return () => {
-        dispatch(clearCustomerState());
-    };
-  }, [id, dispatch]);
+  const {
+    data: currentCustomer,
+    isLoading: loading,
+    isError,
+    error: fetchError,
+  } = useGetCustomerByIdQuery(id);
 
   if (loading) return <SkeletonLoader />;
-  if (error) return <ErrorMessage message={error} />;
 
-  if (!currentCustomer) return <p>No customer data available.</p>;
+  if (isError) {
+    const errorMessage = fetchError?.data?.message || fetchError?.message || 'An unknown error occurred while fetching customer details.';
+    return <ErrorMessage message={errorMessage} />;
+  }
+
+  if (!currentCustomer) return <p className="container mx-auto py-4 px-2 sm:px-2 lg:px-6">No customer data available.</p>;
 
   return (
     <div className="container mx-auto py-4 px-2 sm:px-2 lg:px-6">
       <DisplayCustomer
         customerDetails={{
           ...currentCustomer,
-          phone_with_country_code: `${currentCustomer.country_code}${currentCustomer.primary_phone_number}`,
+          phone_with_country_code: currentCustomer.primaryPhoneNumber,
         }}
       />
     </div>

@@ -6,15 +6,76 @@
     <link rel="icon" type="image" href="/SubSyncLogo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Google Font -->
+    <meta name="description" content="SubSync - Your ultimate subscription management platform. Manage customers, services, and billing effortlessly." />
+    <meta name="keywords" content="SubSync, subscription management, billing software, customer management, service management, invoice" />
+    <meta name="author" content="SubSync Team" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.yourdomain.com/" /> <meta property="og:title" content="SubSync - Effortless Subscription Management" />
+    <meta property="og:description" content="SubSync - Your ultimate subscription management platform. Manage customers, services, and billing effortlessly." />
+    <meta property="og:image" content="https://www.yourdomain.com/SubSyncShareImage.png" /> <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://www.yourdomain.com/" /> <meta property="twitter:title" content="SubSync - Effortless Subscription Management" />
+    <meta property="twitter:description" content="SubSync - Your ultimate subscription management platform. Manage customers, services, and billing effortlessly." />
+    <meta property="twitter:image" content="https://www.yourdomain.com/SubSyncShareImage.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <title>SubSync</title>
+
+    <style>
+      #initial-loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+      #initial-loading-spinner.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="initial-loading-spinner">
+        <div class="spinner"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
+    <script type="module">
+      document.addEventListener('DOMContentLoaded', () => {
+        const spinner = document.getElementById('initial-loading-spinner');
+        if (spinner) {
+          setTimeout(() => {
+            spinner.classList.add('hidden');
+            spinner.addEventListener('transitionend', () => spinner.remove());
+          }, 100);
+        }
+      });
+    </script>
   </body>
 </html>

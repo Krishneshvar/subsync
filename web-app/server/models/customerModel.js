@@ -1,178 +1,114 @@
 import appDB from "../db/subsyncDB.js";
-import { getCurrentTime } from "../middlewares/time.js";
-import { generateID } from "../middlewares/generateID.js";
-import { isValidGSTIN, isValidEmail, isValidPhoneNumber } from "../middlewares/validations.js";
+import logger from "../utils/logger.js";
 
 /**
- * Function to add a customer into the database
- * @param   {Object}          customer The object with customer details
- * @returns {Promise<number>}
+ * Inserts a new customer record into the database.
+ * @param   {Object}          customerData The object containing customer details, prepared by the service layer.
+ * @returns {Promise<number>} The ID of the newly inserted customer (database `insertId` if applicable, though UUID is now primary key).
+ * @throws {Error} If the database operation encounters an error.
  */
-async function addCustomer(customer) {
+async function createCustomer(customerData) {
     try {
-        // Validate required fields
-        if (!customer.salutation || !customer.firstName || !customer.lastName || !customer.email || !customer.phoneNumber || !customer.address ||
-            !customer.address.state || !customer.companyName || !customer.displayName || !customer.gstin || !customer.currencyCode || !customer.gst_treatment || !customer.tax_preference) {
-            throw new Error("All required fields must be provided.");
-        }
-
-        if (!isValidGSTIN(customer.gstin)) {
-            throw new Error("Invalid GSTIN format.");
-        }
-
-        if (!isValidEmail(customer.email)) {
-            throw new Error("Invalid email address format.");
-        }
-
-        if (!isValidPhoneNumber(customer.phoneNumber)) {
-            throw new Error("Invalid primary phone number format.");
-        }
-
-        if (customer.secondaryPhoneNumber && !isValidPhoneNumber(customer.secondaryPhoneNumber)) {
-            throw new Error("Invalid secondary phone number format.");
-        }
-
-        // Additional address validation
-        if (!customer.address.state.trim()) {
-            throw new Error("State cannot be empty in the address.");
-        }
-
-        const currentTime = getCurrentTime();
-        const cid = generateID("CID");
-
-        // Serialize JSON fields
-        const customerAddress = JSON.stringify(customer.address);
-        const otherContacts = JSON.stringify(customer.contactPersons) || JSON.stringify([]);
-        const paymentTerms = JSON.stringify(customer.payment_terms) || JSON.stringify({ term_name: "Due on Receipt", days: 0, is_default: true });
-
-        // Execute SQL query
         const [result] = await appDB.query(
-            "INSERT INTO customers (customer_id, salutation, first_name, last_name, primary_email, country_code, primary_phone_number, secondary_phone_number, " +
-            "customer_address, other_contacts, company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference, exemption_reason, " +
-            "payment_terms, notes, customer_status, created_at, updated_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            `INSERT INTO customers (
+                customer_id, salutation, first_name, last_name, primary_email,
+                primary_phone_number, secondary_phone_number, customer_address, other_contacts,
+                company_name, display_name, gst_in, currency_code, gst_treatment, tax_preference,
+                exemption_reason, payment_terms, notes, customer_status, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
             [
-                cid, customer.salutation, customer.firstName, customer.lastName, customer.email,
-                customer.country_code,
-                Number(customer.phoneNumber),
-                customer.secondaryPhoneNumber ? Number(customer.secondaryPhoneNumber) : null,
-                customerAddress, otherContacts, customer.companyName, customer.displayName, customer.gstin,
-                customer.currencyCode, customer.gst_treatment, customer.tax_preference, customer.exemption_reason || "",
-                paymentTerms, customer.notes || "", customer.customerStatus, currentTime, currentTime,
+                customerData.customer_id, customerData.salutation, customerData.first_name, customerData.last_name,
+                customerData.primary_email,
+                customerData.primary_phone_number,
+                customerData.secondary_phone_number,
+                customerData.customer_address, customerData.other_contacts,
+                customerData.company_name, customerData.display_name,
+                customerData.gst_in, customerData.currency_code, customerData.gst_treatment,
+                customerData.tax_preference, customerData.exemption_reason,
+                customerData.payment_terms, customerData.notes, customerData.customer_status,
+                customerData.created_at, customerData.updated_at,
             ]
         );
 
-        // Check result
         if (result.affectedRows > 0) {
-            return result.insertId;
+            return result;
         } else {
-            throw new Error("Failed to add customer. No rows affected.");
+            throw new Error("Failed to create customer. No rows affected.");
         }
     } catch (error) {
+        logger.error("Database error in createCustomer:", { message: error.message, code: error.code, stack: error.stack });
         if (error.code === 'ER_DUP_ENTRY') {
-            throw new Error("A customer with this email or phone number already exists.");
+            throw new Error(`Database operation failed: duplicate entry.`);
         } else if (error.code === 'ER_BAD_NULL_ERROR') {
-            throw new Error("One or more fields cannot be null.");
-        } else {
-            console.error("Database error:", error);
-            throw new Error("An unexpected error occurred while adding the customer.");
+            throw new Error(`Database operation failed: required field missing or null.`);
         }
+        throw new Error(`Database error: ${error.message || "An unexpected database error occurred."}`);
     }
 }
 
-
 /**
- * Function to edit/update a customer's details in the database
- * @param   {string}     customerId  The ID of the customer, whose details are to be updated
- * @param   {Object}     updatedData The object containing the new customer details
- * @returns {Promise<*>}
+ * Updates an existing customer's details in the database.
+ * @param   {string}     customerId  The ID of the customer to update.
+ * @param   {Object}     updatedData The object containing the new customer details, prepared by the service layer.
+ * @returns {Promise<Object>} The result of the database update operation.
+ * @throws {Error} If database operation encounters an error.
  */
 async function updateCustomer(customerId, updatedData) {
-    const {
-        salutation, first_name, last_name, primary_email, country_code, primary_phone_number, secondary_phone_number,
-        customer_address, company_name, display_name, gst_in, currency_code, gst_treatment, other_contacts,
-        tax_preference, exemption_reason, payment_terms, notes, customer_status
-    } = updatedData;
-
-    // console.log("Updated data received:", updatedData);
-
-    // Validation
-    if (!salutation || !first_name || !last_name || !primary_email || !primary_phone_number || !customer_address ||
-        !company_name || !display_name || !gst_in || !currency_code || !gst_treatment || !tax_preference) {
-        throw new Error("All required fields must be provided.");
-    }
-
-    if (!isValidGSTIN(gst_in)) {
-        throw new Error("Invalid GSTIN format.");
-    }
-    if (!isValidEmail(primary_email)) {
-        throw new Error("Invalid email address format.");
-    }
-    if (!isValidPhoneNumber(primary_phone_number)) {
-        throw new Error("Invalid primary phone number format.");
-    }
-    if (secondary_phone_number && !isValidPhoneNumber(secondary_phone_number)) {
-        throw new Error("Invalid secondary phone number format.");
-    }
-
     try {
-        const currentTime = getCurrentTime();
-
-        // Serialize JSON fields
-        const serializedAddress = JSON.stringify(customer_address);
-        const serializedContacts = JSON.stringify(other_contacts);
-        const serializedPaymentTerms = JSON.stringify(payment_terms) || JSON.stringify({ term_name: "Due on Receipt", days: 0, is_default: true });
-
-        // Convert phone numbers to proper format
-        const formattedPrimaryPhone = Number(primary_phone_number);
-        const formattedSecondaryPhone = secondary_phone_number ? Number(secondary_phone_number) : null;
-
         const [result] = await appDB.query(
-            `UPDATE customers SET 
-                salutation = ?, first_name = ?, last_name = ?, primary_email = ?, country_code = ?,
+            `UPDATE customers SET
+                salutation = ?, first_name = ?, last_name = ?, primary_email = ?,
                 primary_phone_number = ?, secondary_phone_number = ?, customer_address = ?, other_contacts = ?,
                 company_name = ?, display_name = ?, gst_in = ?, currency_code = ?, gst_treatment = ?,
                 tax_preference = ?, exemption_reason = ?, payment_terms = ?, notes = ?, customer_status = ?,
                 updated_at = ?
             WHERE customer_id = ?`,
             [
-                salutation, first_name, last_name, primary_email, country_code,
-                formattedPrimaryPhone, formattedSecondaryPhone, serializedAddress, serializedContacts,
-                company_name, display_name, gst_in, currency_code, gst_treatment,
-                tax_preference, exemption_reason, serializedPaymentTerms, notes, customer_status,
-                currentTime, customerId
+                updatedData.salutation, updatedData.first_name, updatedData.last_name, updatedData.primary_email,
+                updatedData.primary_phone_number,
+                updatedData.secondary_phone_number,
+                updatedData.customer_address, updatedData.other_contacts,
+                updatedData.company_name, updatedData.display_name,
+                updatedData.gst_in, updatedData.currency_code, updatedData.gst_treatment,
+                updatedData.tax_preference, updatedData.exemption_reason,
+                updatedData.payment_terms, updatedData.notes, updatedData.customer_status,
+                updatedData.updated_at, customerId
             ]
         );
 
         if (result.affectedRows === 0) {
-            throw new Error("Customer not found or no changes made.");
+            const [existingCustomer] = await appDB.query("SELECT customer_id FROM customers WHERE customer_id = ?", [customerId]);
+            if (existingCustomer.length === 0) {
+                throw new Error("Customer not found.");
+            } else {
+                throw new Error("No changes made to customer details.");
+            }
         }
 
         return result;
     } catch (error) {
-        console.error("Error updating customer:", error);
-        throw new Error("Failed to update customer details.");
+        logger.error("Database error in updateCustomer:", { message: error.message, code: error.code, stack: error.stack });
+        if (error.code === 'ER_DUP_ENTRY') {
+            throw new Error(`Database operation failed: duplicate entry.`);
+        }
+        throw new Error(`Database error: ${error.message || "An unexpected database error occurred."}`);
     }
 }
 
-
 /**
- * Function to get all customer details to be displayed
- * @param {string} search The string to be searched in the database
- * @param {string} sort   The field that is to be sorted
- * @param {string} order  The order in which the given field is to be sorted
- * @param {Number} page   The page of data to be displayed
- * @param {Number} limit  The number of data to be displayed in a page
- * @returns {Promise<{totalPages: number, customers: *}>}
+ * Fetches a paginated list of customer details based on search, sort, and order criteria.
+ * @param {Object} options - Options for filtering and pagination.
+ * @returns {Promise<{ totalPages: number, customers: Array<Object> }>} Paginated customer data.
+ * @throws {Error} If fetching customers fails.
  */
-const getAllCustomers = async ({ search = "", sort = "display_name", order = "asc", page = 1, limit = 10 }) => {
+const getPaginatedCustomers = async ({ search = "", sort = "display_name", order = "asc", page = 1, limit = 10 }) => {
     const offset = (page - 1) * limit;
     const searchQuery = `%${search}%`;
 
     try {
-      const [customers] = await appDB.query(
+        const [customers] = await appDB.query(
             `SELECT customer_id, salutation, first_name, last_name, display_name, company_name, primary_phone_number, primary_email, customer_status
-             FROM customers 
+             FROM customers
              WHERE (
                 display_name LIKE ? OR
                 first_name LIKE ? OR
@@ -182,8 +118,8 @@ const getAllCustomers = async ({ search = "", sort = "display_name", order = "as
                 primary_email LIKE ? OR
                 customer_id LIKE ?
              )
-             ORDER BY ?? ${order.toUpperCase()} 
-             LIMIT ? OFFSET ?`, 
+             ORDER BY ?? ${order.toUpperCase()}
+             LIMIT ? OFFSET ?`,
             [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery, searchQuery, searchQuery, sort, parseInt(limit), parseInt(offset)]
         );
 
@@ -201,33 +137,33 @@ const getAllCustomers = async ({ search = "", sort = "display_name", order = "as
         );
 
         const totalPages = Math.ceil(total / limit);
-        return({customers, totalPages});
+        return { customers, totalPages };
     } catch (error) {
-      console.error("Error fetching customers:", error);
-      throw error;
+        logger.error("Database error in getPaginatedCustomers:", { message: error.message, code: error.code, stack: error.stack });
+        throw new Error(`Database error: ${error.message || "Failed to fetch paginated customers."}`);
     }
 };
 
-
 /**
-* Function to get all customer details to be displayed
-* @returns {Promise<{ customers: *}>}
-*/
-const getAllCustomersDetails = async () => {
-   try {
-     const [customers] = await appDB.query("SELECT * FROM customers;");
-     return customers;
-   } catch (error) {
-     console.error("Error fetching all customer Details:", error);
-     throw error;
-   }
+ * Fetches all customer details from the database without pagination.
+ * @returns {Promise<Array<Object>>} An array of all customer objects.
+ * @throws {Error} If fetching all customer details fails.
+ */
+const getAllCustomers = async () => {
+    try {
+        const [customers] = await appDB.query("SELECT * FROM customers;");
+        return customers;
+    } catch (error) {
+        logger.error("Database error in getAllCustomers:", { message: error.message, code: error.code, stack: error.stack });
+        throw new Error(`Database error: ${error.message || "Failed to fetch all customer details."}`);
+    }
 };
 
-
 /**
- * Fetch a single customer by given ID
- * @param   {string}     customerId The ID of the customer, whose details are to be fetched
- * @returns {Promise<*>}
+ * Fetches a single customer's details by their ID.
+ * @param   {string}     customerId The ID of the customer to fetch.
+ * @returns {Promise<Object|null>} The customer object if found, otherwise null.
+ * @throws {Error} If fetching customer by ID fails.
  */
 const getCustomerById = async (customerId) => {
     try {
@@ -235,48 +171,62 @@ const getCustomerById = async (customerId) => {
             `SELECT * FROM customers WHERE customer_id = ?`,
             [customerId]
         );
-        // console.log(result);
-        return result[0];
+        if (result.length > 0) {
+            if (typeof result[0].customer_address === "string") {
+                result[0].customer_address = JSON.parse(result[0].customer_address);
+            }
+            if (typeof result[0].other_contacts === "string") {
+                result[0].other_contacts = JSON.parse(result[0].other_contacts);
+            }
+             if (typeof result[0].payment_terms === "string") {
+                result[0].payment_terms = JSON.parse(result[0].payment_terms);
+            }
+            return result[0];
+        }
+        return null;
     } catch (error) {
-        console.error("Error fetching customer by ID:", error);
-        throw error;
+        logger.error("Database error in getCustomerById:", { message: error.message, code: error.code, stack: error.stack });
+        throw new Error(`Database error: ${error.message || "Failed to fetch customer details by ID."}`);
     }
 };
 
 /**
- * Import multiple customers in bulk
- * @param {Array} customers - Array of customer objects to be inserted
+ * Imports multiple customers in bulk into the database.
+ * @param {Array<Array>} values - An array of arrays, where each inner array is a row of customer data to be inserted.
+ * @throws {Error} If the import operation fails.
  */
- const importCustomerData = async (customers) => {
+const importCustomers = async (values) => {
+    if (!values || values.length === 0) {
+        throw new Error("No customer data provided for import.");
+    }
+
     const query = `
-        INSERT INTO customers (salutation, first_name, last_name, primary_email, country_code, primary_phone_number, 
-                               customer_address, company_name, display_name, gst_in, currency_code, gst_treatment, 
-                               tax_preference, exemption_reason, notes, other_contacts, customer_status) 
+        INSERT INTO customers (
+            customer_id, salutation, first_name, last_name, primary_email, primary_phone_number,
+            secondary_phone_number, customer_address, other_contacts, company_name, display_name,
+            gst_in, currency_code, gst_treatment, tax_preference, exemption_reason, payment_terms,
+            notes, customer_status, created_at, updated_at
+        )
         VALUES ?
     `;
 
-    const values = customers.map(customer => [
-        customer.salutation,
-        customer.first_name,
-        customer.last_name,
-        customer.primary_email,
-        customer.country_code,
-        customer.primary_phone_number,
-        JSON.stringify(customer.customer_address),
-        customer.company_name,
-        customer.display_name,
-        customer.gst_in,
-        customer.currency_code,
-        customer.gst_treatment,
-        customer.tax_preference,
-        customer.exemption_reason,
-        customer.notes,
-        JSON.stringify(customer.other_contacts),
-        customer.customer_status,
-    ]);
-
-    await db.query(query, [values]);
+    try {
+        const [result] = await appDB.query(query, [values]);
+        return result;
+    } catch (error) {
+        logger.error("Database error in importCustomers:", { message: error.message, code: error.code, stack: error.stack });
+        if (error.code === 'ER_DUP_ENTRY') {
+            throw new Error("Database operation failed: duplicate entry during bulk import.");
+        }
+        throw new Error(`Database error: ${error.message || "An unexpected database error occurred."}`);
+    }
 };
 
-
-export { addCustomer, updateCustomer, getAllCustomers, getCustomerById, getAllCustomersDetails, importCustomerData };
+export {
+    createCustomer,
+    updateCustomer,
+    getPaginatedCustomers,
+    getCustomerById,
+    getAllCustomers,
+    importCustomers
+};

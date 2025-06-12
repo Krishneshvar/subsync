@@ -1,16 +1,22 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { cn } from "@/lib/utils.js";
 
-const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) => {
+const OtherDetails = ({ customerData, handleInputChange, handleSelectChange, errors = {} }) => {
   const currencyOptions = ["INR", "USD", "EUR"];
   const gstTreatmentOptions = ["iGST", "CGST & SGST", "No GST", "Zero Tax", "SEZ"];
   const taxPreferenceOptions = ["Taxable", "Tax Exempt"];
 
-  // customerData.currencyCode is now directly the string value (e.g., "INR")
   const currencyValue = customerData.currencyCode || "INR";
-  const gstTreatmentValue = customerData.gst_treatment || "iGST"; // Default to iGST if not set
-  const taxPreferenceValue = customerData.tax_preference || "Taxable"; // Default to Taxable if not set
+  const gstTreatmentValue = customerData.gstTreatment || "iGST";
+  const taxPreferenceValue = customerData.taxPreference || "Taxable";
+
+  const hasGstinError = errors.gstin;
+  const hasCurrencyCodeError = errors.currencyCode;
+  const hasGstTreatmentError = errors.gstTreatment;
+  const hasTaxPreferenceError = errors.taxPreference;
+  const hasExemptionReasonError = errors.exemptionReason;
 
   return (
     <div className="space-y-6">
@@ -20,20 +26,35 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
           <Input
             id="gstin"
             name="gstin"
-            value={customerData.gstin || ""} // Ensure default for controlled input
+            value={customerData.gstin || ""}
             onChange={handleInputChange}
-            required
-            className="rounded-xl px-4 py-3 text-base border border-gray-300"
+            className={cn(
+              "rounded-xl px-4 py-3 text-base border border-gray-300",
+              hasGstinError && "border-red-500 focus-visible:ring-red-500"
+            )}
+            aria-invalid={hasGstinError ? "true" : undefined}
+            aria-describedby={hasGstinError ? "gstin-error" : undefined}
           />
+          {hasGstinError && (
+            <p id="gstin-error" className="text-red-500 text-sm mt-1">{hasGstinError}</p>
+          )}
         </div>
 
         <div className="space-y-2">
-          <Label>Currency Code</Label>
+          <Label htmlFor="currencyCode">Currency Code</Label>
           <Select
-            value={currencyValue} // Pass the string value
-            onValueChange={(value) => handleSelectChange("currencyCode", value)} // Value is a string
+            value={currencyValue}
+            onValueChange={(value) => handleSelectChange("currencyCode", value)}
           >
-            <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
+            <SelectTrigger
+              id="currencyCode"
+              className={cn(
+                "w-full rounded-xl px-4 py-3 text-base border border-gray-300",
+                hasCurrencyCodeError && "border-red-500 focus-visible:ring-red-500"
+              )}
+              aria-invalid={hasCurrencyCodeError ? "true" : undefined}
+              aria-describedby={hasCurrencyCodeError ? "currencyCode-error" : undefined}
+            >
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>
@@ -42,17 +63,28 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
               ))}
             </SelectContent>
           </Select>
+          {hasCurrencyCodeError && (
+            <p id="currencyCode-error" className="text-red-500 text-sm mt-1">{hasCurrencyCodeError}</p>
+          )}
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>GST Treatment</Label>
+          <Label htmlFor="gstTreatment">GST Treatment</Label>
           <Select
-            value={gstTreatmentValue} // Pass the string value
-            onValueChange={(value) => handleSelectChange("gst_treatment", value)} // Value is a string
+            value={gstTreatmentValue}
+            onValueChange={(value) => handleSelectChange("gstTreatment", value)}
           >
-            <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
+            <SelectTrigger
+              id="gstTreatment"
+              className={cn(
+                "w-full rounded-xl px-4 py-3 text-base border border-gray-300",
+                hasGstTreatmentError && "border-red-500 focus-visible:ring-red-500"
+              )}
+              aria-invalid={hasGstTreatmentError ? "true" : undefined}
+              aria-describedby={hasGstTreatmentError ? "gstTreatment-error" : undefined}
+            >
               <SelectValue placeholder="Select treatment" />
             </SelectTrigger>
             <SelectContent>
@@ -61,15 +93,26 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
               ))}
             </SelectContent>
           </Select>
+          {hasGstTreatmentError && (
+            <p id="gstTreatment-error" className="text-red-500 text-sm mt-1">{hasGstTreatmentError}</p>
+          )}
         </div>
 
         <div className="space-y-2">
-          <Label>Tax Preference</Label>
+          <Label htmlFor="taxPreference">Tax Preference</Label>
           <Select
-            value={taxPreferenceValue} // Pass the string value
-            onValueChange={(value) => handleSelectChange("tax_preference", value)} // Value is a string
+            value={taxPreferenceValue}
+            onValueChange={(value) => handleSelectChange("taxPreference", value)}
           >
-            <SelectTrigger className="w-full rounded-xl px-4 py-3 text-base border border-gray-300">
+            <SelectTrigger
+              id="taxPreference"
+              className={cn(
+                "w-full rounded-xl px-4 py-3 text-base border border-gray-300",
+                hasTaxPreferenceError && "border-red-500 focus-visible:ring-red-500"
+              )}
+              aria-invalid={hasTaxPreferenceError ? "true" : undefined}
+              aria-describedby={hasTaxPreferenceError ? "taxPreference-error" : undefined}
+            >
               <SelectValue placeholder="Select tax preference" />
             </SelectTrigger>
             <SelectContent>
@@ -78,20 +121,30 @@ const OtherDetails = ({ customerData, handleInputChange, handleSelectChange }) =
               ))}
             </SelectContent>
           </Select>
+          {hasTaxPreferenceError && (
+            <p id="taxPreference-error" className="text-red-500 text-sm mt-1">{hasTaxPreferenceError}</p>
+          )}
         </div>
       </div>
 
-      {customerData.tax_preference === "Tax Exempt" && (
+      {customerData.taxPreference === "Tax Exempt" && (
         <div className="space-y-2">
-          <Label htmlFor="exemption_reason">Tax Exemption Reason</Label>
+          <Label htmlFor="exemptionReason">Tax Exemption Reason</Label>
           <Input
-            id="exemption_reason"
-            name="exemption_reason"
-            value={customerData.exemption_reason || ""} // Ensure default for controlled input
+            id="exemptionReason"
+            name="exemptionReason"
+            value={customerData.exemptionReason || ""}
             onChange={handleInputChange}
-            required
-            className="rounded-xl px-4 py-3 text-base border border-gray-300"
+            className={cn(
+              "rounded-xl px-4 py-3 text-base border border-gray-300",
+              hasExemptionReasonError && "border-red-500 focus-visible:ring-red-500"
+            )}
+            aria-invalid={hasExemptionReasonError ? "true" : undefined}
+            aria-describedby={hasExemptionReasonError ? "exemptionReason-error" : undefined}
           />
+          {hasExemptionReasonError && (
+            <p id="exemptionReason-error" className="text-red-500 text-sm mt-1">{hasExemptionReasonError}</p>
+          )}
         </div>
       )}
     </div>

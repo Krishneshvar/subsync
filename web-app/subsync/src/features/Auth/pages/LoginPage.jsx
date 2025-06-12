@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer, Bounce } from 'react-toastify';
 import { useState, useEffect } from 'react';
 
-import { loginUser } from '../authSlice';
+import { useLoginMutation } from '../authApiSlice';
+import { setCredentials } from '../authSlice';
+
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,13 +17,15 @@ function LoginPage() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { error, isLoading, isAuthenticated } = useSelector((state) => state.auth);
+
+  const [login, { isLoading, error, isSuccess, data: loginData }] = useLoginMutation();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+
 
   useEffect(() => {
-    if (isAuthenticated && !isLoading && !error) {
-      const loggedInUsername = (typeof window !== "undefined" && JSON.parse(localStorage.getItem('subsync_user'))?.username)
-        || '';
-      
+    if (isAuthenticated && user && !isLoading) {
+      const loggedInUsername = user.username;
+
       toast.success("Login successful!", {
         position: "top-right",
         autoClose: 2000,
@@ -38,11 +42,32 @@ function LoginPage() {
         navigate(`/${loggedInUsername}/dashboard`);
       }, 2000);
     }
-  }, [isAuthenticated, isLoading, error, navigate]);
+  }, [isAuthenticated, user, isLoading, navigate]);
+
+  useEffect(() => {
+    if (error) {
+        toast.error(error.data?.message || "Login failed. Please try again.", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Bounce,
+        });
+    }
+  }, [error]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await dispatch(loginUser({ username, password }));
+    try {
+      const result = await login({ username, password }).unwrap();
+    } catch (err) {
+      console.error("Failed to login:", err);
+    }
   };
 
   return (
@@ -54,13 +79,13 @@ function LoginPage() {
 
         {showPassword && (
           <div className="absolute inset-0 pointer-events-none z-10">
-            <div 
+            <div
               className="absolute inset-0 opacity-30"
               style={{
-                background: `radial-gradient(ellipse 800px 400px at center 50%, 
-                  rgba(255, 255, 255, 0.15) 0%, 
-                  rgba(255, 255, 255, 0.08) 30%, 
-                  rgba(255, 255, 255, 0.03) 50%, 
+                background: `radial-gradient(ellipse 800px 400px at center 50%,
+                  rgba(255, 255, 255, 0.15) 0%,
+                  rgba(255, 255, 255, 0.08) 30%,
+                  rgba(255, 255, 255, 0.03) 50%,
                   transparent 70%)`
               }}
             />
@@ -83,7 +108,7 @@ function LoginPage() {
             </div>
 
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div 
+              <div
                 className="w-2 bg-gradient-to-b from-yellow-300/60 via-yellow-200/40 to-transparent animate-beam-pulse"
                 style={{ height: '60px' }}
               />
@@ -124,7 +149,7 @@ function LoginPage() {
                 <Terminal className="h-4 w-4 mr-2" />
                 <div>
                   <div className="font-semibold">Login Failed!</div>
-                  <div className="text-sm">{error}</div>
+                  <div className="text-sm">{error.data?.message || "An unknown error occurred."}</div>
                 </div>
               </div>
             )}
@@ -231,7 +256,7 @@ function LoginPage() {
             transform: translateX(100%);
           }
         }
-        
+
         @keyframes beam-pulse {
           0%, 100% {
             opacity: 0.6;
@@ -242,11 +267,11 @@ function LoginPage() {
             transform: scaleY(1.2);
           }
         }
-        
+
         .animate-shimmer {
           animation: shimmer 3s infinite;
         }
-        
+
         .animate-beam-pulse {
           animation: beam-pulse 2s infinite;
         }

@@ -24,7 +24,7 @@ function SideBar({ isOpen, toggleSidebar }) {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         overflow-y-auto`}
     >
-      <div className="flex items-center justify-between p-4 border-b border-primary-foreground/10">
+      <div className="flex sticky items-center justify-between p-4 border-b border-primary-foreground/10">
         {isOpen && <span className="text-xl font-bold">SubSync</span>}
         <Button
           variant="primary"
@@ -36,7 +36,7 @@ function SideBar({ isOpen, toggleSidebar }) {
         </Button>
       </div>
 
-      <nav className="h-[calc(100%-4rem)] overflow-y-auto">
+      <nav className="sticky h-[calc(100%-4rem)] overflow-y-auto">
         <ul className="py-2">
           <TooltipProvider>
             {sidebarItems.map((item) => (

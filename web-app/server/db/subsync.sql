@@ -5,12 +5,11 @@ USE ocs_srms;
 -- --- create Customers table -----
 CREATE TABLE customers (
     -- personal details
-    customer_id VARCHAR(15) PRIMARY KEY,
+    customer_id VARCHAR(36) PRIMARY KEY,
     salutation ENUM('Mr.', 'Ms.', 'Mrs.', 'Dr.') NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    primary_email VARCHAR(255) NOT NULL UNIQUE,
-    country_code VARCHAR(5) NOT NULL DEFAULT '+91',
+    primary_email VARCHAR(255) NOT NULL,
     primary_phone_number VARCHAR(15) NOT NULL,
     secondary_phone_number VARCHAR(15),
 
@@ -40,6 +39,8 @@ CREATE TABLE customers (
     INDEX idx_company_name (company_name),
     INDEX idx_display_name (display_name),
     INDEX idx_primary_phone (primary_phone_number),
+    INDEX idx_primary_email (primary_email),
+    INDEX idx_name (salutation, first_name, last_name),
     INDEX idx_customer_status (customer_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -82,7 +83,7 @@ CREATE TABLE IF NOT EXISTS vendors (
     notes TEXT,
 
     -- payment and status
-    payment_terms JSON NOT NULL,
+    -- payment_terms JSON NOT NULL,
     vendor_status ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active',
 
     -- timestamps
@@ -177,7 +178,7 @@ CREATE TABLE gst_settings (
 CREATE TABLE users (
     username VARCHAR(32) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(60) NOT NULL,
     role VARCHAR(32) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
 
@@ -198,5 +199,6 @@ INSERT INTO payment_terms (term_name, days, is_default) VALUES
 INSERT INTO item_groups (item_group_name) VALUES ("Domain");
 
 INSERT INTO users (username, name, password, role, email) VALUES
-("admin", "Admin", "admin123", "admin", "admin@admin.com"),
-("krish", "Krishneshvar", "kicha07", "user", "krishjn07@gmail.com");
+("admin", "Admin", "$2a$15$y1RbuEkAaGOvDwetY0avf.4u8wSCTvGG.Eyu75RcAjJiToTcHf9ki", "admin", "admin@admin.com"),
+("krish", "Krishneshvar", "$2a$15$I83qxVHp6NbK/lEbe/VOc.pS/oIHR8dp2u9Caaz3S3v03gixYmtBW", "user", "krishjn07@gmail.com"),
+("athish", "Athish", "$2a$15$f2blQpjXNFixBh5zel7FLu4j4SJ0fjlZPmNMySDoaSeo1RxQ3aqf.", "user", "hathish2503@gmail.com");

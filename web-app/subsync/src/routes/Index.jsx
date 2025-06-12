@@ -17,51 +17,63 @@ import ServiceDetails from '@/features/Services/pages/ServiceDetails.jsx';
 import Services from '@/features/Services/pages/Services.jsx';
 import Settings from '@/features/Settings/Settings.jsx';
 import Taxes from '@/features/Settings/Taxes.jsx';
-import Vendors from '@/features/Vendors/pages/Vendors';
+// import Vendors from '@/features/Vendors/pages/Vendors';
+
+import AuthLayout from '@/layouts/AuthLayout.jsx';
 
 const router = createBrowserRouter([
-  { path: "/", element: <LoginPage /> },
+  { path: "/login", element: <LoginPage /> },
   {
-    path: "/:username/dashboard",
-    element: <Dashboard />,
+    path: "/",
+    element: <AuthLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: "customers", element: <Customers /> },
-      { path: "customers/:id", element: <CustomerDetails /> },
-      { path: "customers/add", element: <AddCustomer /> },
-      { path: "customers/:id/edit", element: <AddCustomer /> },
-
-      { path: "domains", element: <Domains /> },
-      { path: "domains/:id", element: <CreateDomain /> },
-      { path: "domains/edit/:domainId", element: <CreateDomain /> },
-
-      { path: "services", element: <Services /> },
-      { path: "services/:id", element: <ServiceDetails /> },
-      { path: "services/add", element: <AddService /> },
-      { path: "services/:id/edit", element: <AddService /> },
-
-      { path: "vendors", element: <Vendors /> },
-
       {
-        path: "settings",
-        element: <Settings />,
+        path: "/:username/dashboard",
+        element: <Dashboard />,
         children: [
-          { path: "profile", element: <Settings /> },
+          { index: true, element: <Home /> },
+          { path: "customers", element: <Customers /> },
+          { path: "customers/:id", element: <CustomerDetails /> },
+          { path: "customers/add", element: <AddCustomer /> },
+          { path: "customers/:id/edit", element: <AddCustomer /> },
+
+          { path: "domains", element: <Domains /> },
+          { path: "domains/:id", element: <CreateDomain /> },
+          { path: "domains/edit/:domainId", element: <CreateDomain /> },
+
+          { path: "services", element: <Services /> },
+          { path: "services/:id", element: <ServiceDetails /> },
+          { path: "services/add", element: <AddService /> },
+          { path: "services/:id/edit", element: <AddService /> },
+
+          // { path: "vendors", element: <Vendors /> },
+
           {
-            path: "taxes",
-            element: <Taxes />,
+            path: "settings",
+            element: <Settings />,
             children: [
-              { path: "tax-rates", element: <AllTaxes /> },
-              { path: "tax-rates/add", element: <AddTax /> },
-              { path: "tax-rates/edit/:id", element: <AddTax /> },
-              { path: "default-tax-pref", element: <DefaultTaxPreference /> },
-              { path: "gst-settings", element: <GSTSettings /> },
+              { path: "profile", element: <Settings /> },
+              {
+                path: "taxes",
+                element: <Taxes />,
+                children: [
+                  { path: "tax-rates", element: <AllTaxes /> },
+                  { path: "tax-rates/add", element: <AddTax /> },
+                  { path: "tax-rates/edit/:id", element: <AddTax /> },
+                  { path: "default-tax-pref", element: <DefaultTaxPreference /> },
+                  { path: "gst-settings", element: <GSTSettings /> },
+                ]
+              }
             ]
           }
         ]
-      }
+      },
+      // Fallback for any other path not found within authenticated routes, or directly redirect unauthenticated
+      // This can be expanded with a 404 page if needed.
     ]
-  }
+  },
+  // { path: "*", element: <NotFoundPage /> },
 ]);
 
 export default router;

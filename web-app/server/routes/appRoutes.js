@@ -1,12 +1,12 @@
 import express from 'express';
 import { isAuthenticated } from '../middlewares/auth.js';
-import { validateLogin } from '../controllers/loginController.js';
+import Joi from 'joi';
 
-import { createCustomer, updateCustomerDetails, fetchAllCustomers,fetchAllCustomerDetails, customerDetailsByID , importCustomers} from '../controllers/customerController.js';
-import { getPaymentTerms, getPaymentTerm, createPaymentTerm, updatePaymentTermById, setDefaultPaymentTermController, deletePaymentTermById } from '../controllers/paymentTermsController.js';
+import { validateLogin, getUserDetails, logoutUser } from '../controllers/loginController.js';
+import { createCustomer, updateCustomer, getPaginatedCustomers, getAllCustomers, getCustomerById, importCustomers } from '../controllers/customerController.js';
+import { getPaymentTerms, getPaymentTerm, createPaymentTerm, updatePaymentTermById, deletePaymentTermById, setDefaultPaymentTermController } from '../controllers/paymentTerms.controller.js';
 import { createDomain, updateDomainDetails, fetchAllDomains, domainDetailsByID, importDomains } from '../controllers/domainController.js';
 import { createServiceController, getAllServicesController, getServiceByIdController, updateServiceController, deleteServiceController } from '../controllers/serviceController.js';
-import { createVendorController, getAllVendorsController, getVendorByIdController, updateVendorController, deleteVendorController } from "../controllers/vendorController.js";
 import { createItemGroupController, getAllItemGroupsController, getItemGroupByIdController, updateItemGroupController, deleteItemGroupController } from "../controllers/itemGroupController.js";
 import { getSubscriptionsController, createSubscription } from '../controllers/subscriptionController.js';
 import { getAllTaxes, createTax, editTax, deleteTax } from '../controllers/taxController.js';
@@ -16,14 +16,16 @@ const router = express.Router();
 
 // Login
 router.post('/login/user', validateLogin);
+router.get('/user/me', isAuthenticated, getUserDetails);
+router.post('/logout', logoutUser);
 
 // Customers
-router.post('/create-customer', isAuthenticated, createCustomer);
-router.get('/all-customers', isAuthenticated, fetchAllCustomers);
-router.get('/customer/:cid', isAuthenticated, customerDetailsByID);
-router.get('/all-customer-details', isAuthenticated, fetchAllCustomerDetails);
-router.put('/update-customer/:cid', isAuthenticated, updateCustomerDetails);
-router.post('/import-customers', isAuthenticated, importCustomers);
+router.post('/customers', isAuthenticated, createCustomer);
+router.get('/customers', isAuthenticated, getPaginatedCustomers);
+router.get('/customers/all-details', isAuthenticated, getAllCustomers);
+router.get('/customers/:id', isAuthenticated, getCustomerById);
+router.put('/customers/:id', isAuthenticated, updateCustomer);
+router.post('/customers/import', isAuthenticated, importCustomers);
 
 // Payment Terms
 router.get('/payment-terms', isAuthenticated, getPaymentTerms);
@@ -46,13 +48,6 @@ router.post('/create-service', isAuthenticated, createServiceController);
 router.get('/service/:id', isAuthenticated, getServiceByIdController);
 router.put('/update-service/:id', isAuthenticated, updateServiceController);
 router.delete('/delete-service/:id', isAuthenticated, deleteServiceController);
-
-// Vendors
-router.post('/create-vendor', isAuthenticated, createVendorController);
-router.get('/get-vendor/:id', isAuthenticated, getVendorByIdController);
-router.get('/all-vendors', isAuthenticated, getAllVendorsController);
-router.put('/update-vendor/:id', isAuthenticated, updateVendorController);
-router.delete('/delete-vendor/:id', isAuthenticated, deleteVendorController);
 
 // Item Groups
 router.post('/create-item-group', isAuthenticated, createItemGroupController);
