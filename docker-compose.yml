@@ -10,10 +10,10 @@ services:
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASS}"]
+      test: ["CMD-SHELL", "mysql -u${DB_USER} -p${DB_PASS} -e 'SELECT 1;' ${DB_NAME}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     restart: unless-stopped
 
   redis:
@@ -63,7 +63,7 @@ services:
       context: ./web-app/subsync
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:3000/api
+        VITE_API_URL: http://localhost/api
     ports:
       - "80:80"
     environment:

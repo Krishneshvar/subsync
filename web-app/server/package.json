@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon --exec 'node --max-old-space-size=8192' index.js",
+    "start": "node --max-old-space-size=8192 index.js"
   },
   "keywords": [],
   "author": "",
