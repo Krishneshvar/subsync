@@ -1,4 +1,4 @@
-import * as paymentTermModel from '../models/paymentTerms.model.js';
+import * as paymentTermModel from '../models/paymentTermsModel.js';
 import { NotFoundError, ConflictError, BadRequestError } from '../utils/appErrors.js';
 import logger from '../utils/logger.js';
 
@@ -54,7 +54,7 @@ export const updatePaymentTerm = async (termId, termName, days) => {
 
     if (termName && termName.toLowerCase() !== 'due on receipt' && days !== undefined && days === 0) {
         throw new BadRequestError('Days cannot be 0 unless the term name is "Due on Receipt".');
-    } else if (!termName && existingTerm.term_name.toLowerCase() !== 'due on receipt' && days !== undefined && days === 0) {'
+    } else if (!termName && existingTerm.term_name.toLowerCase() !== 'due on receipt' && days !== undefined && days === 0) {
         throw new BadRequestError('Days cannot be 0 unless the term name is "Due on Receipt".');
     }
 

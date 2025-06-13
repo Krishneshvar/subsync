@@ -19,7 +19,7 @@ import AddressSection from "@/features/Customers/components/AddressSection";
 import CompanyDetails from "@/features/Customers/components/CompanyDetails";
 import ContactPersonsSection from "@/features/Customers/components/ContactPersonsSection";
 import OtherDetails from "@/features/Customers/components/OtherDetails";
-import PaymentTermsSection from '@/features/Customers/components/PaymentTermsSection';
+import PaymentTermsSection from '@/features/PaymentTerms/components/PaymentTermsSection';
 import PersonalDetails from "@/features/Customers/components/PersonalDetails";
 import RemarksSection from "@/features/Customers/components/RemarksSection";
 

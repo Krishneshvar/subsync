@@ -16,6 +16,19 @@ services:
       retries: 5
     restart: unless-stopped
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: ./web-app/server
@@ -31,11 +44,15 @@ services:
       CLIENT_PORT: 5173
       NODE_PORT: 3000
       HOME_IP: "localhost"
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "pgrep node || exit 1"] # Check if a node process is running
+      test: ["CMD-SHELL", "pgrep node || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -58,3 +75,4 @@ services:
 
 volumes:
   db_data:
+  redis_data:

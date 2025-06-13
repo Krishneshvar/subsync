@@ -41,7 +41,8 @@ const validateLogin = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'Lax',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: 24 * 60 * 60 * 1000,
+            path: '/',
         });
 
         return res.status(200).json({
@@ -73,11 +74,30 @@ const getUserDetails = (req, res) => {
  * @param {Request} req
  * @param {Response} res
  */
-const logoutUser = (req, res) => {
+const logoutUser = async (req, res) => {
+    const token = req.cookies?.jwt;
+
+    if (token) {
+        try {
+            const decodedToken = jwt.decode(token);
+
+            if (decodedToken && decodedToken.exp) {
+                // remaining time until expiration in seconds
+                const expiresIn = decodedToken.exp - Math.floor(Date.now() / 1000);
+                if (expiresIn > 0) {
+                    await addTokenToBlacklist(token, expiresIn);
+                }
+            }
+        } catch (error) {
+            console.warn("Could not decode token for blacklisting or token already malformed/expired:", error.message);
+        }
+    }
+
     res.clearCookie('jwt', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'Lax',
+        path: '/',
     });
     return res.status(200).json({ success: true, message: "Logged out successfully." });
 };

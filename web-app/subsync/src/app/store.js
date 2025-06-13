@@ -1,36 +1,44 @@
+// store.js
 import { configureStore } from '@reduxjs/toolkit';
 
-import authReducer from '@/features/Auth/authSlice';
-import { authApiSlice } from '../features/Auth/authApiSlice';
+// 1. Import all elements from the combined authFeature.js file
+import { authApiSlice, authReducer } from '../features/Auth/authFeature'; // Adjusted import path
+
+// Import other RTK Query API slices
+import { customerApi } from '@/features/Customers/customerApi.js';
+import { paymentTermsApi } from '../features/PaymentTerms/paymentTermsApi';
+
+// Import other regular Redux slices
 import customerReducer from '@/features/Customers/customerSlice';
 import itemGroupReducer from '@/features/Services/itemGroupSlice';
 import serviceReducer from '@/features/Services/serviceSlice';
-// import vendorReducer from '@/features/Services/vendorReducer';
 import domainReducer from '@/features/Domains/domainSlice';
-import errorMiddleware from '@/app/middlewares/errorMiddleware.js';
-
-import { customerApi } from '@/features/Customers/customerApi.js';
-import { paymentTermsApi } from '../features/PaymentTerms/paymentTermsApi';
 import appReducer from './appSlice';
+
+// Import general middlewares
+import errorMiddleware from '@/app/middlewares/errorMiddleware.js';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
-    customers: customerReducer,
-    services: serviceReducer,
-    domains: domainReducer,
-    // vendors: vendorReducer,
-    itemGroups: itemGroupReducer,
-    app: appReducer,
+    // Add RTK Query API reducers first
     [authApiSlice.reducerPath]: authApiSlice.reducer,
     [customerApi.reducerPath]: customerApi.reducer,
     [paymentTermsApi.reducerPath]: paymentTermsApi.reducer,
+
+    // Then add your regular Redux slices
+    auth: authReducer, // Now imported from the combined file
+    customers: customerReducer,
+    services: serviceReducer,
+    domains: domainReducer,
+    itemGroups: itemGroupReducer,
+    app: appReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      errorMiddleware,
+      authApiSlice.middleware, // Middleware from the combined file
       customerApi.middleware,
-      authApiSlice.middleware,
       paymentTermsApi.middleware,
+      errorMiddleware,
     ),
+  devTools: process.env.NODE_ENV !== 'production',
 });

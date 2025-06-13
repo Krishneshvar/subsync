@@ -10,7 +10,7 @@ export const customerApi = createApi({
   endpoints: (builder) => ({
     getPaginatedCustomers: builder.query({
       query: ({ search = '', sort = 'display_name', order = 'asc', page = 1, limit = 10 }) => ({
-        url: '/api/customers',
+        url: '/customers',
         params: { search, sort, order, page, limit },
       }),
       providesTags: (result) =>
@@ -50,7 +50,7 @@ export const customerApi = createApi({
     }),
 
     getCustomerById: builder.query({
-      query: (id) => `/api/customers/${id}`,
+      query: (id) => `/customers/${id}`,
       providesTags: (result, error, id) => [{ type: 'Customer', id }],
       transformResponse: (response) => {
         const customer = response.customer;
@@ -81,7 +81,7 @@ export const customerApi = createApi({
 
     createCustomer: builder.mutation({
       query: (newCustomer) => ({
-        url: '/api/customers',
+        url: '/customers',
         method: 'POST',
         body: newCustomer,
       }),
@@ -90,7 +90,7 @@ export const customerApi = createApi({
 
     updateCustomer: builder.mutation({
       query: ({ id, ...patch }) => ({
-        url: `/api/customers/${id}`,
+        url: `/customers/${id}`,
         method: 'PUT',
         body: patch,
       }),
@@ -99,7 +99,7 @@ export const customerApi = createApi({
 
     importCustomers: builder.mutation({
       query: (customersToImport) => ({
-        url: '/api/customers/import',
+        url: '/customers/import',
         method: 'POST',
         body: { customers: customersToImport },
       }),

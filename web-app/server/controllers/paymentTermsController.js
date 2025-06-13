@@ -1,4 +1,4 @@
-import * as paymentTermService from '../services/paymentTerms.service.js';
+import * as paymentTermService from '../services/paymentTermsService.js';
 import logger from '../utils/logger.js';
 
 export const getPaymentTerms = async (req, res, next) => {

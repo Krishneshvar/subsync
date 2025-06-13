@@ -4,7 +4,7 @@ import Joi from 'joi';
 
 import { validateLogin, getUserDetails, logoutUser } from '../controllers/loginController.js';
 import { createCustomer, updateCustomer, getPaginatedCustomers, getAllCustomers, getCustomerById, importCustomers } from '../controllers/customerController.js';
-import { getPaymentTerms, getPaymentTerm, createPaymentTerm, updatePaymentTermById, deletePaymentTermById, setDefaultPaymentTermController } from '../controllers/paymentTerms.controller.js';
+import { getPaymentTerms, getPaymentTerm, createPaymentTerm, updatePaymentTermById, deletePaymentTermById, setDefaultPaymentTermController } from '../controllers/paymentTermsController.js';
 import { createDomain, updateDomainDetails, fetchAllDomains, domainDetailsByID, importDomains } from '../controllers/domainController.js';
 import { createServiceController, getAllServicesController, getServiceByIdController, updateServiceController, deleteServiceController } from '../controllers/serviceController.js';
 import { createItemGroupController, getAllItemGroupsController, getItemGroupByIdController, updateItemGroupController, deleteItemGroupController } from "../controllers/itemGroupController.js";

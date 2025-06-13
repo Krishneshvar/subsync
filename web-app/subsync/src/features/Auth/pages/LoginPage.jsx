@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer, Bounce } from 'react-toastify';
 import { useState, useEffect } from 'react';
 
-import { useLoginMutation } from '../authApiSlice';
-import { setCredentials } from '../authSlice';
-
+import { useLoginMutation, setCredentials } from '../authFeature';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -65,6 +63,8 @@ function LoginPage() {
     e.preventDefault();
     try {
       const result = await login({ username, password }).unwrap();
+      console.log("Login result:", result);
+      dispatch(setCredentials(result.user));
     } catch (err) {
       console.error("Failed to login:", err);
     }

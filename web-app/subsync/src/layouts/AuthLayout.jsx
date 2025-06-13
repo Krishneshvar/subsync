@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { fetchUserDetailsOnLoad } from '@/features/Auth/authSlice';
+import { fetchUserDetailsOnLoad } from '@/features/Auth/authFeature';
 
 const AuthLayout = () => {
   const dispatch = useDispatch();
