@@ -58,20 +58,20 @@ services:
       retries: 3
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./web-app/subsync
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: http://localhost/api
-    ports:
-      - "80:80"
-    environment:
-      NGINX_HOST: 0.0.0.0
-    depends_on:
-      backend:
-        condition: service_healthy
-    restart: unless-stopped
+  # frontend:
+  #   build:
+  #     context: ./web-app/subsync
+  #     dockerfile: Dockerfile
+  #     args:
+  #       VITE_API_URL: http://localhost/api
+  #   ports:
+  #     - "80:80"
+  #   environment:
+  #     NGINX_HOST: 0.0.0.0
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
+  #   restart: unless-stopped
 
 volumes:
   db_data:

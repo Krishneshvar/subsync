@@ -36,7 +36,12 @@ import {
 } from '../paymentTermsApi.js';
 
 const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
-  const { data: paymentTerms = [], isLoading, isError, error, refetch } = useGetPaymentTermsQuery();
+  // Destructure data as 'paymentTermsResponse' and then safely access paymentTermsResponse.data
+  const { data: paymentTermsResponse, isLoading, isError, error, refetch } = useGetPaymentTermsQuery();
+
+  // Safely access the array of payment terms, defaulting to an empty array if not present
+  const paymentTerms = paymentTermsResponse?.data || [];
+
   const [addPaymentTerm] = useAddPaymentTermMutation();
   const [updatePaymentTerm] = useUpdatePaymentTermMutation();
   const [deletePaymentTerm] = useDeletePaymentTermMutation();
@@ -51,14 +56,15 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   const [termToDelete, setTermToDelete] = useState(null);
 
   useEffect(() => {
+    // Only attempt to set a default if paymentTerms has loaded and is not empty, and no term is already selected
     if (!selectedTerm && paymentTerms.length > 0) {
-      const defaultTerm = paymentTerms.find(term => term.isDefault) || paymentTerms[0];
+      const defaultTerm = paymentTerms.find(term => term.is_default) || paymentTerms[0]; // Use is_default from backend
       if (defaultTerm) {
         onTermChange({
-          termId: defaultTerm.termId,
-          termName: defaultTerm.termName,
+          termId: defaultTerm.term_id,    // Use term_id from backend
+          termName: defaultTerm.term_name,  // Use term_name from backend
           days: Number(defaultTerm.days),
-          isDefault: defaultTerm.isDefault,
+          isDefault: defaultTerm.is_default, // Use is_default from backend
         });
       }
     }
@@ -71,7 +77,6 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
     }
   }, [isError, error]);
 
-
   const validateTerm = (term, isNew = true) => {
     let errors = {};
     if (!term.termName.trim()) {
@@ -79,9 +84,10 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
     }
 
     let daysValue = Number(term.days);
-    if (term.termName.toLowerCase() === 'due on receipt') {
+    // Ensure "Due on Receipt" always has 0 days, regardless of user input
+    if (term.termName.toLowerCase().trim() === 'due on receipt') {
       daysValue = 0;
-      term.days = 0;
+      term.days = 0; // Update the term object directly to reflect 0 days
     } else if (isNaN(daysValue) || daysValue < 0) {
       errors.days = 'Days must be a valid non-negative number.';
     }
@@ -101,8 +107,8 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
 
     try {
       const termData = {
-        termName: newTerm.termName.trim(),
-        days: newTerm.termName.toLowerCase() === 'due on receipt' ? 0 : Number(newTerm.days)
+        term_name: newTerm.termName.trim(), // Match backend key 'term_name'
+        days: newTerm.termName.toLowerCase().trim() === 'due on receipt' ? 0 : Number(newTerm.days)
       };
       await addPaymentTerm(termData).unwrap();
       setNewTerm({ termName: '', days: '' });
@@ -122,9 +128,9 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
 
     try {
       const termData = {
-        termId: editingTerm.termId,
-        termName: editingTerm.termName.trim(),
-        days: editingTerm.termName.toLowerCase() === 'due on receipt' ? 0 : Number(editingTerm.days)
+        term_id: editingTerm.termId,      // Match backend key 'term_id'
+        term_name: editingTerm.termName.trim(), // Match backend key 'term_name'
+        days: editingTerm.termName.toLowerCase().trim() === 'due on receipt' ? 0 : Number(editingTerm.days)
       };
       await updatePaymentTerm(termData).unwrap();
       setEditingTerm(null);
@@ -139,7 +145,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   const handleDeleteConfirmed = async () => {
     if (!termToDelete) return;
     try {
-      await deletePaymentTerm(termToDelete.termId).unwrap();
+      await deletePaymentTerm(termToDelete.term_id).unwrap(); // Use term_id
       toast.success('Payment term deleted successfully');
       setTermToDelete(null);
     } catch (err) {
@@ -159,13 +165,14 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   };
 
   const handleTermSelection = (value) => {
-    const term = paymentTerms.find(t => t.termName === value);
+    // Find the term by its name, then update selectedTerm
+    const term = paymentTerms.find(t => t.term_name === value); // Use term_name for finding
     if (term) {
       onTermChange({
-        termId: term.termId,
-        termName: term.termName,
+        termId: term.term_id,
+        termName: term.term_name,
         days: Number(term.days),
-        isDefault: term.isDefault
+        isDefault: term.is_default
       });
     }
   };
@@ -177,7 +184,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
           <Label htmlFor="payment-terms">Payment Terms</Label>
           <div className="flex gap-2 mt-1">
             <Select
-              value={selectedTerm?.termName || ''}
+              value={selectedTerm?.termName || ''} // Use selectedTerm.termName for value
               onValueChange={handleTermSelection}
               disabled={isLoading}
             >
@@ -186,13 +193,14 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
               </SelectTrigger>
               <SelectContent>
                 {isLoading ? (
-                  <SelectItem value="loading" disabled>Loading terms...</SelectItem>
+                  <SelectItem key="loading-terms" value="loading" disabled>Loading terms...</SelectItem>
                 ) : paymentTerms.length === 0 ? (
-                  <SelectItem value="no-terms" disabled>No terms available</SelectItem>
+                  <SelectItem key="no-terms-available" value="no-terms" disabled>No terms available</SelectItem>
                 ) : (
+                  // Map directly over the 'paymentTerms' array
                   paymentTerms.map((term) => (
-                    <SelectItem key={term.termId} value={term.termName}>
-                      {term.termName} ({term.days || 0} days)
+                    <SelectItem key={term.term_id} value={term.term_name}>
+                      {term.term_name} ({term.days || 0} days)
                     </SelectItem>
                   ))
                 )}
@@ -217,11 +225,11 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                     variant="outline"
                     className="w-full bg-blue-500 text-white hover:bg-blue-600"
                     onClick={() => {
-                        setIsAddingNew(true);
-                        setNewTerm({ termName: '', days: '' });
-                        setNewTermErrors({});
-                        setEditingTerm(null);
-                        setEditingTermErrors({});
+                      setIsAddingNew(true);
+                      setNewTerm({ termName: '', days: '' });
+                      setNewTermErrors({});
+                      setEditingTerm(null);
+                      setEditingTermErrors({});
                     }}
                   >
                     + Add New Payment Term
@@ -234,13 +242,14 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                         id="new-term-name"
                         value={newTerm.termName}
                         onChange={(e) => {
-                            const newName = e.target.value;
-                            let newDays = newTerm.days;
-                            if (newName.toLowerCase() === 'due on receipt') {
-                                newDays = 0;
-                            }
-                            setNewTerm({ ...newTerm, termName: newName, days: newDays });
-                            setNewTermErrors((prev) => ({ ...prev, termName: '' }));
+                          const newName = e.target.value;
+                          let newDays = newTerm.days;
+                          // Automatically set days to 0 if "Due on Receipt" is entered
+                          if (newName.toLowerCase().trim() === 'due on receipt') {
+                            newDays = 0;
+                          }
+                          setNewTerm({ ...newTerm, termName: newName, days: newDays });
+                          setNewTermErrors((prev) => ({ ...prev, termName: '' }));
                         }}
                         placeholder="Term name"
                         className={cn(newTermErrors.termName && "border-red-500")}
@@ -256,11 +265,11 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                         value={newTerm.days}
                         onChange={(e) => {
                           setNewTerm({ ...newTerm, days: e.target.value });
-                          setNewTermErrors((prev) => ({ ...prev, days: '' })); // Clear error on change
+                          setNewTermErrors((prev) => ({ ...prev, days: '' }));
                         }}
                         placeholder="Days"
                         className={cn("w-24", newTermErrors.days && "border-red-500")}
-                        disabled={newTerm.termName.toLowerCase() === 'due on receipt'}
+                        disabled={newTerm.termName.toLowerCase().trim() === 'due on receipt'} // Disable if "Due on Receipt"
                       />
                       {newTermErrors.days && (
                         <p className="text-red-500 text-sm">{newTermErrors.days}</p>
@@ -278,23 +287,24 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                   )}
 
                   <div className="max-h-[400px] overflow-y-auto space-y-4">
+                    {/* Ensure paymentTerms is an array before mapping */}
                     {paymentTerms.map((term) => (
-                      <div key={term.termId} className="flex items-center gap-4 p-4 border rounded-lg">
-                        {editingTerm?.termId === term.termId ? (
+                      <div key={term.term_id} className="flex items-center gap-4 p-4 border rounded-lg">
+                        {editingTerm?.termId === term.term_id ? (
                           <>
                             <div className="flex-1 flex flex-col gap-1">
-                              <Label htmlFor={`edit-term-name-${term.termId}`} className="sr-only">Term name</Label>
+                              <Label htmlFor={`edit-term-name-${term.term_id}`} className="sr-only">Term name</Label>
                               <Input
-                                id={`edit-term-name-${term.termId}`}
+                                id={`edit-term-name-${term.term_id}`}
                                 value={editingTerm.termName}
                                 onChange={(e) => {
-                                    const newName = e.target.value;
-                                    let newDays = editingTerm.days;
-                                    if (newName.toLowerCase() === 'due on receipt') {
-                                        newDays = 0;
-                                    }
-                                    setEditingTerm({ ...editingTerm, termName: newName, days: newDays });
-                                    setEditingTermErrors((prev) => ({ ...prev, termName: '' }));
+                                  const newName = e.target.value;
+                                  let newDays = editingTerm.days;
+                                  if (newName.toLowerCase().trim() === 'due on receipt') {
+                                    newDays = 0;
+                                  }
+                                  setEditingTerm({ ...editingTerm, termName: newName, days: newDays });
+                                  setEditingTermErrors((prev) => ({ ...prev, termName: '' }));
                                 }}
                                 className={cn("flex-1", editingTermErrors.termName && "border-red-500")}
                               />
@@ -303,9 +313,9 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                               )}
                             </div>
                             <div className="flex flex-col gap-1">
-                              <Label htmlFor={`edit-term-days-${term.termId}`} className="sr-only">Days</Label>
+                              <Label htmlFor={`edit-term-days-${term.term_id}`} className="sr-only">Days</Label>
                               <Input
-                                id={`edit-term-days-${term.termId}`}
+                                id={`edit-term-days-${term.term_id}`}
                                 type="number"
                                 value={editingTerm.days}
                                 onChange={(e) => {
@@ -314,7 +324,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                                 }}
                                 placeholder="Days"
                                 className={cn("w-24", editingTermErrors.days && "border-red-500")}
-                                disabled={editingTerm.termName.toLowerCase() === 'due on receipt'}
+                                disabled={editingTerm.termName.toLowerCase().trim() === 'due on receipt'}
                               />
                               {editingTermErrors.days && (
                                 <p className="text-red-500 text-sm">{editingTermErrors.days}</p>
@@ -328,19 +338,25 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                           </>
                         ) : (
                           <>
-                            <span className="flex-1 font-medium">{term.termName}</span>
+                            <span className="flex-1 font-medium">{term.term_name}</span>
                             <span className="w-24 text-gray-600 text-right">{term.days} days</span>
                             <Button
-                              variant={term.isDefault ? "default" : "outline"}
-                              onClick={() => handleSetDefault(term.termId)}
-                              disabled={term.isDefault}
+                              variant={term.is_default ? "default" : "outline"} // Use is_default
+                              onClick={() => handleSetDefault(term.term_id)} // Use term_id
+                              disabled={term.is_default} // Use is_default
                             >
-                              {term.isDefault ? "Default" : "Set Default"}
+                              {term.is_default ? "Default" : "Set Default"}
                             </Button>
                             <Button
                               variant="outline"
                               onClick={() => {
-                                setEditingTerm({ ...term });
+                                // Set editingTerm with current term's properties (using camelCase for frontend state)
+                                setEditingTerm({
+                                  termId: term.term_id,
+                                  termName: term.term_name,
+                                  days: term.days,
+                                  isDefault: term.is_default,
+                                });
                                 setIsAddingNew(false);
                                 setNewTermErrors({});
                               }}
@@ -352,17 +368,17 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
                                 <Button
                                   variant="destructive"
                                   onClick={() => setTermToDelete(term)}
-                                  disabled={term.isDefault}
+                                  disabled={term.is_default}
                                 >
                                   Delete
                                 </Button>
                               </AlertDialogTrigger>
-                              {termToDelete?.termId === term.termId && (
+                              {termToDelete?.term_id === term.term_id && (
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      This action cannot be undone. This will permanently delete the "{termToDelete.termName}" payment term.
+                                      This action cannot be undone. This will permanently delete the "{termToDelete?.term_name}" payment term.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
