@@ -3,7 +3,7 @@ import { isAuthenticated } from '../middlewares/auth.js';
 import { validateLogin } from '../controllers/loginController.js';
 
 import { createCustomer, updateCustomerDetails, fetchAllCustomers,fetchAllCustomerDetails, customerDetailsByID , importCustomers} from '../controllers/customerController.js';
-import { getPaymentTerms, getPaymentTerm, createPaymentTerm, updatePaymentTermById, deletePaymentTermById } from '../controllers/paymentTermsController.js';
+import { getPaymentTerms, getPaymentTerm, createPaymentTerm, updatePaymentTermById, deletePaymentTermById, setDefaultPaymentTerm } from '../controllers/paymentTermsController.js';
 import { createDomain, updateDomainDetails, fetchAllDomains, domainDetailsByID, importDomains } from '../controllers/domainController.js';
 import { createServiceController, getAllServicesController, getServiceByIdController, updateServiceController, deleteServiceController } from '../controllers/serviceController.js';
 import { createVendorController, getAllVendorsController, getVendorByIdController, updateVendorController, deleteVendorController } from "../controllers/vendorController.js";
@@ -31,6 +31,7 @@ router.get('/payment-terms/:id', isAuthenticated, getPaymentTerm);
 router.post('/payment-terms', isAuthenticated, createPaymentTerm);
 router.put('/payment-terms/:id', isAuthenticated, updatePaymentTermById);
 router.delete('/payment-terms/:id', isAuthenticated, deletePaymentTermById);
+router.put('/payment-terms/:id/default', isAuthenticated, setDefaultPaymentTerm )
 
 //Domain
 router.post('/create-domain', isAuthenticated, createDomain);

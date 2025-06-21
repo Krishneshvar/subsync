@@ -3,7 +3,8 @@ import {
     getPaymentTermById,
     addPaymentTerm,
     updatePaymentTerm,
-    deletePaymentTerm
+    deletePaymentTerm,
+    updateDefaultPaymentTerm
 } from '../models/paymentTermsModel.js';
 
 export const getPaymentTerms = async (req, res) => {
@@ -76,3 +77,17 @@ export const deletePaymentTermById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }; 
+
+export const setDefaultPaymentTerm = async (req, res) => {
+    try {
+        const {id} = req.params;
+        await updateDefaultPaymentTerm(id);
+        res.json({message: 'Default Payment Terms Updated!'});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            success: false, 
+            message: 'Error in setting default payment terms'
+        })
+    }
+}

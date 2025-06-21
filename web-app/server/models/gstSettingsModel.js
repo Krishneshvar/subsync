@@ -3,30 +3,8 @@ import appDB from "../db/subsyncDB.js";
 // Fetch GST settings
 async function getGSTSettings() {
     try {
-        const [rows] = await appDB.query("SELECT gst_settings FROM taxes LIMIT 1");
-
-        if (!rows.length || !rows[0].gst_settings) {
-            console.warn("GST settings not found, returning empty default.");
-            return {
-                taxRegistrationNumberLabel: "",
-                gstin: "",
-                businessLegalName: "",
-                businessTradeName: "",
-                gstRegisteredOn: ""
-            }; // Return empty default instead of null
-        }        
-
-        console.log("Raw gst_settings from DB:", rows[0].gst_settings);
-
-        let settings;
-        try {
-            settings = rows[0].gst_settings; // Ensure it's valid JSON
-        } catch (error) {
-            console.error("Error parsing gst_settings:", error.message, "Stored Value:", rows[0].gst_settings);
-            throw new Error("Invalid gst_settings format in database.");
-        }
-
-        return settings;
+        const [rows] = await appDB.query("SELECT * from gst_settings ");
+        console.log(rows);
     } catch (error) {
         console.error("Error fetching GST settings:", error.message);
         throw new Error("Database query failed");

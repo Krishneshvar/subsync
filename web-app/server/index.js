@@ -4,10 +4,13 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import router from './routes/appRoutes.js';
+import colors from 'colors';
+import morgan from 'morgan';
 
 dotenv.config();
 const app = express();
 app.use(express.json());
+app.use(morgan('dev'))
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
@@ -24,17 +27,17 @@ app.use(cors({
   credentials: true,
 }));
 
-/**
- * Rate limiting middleware
- * @type {RateLimitRequestHandler}
- */
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-});
+// /**
+//  * Rate limiting middleware
+//  * @type {RateLimitRequestHandler}
+//  */
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // 100 requests per windowMs
+//   message: 'Too many requests from this IP, please try again later.',
+// });
 
-app.use(limiter);
+// app.use(limiter);
 app.use("/", router);
 
 
@@ -44,5 +47,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(process.env.NODE_PORT, () => {
-  console.log(`Server is running at http://localhost:${process.env.NODE_PORT}`);
+  console.log(`Server is running at http://localhost:${process.env.NODE_PORT}`.bgGreen.green);
 });

@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import colors from 'colors'
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ const appDB = mysql.createPool({
 async function testConnection() {
   try {
     const connection = await appDB.getConnection();
-    console.log('Connected to appDB');
+    console.log('Connected to appDB'.bgGreen.white);
     await connection.release();
   }
   catch (err) {

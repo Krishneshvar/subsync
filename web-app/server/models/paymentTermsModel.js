@@ -67,3 +67,22 @@ export const deletePaymentTerm = async (termId) => {
         throw new Error('Failed to delete payment term');
     }
 }; 
+
+
+export const updateDefaultPaymentTerm = async (termId) => {
+    try {
+        
+        await appDB.query('UPDATE payment_terms SET is_default = 0');
+
+        
+        const [result] = await appDB.query(
+            'UPDATE payment_terms SET is_default = 1 WHERE term_id = ?', 
+            [termId]
+        );
+
+        return result;
+    } catch (error) {
+        console.error('Error setting default payment term:', error);
+        throw error; 
+    }
+};
