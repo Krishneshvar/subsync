@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { apiLoginUser } from './services/authAPI';
 
-const storedUser = localStorage.getItem('subsync_user');
+const storedUser = sessionStorage.getItem('subsync_user');
 
 const initialState = {
   user: storedUser ? JSON.parse(storedUser) : null,
@@ -18,9 +18,9 @@ export const loginUser = createAsyncThunk(
       const userData = await apiLoginUser(username, password);
 
       if (userData.token){
-        localStorage.setItem('subsync_token', userData.token);
+        sessionStorage.setItem('subsync_token', userData.token);
       }
-      localStorage.setItem('subsync_user', JSON.stringify(userData));
+      sessionStorage.setItem('subsync_user', JSON.stringify(userData));
       return userData;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message || 'Login failed.');
@@ -37,8 +37,8 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
       state.error = null;
-      localStorage.removeItem('subsync_user');
-      localStorage.removeItem('subsync_token');
+      sessionStorage.removeItem('subsync_user');
+      sessionStorage.removeItem('subsync_token');
     },
   },
   extraReducers: (builder) => {

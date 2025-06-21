@@ -35,7 +35,7 @@ const AddressSection = ({
   };
 
   const address = customerData.address || {};
-  const countryValue = address.country || "IN";
+  const countryValue = address.country;
 
   return (
     <>

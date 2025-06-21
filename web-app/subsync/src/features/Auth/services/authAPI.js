@@ -20,7 +20,7 @@ const apiLoginUser = async (username, password) => {
 
     // If a token is present in the response, store it in local storage
     if (data.token) {
-      localStorage.setItem('subsync_token', data.token);
+      sessionStorage.setItem('subsync_token', data.token);
     }
 
     return data;

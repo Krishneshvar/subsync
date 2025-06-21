@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-
 import api from '@/lib/axiosInstance.js';
 
 const useFetchData = (url, params = {}) => {
@@ -20,7 +19,7 @@ const useFetchData = (url, params = {}) => {
           withCredentials: true,
         });
 
-        setData(response.data.customers || []);
+        setData(response.data.vendors || response.data.customers || response.data || []);
         setTotalPages(response.data.totalPages || 1);
       } catch (err) {
         setError("Failed to load data. Please try again later.");

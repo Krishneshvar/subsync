@@ -11,11 +11,19 @@ function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
         <TableHeader className="bg-blue-500 text-primary-foreground rounded-lg">
           <TableRow>
             {headers.map((header) => (
-              <th className="justify-start mr-2px-4 py-2" key={header.key}>
+              <TableCell
+                as="th"
+                className="px-4 py-2 text-left font-semibold"
+                key={header.key}
+              >
                 {header.label}
-              </th>
+              </TableCell>
             ))}
-            {actions && <th className="px-4 py-2">Actions</th>}
+            {actions && (
+              <TableCell as="th" className="px-4 py-2 text-left font-semibold">
+                Actions
+              </TableCell>
+            )}
           </TableRow>
         </TableHeader>
 
@@ -26,13 +34,14 @@ function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
                 <TableCell
                   key={`${item[primaryKey]}-${header.key}`}
                   className={
-                    header.key === "customer_status"
+                    "px-4 py-2 text-left " +
+                    (header.key === "customer_status"
                       ? item[header.key] === "Active"
                         ? "text-green-500 font-bold"
                         : item[header.key] === "Inactive"
                         ? "text-red-500 font-bold"
                         : ""
-                      : ""
+                      : "")
                   }
                 >
                   {item[header.key] || "N/A"}
@@ -40,7 +49,7 @@ function GenericTable({ headers, data, actions, basePath, primaryKey = "id" }) {
               ))}
 
               {actions && (
-                <TableCell>
+                <TableCell className="px-4 py-2 text-left">
                   <Link to={`${basePath}/${item[primaryKey]}`}>
                     <Button
                       variant="ghost"

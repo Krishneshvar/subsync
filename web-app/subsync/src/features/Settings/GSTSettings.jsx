@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import api from "../../lib/axiosInstance";
 
 function GSTSettings() {
     const [formDetails, setFormDetails] = useState({
@@ -19,14 +20,14 @@ function GSTSettings() {
     useEffect(() => {
         const fetchGSTSettings = async () => {
             try {
-                const response = await fetch("http://localhost:3000/get-gst-settings");
-                const data = await response.json();
+                const response = await api.get("/gst-settings");
+                const data = response.data;
 
-                if (!response.ok || !data.success) {
+                if (!data.success) {
                     throw new Error(data.error || "GST settings retrieval failed.");
-                }                
+                }
 
-                setFormDetails(data.settings || {});
+                setFormDetails(data);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching GST settings:", error.message);
@@ -49,14 +50,8 @@ function GSTSettings() {
         try {
             console.log("Form Data:", formDetails);
 
-            const response = await fetch("http://localhost:3000/update-gst-settings", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formDetails)
-            });
-
+            const response = await api.put("/update-gst-settings", formDetails);
+            console.log("Response:", response);
             const data = await response.json();
 
             if (!response.ok) {

@@ -31,9 +31,10 @@ const AddCustomer = () => {
   const [contactPersons, setContactPersons] = useState([]);
   const [activeTab, setActiveTab] = useState("otherDetails");
   const [isEditing, setIsEditing] = useState(!!editableCustomerId);
+  const [paymentTermsList, setPaymentTermsList] = useState([]);
 
   const [customerData, setCustomerData] = useState({
-    salutation: "",
+    salutation: "Mr.",
     firstName: "",
     lastName: "",
     companyName: "",
@@ -43,12 +44,12 @@ const AddCustomer = () => {
     phoneNumber: "",
     secondaryPhoneNumber: "",
     gstin: "",
-    gst_treatment: "",
+    gst_treatment: "CGST & SGST",
     tax_preference: "Taxable",
     exemption_reason: "",
-    currencyCode: { label: "INR", value: "INR" },
+    currencyCode: "INR",
     address: {
-      country: { label: "India", value: "IN" },
+      country: "IN",
       addressLine: "",
       state: null,
       city: "",
@@ -61,7 +62,7 @@ const AddCustomer = () => {
 
   const resetCustomerData = () => {
     setCustomerData({
-      salutation: "",
+      salutation: "Mr.",
       firstName: "",
       lastName: "",
       companyName: "",
@@ -71,12 +72,12 @@ const AddCustomer = () => {
       phoneNumber: "",
       secondaryPhoneNumber: "",
       gstin: "",
-      gst_treatment: "",
+      gst_treatment: "CGST & SGST",
       tax_preference: "Taxable",
       exemption_reason: "",
       currencyCode: { label: "INR", value: "INR" },
       address: {
-        country: { label: "India", value: "IN" },
+        country: "IN",
         addressLine: "",
         state: null,
         city: "",
@@ -113,6 +114,33 @@ const AddCustomer = () => {
   }, [editableCustomerId, dispatch]);
 
   useEffect(() => {
+  // Fetch payment terms for matching
+  const fetchTerms = async () => {
+    try {
+      const response = await api.get('/payment-terms');
+      setPaymentTermsList(response.data || []);
+    } catch (e) {
+      setPaymentTermsList([]);
+    }
+  };
+  fetchTerms();
+  }, []);
+
+  useEffect(() => {
+  if (currentCustomer && isEditing && paymentTermsList.length > 0) {
+    // Find the matching term object from the list
+    const matchedTerm = paymentTermsList.find(
+      t => t.term_name === currentCustomer.payment_terms?.term_name
+    );
+    setCustomerData(prev => ({
+      ...prev,
+      payment_terms: matchedTerm || currentCustomer.payment_terms,
+    }));
+  }
+
+  }, [currentCustomer, isEditing, paymentTermsList.length]);
+
+  useEffect(() => {
     if (currentCustomer && isEditing) {
       setCustomerData({
         salutation: currentCustomer.salutation,
@@ -143,6 +171,8 @@ const AddCustomer = () => {
       setContactPersons(currentCustomer.other_contacts || []);
     }
   }, [currentCustomer, isEditing]);
+
+  
 
   useEffect(() => {
     if (!customerData.address.state) {

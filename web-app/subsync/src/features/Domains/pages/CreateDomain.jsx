@@ -199,10 +199,15 @@ function AddDomain() {
           <Label>Customer Name</Label>
           <Select
             options={filteredCustomers}
-            onInputChange={(val, { action }) => action === "input-change" && setSearchTerm(val)}
+            inputValue={searchTerm}
+            onInputChange={(val, { action }) => {
+              if (action === "input-change") setSearchTerm(val);
+              if (action === "menu-close") setSearchTerm("");
+            }}
             onChange={(s) => {
               setFormData({ ...formData, customerId: s?.value || "" });
-              setSelectedCustomer(s);
+              setSelectedCustomer(s || null);
+              setSearchTerm(""); 
             }}
             value={selectedCustomer}
             placeholder="Search customer"
@@ -288,6 +293,9 @@ function AddDomain() {
 
         <div className="pt-6">
           <Button type="submit">{isEditing ? "Update Domain" : "Create Domain"}</Button>
+          <Button type="button" variant="secondary" className="ml-4" onClick={() => navigate(-1)}>
+            Cancel
+          </Button>
         </div>
       </form>
     </div>

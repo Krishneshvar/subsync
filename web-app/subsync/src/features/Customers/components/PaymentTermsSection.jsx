@@ -101,6 +101,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
     }
   };
 
+
   const handleDeleteTerm = async (termId) => {
     try {
       await api.delete(`/payment-terms/${termId}`);
@@ -115,6 +116,10 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
     try {
       await api.put(`/payment-terms/${termId}/default`);
       await fetchPaymentTerms();
+      const newDefaultTerm = paymentTerms.find(t => t.term_id === termId);
+      if (newDefaultTerm){
+        onTermChange(newDefaultTerm);
+      }
       toast.success('Default payment term updated');
     } catch (error) {
       toast.error('Failed to set default payment term');
@@ -135,7 +140,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="container my-4 mx-2">
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <Label htmlFor="payment-terms">Payment Terms</Label>
@@ -145,7 +150,7 @@ const PaymentTermsSection = ({ selectedTerm, onTermChange }) => {
               onValueChange={handleTermSelection}
               className="flex-1"
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-60">
                 <SelectValue placeholder="Select payment term" />
               </SelectTrigger>
               <SelectContent>

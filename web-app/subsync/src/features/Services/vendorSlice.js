@@ -17,11 +17,26 @@ export const fetchVendors = createAsyncThunk(
     }
 );
 
+export const fetchAllVendors = createAsyncThunk(
+    "vendors/fetchAllVendors",
+    async (_, thunkAPI) => {
+        try {
+            const response = await api.get("/all-vendors")
+            console.log("Fetched all vendors:", response.data);
+            return response.data.vendors || [];
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 export const createVendor = createAsyncThunk(
     "vendors/createVendor",
     async (vendorData, thunkAPI) => {
         try {
+            console.log("Data to be sent:", vendorData);
             const response = await api.post("/create-vendor", vendorData);
+            
             toast.success('Vendor added successfully.');
             return response.data;
         } catch (error) {
@@ -82,6 +97,13 @@ const vendorSlice = createSlice({
             .addCase(fetchVendors.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+            // fetch all vendors
+            .addCase(fetchAllVendors.fulfilled, (state, action) => {
+              state.loading = false;
+              state.list = action.payload.vendors || [];
+              state.totalPages = action.payload.totalPages || 1;
+              state.error = null;
             })
             // create
             .addCase(createVendor.pending, (state) => {

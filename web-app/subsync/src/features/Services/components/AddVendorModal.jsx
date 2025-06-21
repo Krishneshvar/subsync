@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import countryList from "react-select-country-list";
 
@@ -25,17 +25,18 @@ import RemarksSection from "@/features/Customers/components/RemarksSection";
 
 import { createVendor, updateVendor } from "@/features/Services/vendorSlice";
 
-const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdded }) => {
+const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdded, isOpen, setIsOpen  }) => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false);
+ 
   const [activeTab, setActiveTab] = useState("otherDetails");
   const [contactPersons, setContactPersons] = useState([]);
   const [states, setStates] = useState([]);
 
+
   const countries = countryList().getData();
 
   const [vendorData, setVendorData] = useState({
-    salutation: "",
+    salutation: "Mr.",
     firstName: "",
     lastName: "",
     companyName: "",
@@ -45,12 +46,12 @@ const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdde
     phoneNumber: "",
     secondaryPhoneNumber: "",
     gstin: "",
-    gst_treatment: "",
+    gst_treatment: "CGST & SGST",
     tax_preference: "Taxable",
     exemption_reason: "",
-    currencyCode: { label: "INR", value: "INR" },
+    currencyCode: "INR",
     address: {
-      country: { label: "India", value: "IN" },
+      country: "IN",
       addressLine: "",
       state: null,
       city: "",
@@ -63,7 +64,7 @@ const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdde
 
   const resetVendorData = () => {
     setVendorData({
-      salutation: "",
+      salutation: "Mr.",
       firstName: "",
       lastName: "",
       companyName: "",
@@ -76,9 +77,9 @@ const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdde
       gst_treatment: "",
       tax_preference: "Taxable",
       exemption_reason: "",
-      currencyCode: { label: "INR", value: "INR" },
+      currencyCode: "INR",
       address: {
-        country: { label: "India", value: "IN" },
+        country:{ label: "India", value: "IN" },
         addressLine: "",
         state: null,
         city: "",
@@ -90,6 +91,59 @@ const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdde
     });
     setContactPersons([]);
   };
+  
+
+  useEffect(() => {
+  if (isEditing && editableVendor) {
+
+    setVendorData({
+      salutation: editableVendor.salutation || "Mr.",
+      firstName: editableVendor.first_name || "",
+      lastName: editableVendor.last_name || "",
+      companyName: editableVendor.company_name || "",
+      displayName: editableVendor.display_name || "",
+      email: editableVendor.primary_email || editableVendor.email || "",
+      country_code: editableVendor.country_code || "+91",
+      phoneNumber: editableVendor.primary_phone_number || editableVendor.phone_number || "",
+      secondaryPhoneNumber: editableVendor.secondary_phone_number || "",
+      gstin: editableVendor.gst_in || "",
+      gst_treatment: editableVendor.gst_treatment || "CGST & SGST",
+      tax_preference: editableVendor.tax_preference || "Taxable",
+      exemption_reason: editableVendor.exemption_reason || "",
+      currencyCode: editableVendor.currency_code
+        ? { label: editableVendor.currency_code, value: editableVendor.currency_code }
+        : "INR",
+      address: {
+        country: editableVendor.address?.country
+          ? { label: editableVendor.address.country, value: editableVendor.address.country }
+          : { label: "India", value: "IN" },
+        addressLine: editableVendor.address?.address_line || "",
+        state: editableVendor.address?.state
+          ? { label: editableVendor.address.state, value: editableVendor.address.state }
+          : null,
+        city: editableVendor.address?.city || "",
+        zipCode: editableVendor.address?.zip_code || "",
+      },
+      payment_terms: editableVendor.payment_terms || null,
+      notes: editableVendor.notes || "",
+      vendorStatus: editableVendor.vendor_status || "Active",
+    });
+
+    setContactPersons(
+      Array.isArray(editableVendor.contact_persons)
+        ? editableVendor.contact_persons.map((person) => ({
+            salutation: person.salutation || "Mr.",
+            designation: person.designation || "",
+            first_name: person.first_name || "",
+            last_name: person.last_name || "",
+            email: person.email || "",
+            phone_number: person.phone_number || "",
+            country_code: person.country_code || "+91",
+          }))
+        : []
+    );
+  }
+}, [isEditing, editableVendor]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -170,7 +224,7 @@ const AddVendorModal = ({ isEditing = false, editableVendor = null, onVendorAdde
           zipCode: vendorData.address.zipCode || ""
         },
         contactPersons: contactPersons.map((person) => ({
-          salutation: person.salutation || "",
+          salutation: person.salutation || "Mr.",
           designation: person.designation || "",
           first_name: person.first_name || "",
           last_name: person.last_name || "",

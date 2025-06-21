@@ -19,7 +19,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !isLoading && !error) {
-      const loggedInUsername = (typeof window !== "undefined" && JSON.parse(localStorage.getItem('subsync_user'))?.username)
+      const loggedInUsername = (typeof window !== "undefined" && JSON.parse(sessionStorage.getItem('subsync_user'))?.username)
         || '';
       
       toast.success("Login successful!", {

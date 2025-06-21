@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu.jsx";
-
+import { ToastContainer } from "react-toastify";
 import api from "@/lib/axiosInstance.js";
 import GenericTable from "@/components/layouts/GenericTable.jsx";
 import Pagination from "@/components/layouts/Pagination.jsx";
@@ -31,11 +31,14 @@ function Vendors() {
   const [loading, setLoading] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [editingVendor, setEditingVendor] = useState(null);
 
   const { data = [], error, loading: fetchLoading, totalPages = 0 } = useFetchData(
     `${import.meta.env.VITE_API_URL}/all-vendors`,
     { search, sort: sortBy, order, currentPage, refreshKey }
   );
+
+  console.log("Vendors: useFetchData - data:", data, "error:", error, "loading:", fetchLoading, "totalPages:", totalPages);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -44,6 +47,11 @@ function Vendors() {
   const handleSearch = (e) => {
     if (e.key === "Enter") setCurrentPage(1);
   };
+
+  const handleEditVendor = (vendor) => {
+  setEditingVendor(vendor);
+  setShowAddModal(true);
+   };
 
   const fetchVendorsAndExport = async () => {
     try {
@@ -74,15 +82,13 @@ function Vendors() {
     }
   };
 
-  const renderActions = (id) => (
-    <div className="flex items-center">
-      <Link to={`${id}`}>
-        <Button variant="ghost" size="icon">
-          <Eye className="w-4 h-4" />
-        </Button>
-      </Link>
-    </div>
-  );
+  const renderActions = (vendor) => (
+  <div className="flex items-center">
+    <Button variant="ghost" size="icon" onClick={() => handleEditVendor(vendor)}>
+      <Eye className="w-4 h-4" />
+    </Button>
+  </div>
+);
 
   const filteredData = data.filter((v) => {
     const term = search.toLowerCase();
@@ -98,17 +104,19 @@ function Vendors() {
 
   const modifiedData = filteredData.map((v) => ({
     ...v,
-    actions: renderActions(v.vendor_id),
+    actions: renderActions(v),
   }));
 
   const handleAddVendor = () => setShowAddModal(true);
   const handleVendorAdded = () => {
     setShowAddModal(false);
-    setRefreshKey(prev => prev + 1); // trigger table refresh
-    toast.success("Vendor added successfully!");
+    setRefreshKey(prev => prev + 1); 
+   
   };
 
   return (
+    <>
+    <ToastContainer/>
     <div className="container p-6 rounded-lg shadow-lg">
       <h1 className="w-full text-3xl font-bold mb-2">Vendors</h1>
       <hr className="mb-4 border-blue-500 border-3 size-auto" />
@@ -128,16 +136,15 @@ function Vendors() {
 
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <AddVendorModal
-            isEditing={false}
-            editableVendor={null}
-            onVendorAdded={handleVendorAdded}
+            isEditing={!!editingVendor}
+            editableVendor={editingVendor}
+            onVendorAdded={() => {
+              setShowAddModal(false);
+              setEditingVendor(null);
+              setRefreshKey(prev => prev + 1);
+            }}
             isOpen={showAddModal}
             setIsOpen={setShowAddModal}
-            trigger={
-              <Button className="w-full sm:w-auto" onClick={() => setShowAddModal(true)}>
-                <UserPlus /> Add
-              </Button>
-            }
           />
           <Button className="w-full sm:w-auto" onClick={fetchVendorsAndExport}>
             <FileUp /> Export
@@ -176,6 +183,7 @@ function Vendors() {
         </Alert>
       )}
     </div>
+    </>
   );
 }
 
